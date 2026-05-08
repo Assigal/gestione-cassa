@@ -1,0 +1,1028 @@
+import React, { useMemo, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import {
+  Banknote,
+  Building2,
+  CheckCircle2,
+  ClipboardList,
+  Edit3,
+  Trash2,
+  Search,
+  Upload,
+  Wallet,
+  AlertTriangle,
+  ArrowRightCircle,
+  Landmark,
+  Users,
+  RotateCcw,
+} from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+
+const GIORNATA_CORRENTE = "2026-05-06";
+
+const modalita = [
+  "Contanti",
+  "Assegno",
+  "Bonifico",
+  "POS",
+  "Finitalia",
+  "App",
+  "Mensilizzazione",
+  "Virtual POS",
+  "Direzione",
+  "Sospeso",
+];
+
+const tipiMovimento = [
+  "Titolo del giorno",
+  "Recupero sospeso",
+  "Versamento subagente",
+  "Varie",
+];
+
+interface AllocazioneRecupero {
+  sospesoId: string;
+  incasso: number;
+  sconto: number;
+}
+
+interface Movimento {
+  id: number;
+  ramo: string;
+  polizza: string;
+  contraente: string;
+  referenteSospesi: string;
+  importo: number;
+  sconto: number;
+  netto: number;
+  modalita: string;
+  tipo: string;
+  sub: string;
+  dataAssegno: string;
+  segno: number;
+  note: string;
+  dataInizioSubagente: string;
+  dataFineSubagente: string;
+  allocazioniRecupero: AllocazioneRecupero[];
+}
+
+interface Sospeso {
+  id: string;
+  referenteSospesi: string;
+  contraente: string;
+  ramo: string;
+  polizza: string;
+  importoOriginario: number;
+  recuperato: number;
+  scontoApplicato: number;
+  residuo: number;
+  stato: string;
+  dataSospeso: string;
+  note: string;
+}
+
+interface ImportRow {
+  id: string;
+  ramo: string;
+  polizza: string;
+  contraente: string;
+  importo: number;
+  modalitaCompagnia: string;
+  stato: string;
+  fileOrigine?: string;
+}
+
+interface FormState {
+  ramo: string;
+  polizza: string;
+  contraente: string;
+  referenteSospesi: string;
+  importo: string;
+  sconto: string;
+  modalita: string;
+  dataAssegno: string;
+  sub: string;
+  tipo: string;
+  note: string;
+  dataInizioSubagente: string;
+  dataFineSubagente: string;
+}
+
+const emptyForm: FormState = {
+  ramo: "",
+  polizza: "",
+  contraente: "",
+  referenteSospesi: "",
+  importo: "",
+  sconto: "0",
+  modalita: "Contanti",
+  dataAssegno: "",
+  sub: "100",
+  tipo: "Titolo del giorno",
+  note: "",
+  dataInizioSubagente: "",
+  dataFineSubagente: "",
+};
+
+const movimentiRegistratiSeed: Movimento[] = [
+  {
+    id: 1,
+    ramo: "001",
+    polizza: "458921",
+    contraente: "Rossi Mario",
+    referenteSospesi: "Rossi Mario",
+    importo: 500,
+    sconto: 50,
+    netto: 450,
+    modalita: "Contanti",
+    tipo: "Titolo del giorno",
+    sub: "100",
+    dataAssegno: "",
+    segno: 1,
+    note: "",
+    dataInizioSubagente: "",
+    dataFineSubagente: "",
+    allocazioniRecupero: [],
+  },
+  {
+    id: 2,
+    ramo: "002",
+    polizza: "458922",
+    contraente: "Bianchi Luca",
+    referenteSospesi: "Bianchi Luca",
+    importo: 300,
+    sconto: 0,
+    netto: 300,
+    modalita: "POS",
+    tipo: "Titolo del giorno",
+    sub: "100",
+    dataAssegno: "",
+    segno: 1,
+    note: "",
+    dataInizioSubagente: "",
+    dataFineSubagente: "",
+    allocazioniRecupero: [],
+  },
+  {
+    id: 3,
+    ramo: "003",
+    polizza: "778100",
+    contraente: "Gialli Sara",
+    referenteSospesi: "Gialli Sara",
+    importo: 200,
+    sconto: 0,
+    netto: 200,
+    modalita: "Contanti",
+    tipo: "Titolo del giorno",
+    sub: "101",
+    dataAssegno: "",
+    segno: 1,
+    note: "",
+    dataInizioSubagente: "",
+    dataFineSubagente: "",
+    allocazioniRecupero: [],
+  },
+  {
+    id: 4,
+    ramo: "001",
+    polizza: "459001",
+    contraente: "Neri Paolo Srl",
+    referenteSospesi: "Neri Paolo",
+    importo: 600,
+    sconto: 0,
+    netto: 600,
+    modalita: "Assegno",
+    tipo: "Titolo del giorno",
+    sub: "100",
+    dataAssegno: "2026-05-10",
+    segno: 1,
+    note: "Assegno postdatato",
+    dataInizioSubagente: "",
+    dataFineSubagente: "",
+    allocazioniRecupero: [],
+  },
+];
+
+const sospesiSeed: Sospeso[] = [
+  {
+    id: "sosp-1",
+    referenteSospesi: "Neri Paolo",
+    contraente: "Neri Paolo Srl",
+    ramo: "001",
+    polizza: "459001",
+    importoOriginario: 600,
+    recuperato: 0,
+    scontoApplicato: 0,
+    residuo: 600,
+    stato: "Aperto",
+    dataSospeso: "2026-05-06",
+    note: "Assegno postdatato",
+  },
+  {
+    id: "sosp-2",
+    referenteSospesi: "Verdi Anna",
+    contraente: "Verdi Anna",
+    ramo: "001",
+    polizza: "459000",
+    importoOriginario: 800,
+    recuperato: 300,
+    scontoApplicato: 50,
+    residuo: 450,
+    stato: "Parziale",
+    dataSospeso: "2026-05-03",
+    note: "Acconto precedente",
+  },
+  {
+    id: "sosp-3",
+    referenteSospesi: "Neri Paolo",
+    contraente: "Neri Paolo",
+    ramo: "003",
+    polizza: "459500",
+    importoOriginario: 250,
+    recuperato: 0,
+    scontoApplicato: 0,
+    residuo: 250,
+    stato: "Aperto",
+    dataSospeso: "2026-05-04",
+    note: "",
+  },
+];
+
+const importCompagniaSeed: ImportRow[] = [
+  {
+    id: "imp-1",
+    ramo: "001",
+    polizza: "459000",
+    contraente: "Verdi Anna",
+    importo: 800,
+    modalitaCompagnia: "Bonifico",
+    stato: "Da lavorare",
+  },
+  {
+    id: "imp-2",
+    ramo: "004",
+    polizza: "459002",
+    contraente: "Esposito Laura",
+    importo: 420,
+    modalitaCompagnia: "POS",
+    stato: "Da lavorare",
+  },
+];
+
+function euro(value: number) {
+  return new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(value || 0);
+}
+
+function numeroPolizzaCompleto(row: { ramo?: string; polizza?: string }) {
+  if (!row.ramo && !row.polizza) return "-";
+  if (!row.ramo) return row.polizza || "-";
+  if (!row.polizza) return row.ramo;
+  return `${row.ramo}/${row.polizza}`;
+}
+
+function descrizioneMovimento(row: Movimento) {
+  if (row.tipo === "Versamento subagente") {
+    return row.dataInizioSubagente && row.dataFineSubagente
+      ? `Periodo ${row.dataInizioSubagente} → ${row.dataFineSubagente}`
+      : "Versamento subagente";
+  }
+  return numeroPolizzaCompleto(row);
+}
+
+function isAssegnoPostdatato(row: { modalita: string; dataAssegno: string }) {
+  return row.modalita === "Assegno" && !!row.dataAssegno && row.dataAssegno > GIORNATA_CORRENTE;
+}
+
+function isVersamentoSubagente(tipo: string) {
+  return tipo === "Versamento subagente";
+}
+
+function deltaLabel(value: number) {
+  const n = Number(value || 0);
+  if (n === 0) return "Quadrato";
+  return n > 0 ? `Eccedenza ${euro(n)}` : `Mancanza ${euro(Math.abs(n))}`;
+}
+
+function Badge({
+  children,
+  variant = "default",
+}: {
+  children: React.ReactNode;
+  variant?: "default" | "ok" | "warn" | "blue" | "neutral" | "purple";
+}) {
+  const styles: Record<string, string> = {
+    default: "bg-slate-100 text-slate-700",
+    ok: "bg-emerald-100 text-emerald-700",
+    warn: "bg-rose-100 text-rose-700",
+    blue: "bg-blue-100 text-blue-700",
+    neutral: "bg-slate-200 text-slate-700",
+    purple: "bg-violet-100 text-violet-700",
+  };
+  return <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${styles[variant]}`}>{children}</span>;
+}
+
+function SidebarMetric({
+  icon: Icon,
+  label,
+  value,
+  note,
+  highlight = false,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+  note?: string;
+  highlight?: boolean;
+}) {
+  return (
+    <div className={`rounded-2xl border p-4 ${highlight ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-white"}`}>
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className={`text-xs font-medium uppercase tracking-wide ${highlight ? "text-slate-300" : "text-slate-500"}`}>{label}</p>
+          <p className={`mt-1 font-semibold tracking-tight ${highlight ? "text-2xl" : "text-xl"}`}>{value}</p>
+          {note && <p className={`mt-1 text-xs ${highlight ? "text-slate-300" : "text-slate-500"}`}>{note}</p>}
+        </div>
+        <div className={`rounded-2xl p-2 ${highlight ? "bg-white/10" : "bg-slate-100"}`}>
+          <Icon className={`h-4 w-4 ${highlight ? "text-white" : "text-slate-700"}`} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function GestioneCassa() {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [movimenti, setMovimenti] = useState<Movimento[]>(movimentiRegistratiSeed);
+  const [sospesi, setSospesi] = useState<Sospeso[]>(sospesiSeed);
+  const [importCompagnia, setImportCompagnia] = useState<ImportRow[]>(importCompagniaSeed);
+  const [selectedImport, setSelectedImport] = useState<string | null>(null);
+  const [editingMovement, setEditingMovement] = useState<number | null>(null);
+  const [selectedSospesoIds, setSelectedSospesoIds] = useState<string[]>([]);
+  const [versamento, setVersamento] = useState("700");
+  const [quadMezza, setQuadMezza] = useState({ cassaReale: "" });
+  const [quadSera, setQuadSera] = useState({ cassaReale: "" });
+  const [searchSospesi, setSearchSospesi] = useState("");
+  const [form, setForm] = useState<FormState>(emptyForm);
+
+  const avanzoPrecedente = 1000;
+
+  const totals = useMemo(() => {
+    const totaleCompagnia = movimenti
+      .filter((m) => m.tipo === "Titolo del giorno" && m.sub === "100")
+      .reduce((sum, m) => sum + m.importo, 0);
+
+    const incassiFisici = movimenti
+      .filter((m) => {
+        if (m.modalita === "Contanti") return true;
+        if (m.modalita === "Assegno" && !isAssegnoPostdatato(m)) return true;
+        return false;
+      })
+      .reduce((sum, m) => sum + m.netto * (m.segno || 1), 0);
+
+    const totaleSospesi = sospesi.reduce((sum, s) => sum + s.residuo, 0);
+    const totaleRecuperi = sospesi.reduce((sum, s) => sum + s.recuperato, 0);
+    const vers = Number(versamento || 0);
+    const cassa = avanzoPrecedente + incassiFisici - vers;
+
+    return {
+      totaleCompagnia,
+      cassa,
+      incassiFisici,
+      totaleSospesi,
+      totaleRecuperi,
+      versamento: vers,
+      daLavorare: importCompagnia.length,
+      squadraturaMezza: Number(quadMezza.cassaReale || 0) - cassa,
+      squadraturaSera: Number(quadSera.cassaReale || 0) - cassa,
+    };
+  }, [movimenti, sospesi, importCompagnia, versamento, quadMezza, quadSera]);
+
+  const sospesiFiltrati = useMemo(() => {
+    const q = searchSospesi.toLowerCase().trim();
+    const aperti = sospesi.filter((s) => s.stato !== "Chiuso" && s.residuo > 0);
+    if (!q) return aperti;
+    return aperti.filter((s) =>
+      [s.referenteSospesi, s.contraente, s.polizza, s.ramo].join(" ").toLowerCase().includes(q)
+    );
+  }, [sospesi, searchSospesi]);
+
+  function resetForm() {
+    setForm(emptyForm);
+  }
+
+  function handleTipoMovimentoChange(tipo: string) {
+    if (isVersamentoSubagente(tipo)) {
+      setForm({
+        ...form,
+        tipo,
+        ramo: "",
+        polizza: "",
+        contraente: "",
+        referenteSospesi: "",
+        sconto: "0",
+      });
+      return;
+    }
+    setForm({ ...form, tipo });
+  }
+
+  function selectImported(row: ImportRow) {
+    setSelectedImport(row.id);
+    setEditingMovement(null);
+    setSelectedSospesoIds([]);
+    setForm({
+      ...emptyForm,
+      ramo: row.ramo,
+      polizza: row.polizza,
+      contraente: row.contraente,
+      referenteSospesi: row.contraente,
+      importo: String(row.importo),
+      modalita: row.modalitaCompagnia,
+      sub: "100",
+      tipo: "Titolo del giorno",
+    });
+  }
+
+  function deleteMovement(id: number) {
+    const movimento = movimenti.find((row) => row.id === id);
+
+    if (movimento?.tipo === "Recupero sospeso" && movimento.allocazioniRecupero?.length) {
+      setSospesi((rows) => rows.map((s) => {
+        const allocazione = movimento.allocazioniRecupero.find((a) => a.sospesoId === s.id);
+        if (!allocazione) return s;
+        const nuovoRecuperato = Math.max(0, s.recuperato - allocazione.incasso);
+        const nuovoSconto = Math.max(0, s.scontoApplicato - allocazione.sconto);
+        const nuovoResiduo = s.importoOriginario - nuovoRecuperato - nuovoSconto;
+        return {
+          ...s,
+          recuperato: nuovoRecuperato,
+          scontoApplicato: nuovoSconto,
+          residuo: nuovoResiduo,
+          stato: nuovoResiduo === s.importoOriginario ? "Aperto" : "Parziale",
+          note: s.note || "Recupero annullato",
+        };
+      }));
+    }
+
+    setMovimenti((rows) => rows.filter((row) => row.id !== id));
+  }
+
+  function deleteImportedMovement(id: string) {
+    if (selectedImport === id) {
+      setSelectedImport(null);
+      resetForm();
+    }
+    setImportCompagnia((rows) => rows.filter((row) => row.id !== id));
+  }
+
+  function editMovement(row: Movimento) {
+    setEditingMovement(row.id);
+    setSelectedImport(null);
+    setSelectedSospesoIds([]);
+    setForm({
+      ...emptyForm,
+      ramo: row.ramo,
+      polizza: row.polizza,
+      contraente: row.contraente,
+      referenteSospesi: row.referenteSospesi || row.contraente,
+      importo: String(row.importo),
+      sconto: String(row.sconto || 0),
+      modalita: row.modalita,
+      dataAssegno: row.dataAssegno || "",
+      sub: row.sub,
+      tipo: row.tipo,
+      note: row.note || "",
+      dataInizioSubagente: row.dataInizioSubagente || "",
+      dataFineSubagente: row.dataFineSubagente || "",
+    });
+  }
+
+  function toggleSospeso(id: string) {
+    setSelectedSospesoIds((ids) => ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]);
+  }
+
+  function prepareRecuperoSospesi() {
+    const selected = sospesi.filter((s) => selectedSospesoIds.includes(s.id));
+    if (!selected.length) return;
+    const referente = selected[0].referenteSospesi;
+    const importo = selected.reduce((sum, s) => sum + s.residuo, 0);
+    setSelectedImport(null);
+    setEditingMovement(null);
+    setForm({
+      ...emptyForm,
+      ramo: selected.length === 1 ? selected[0].ramo : "",
+      polizza: selected.length === 1 ? selected[0].polizza : "Recupero multiplo",
+      contraente: selected.length === 1 ? selected[0].contraente : referente,
+      referenteSospesi: referente,
+      importo: String(importo),
+      modalita: "Contanti",
+      sub: "100",
+      tipo: "Recupero sospeso",
+      note: "Recupero sospeso selezionato",
+    });
+  }
+
+  function applyRecuperoToSospesi(importoIncassato: number, scontoApplicato: number, note: string) {
+    let incassoDaRipartire = importoIncassato;
+    let scontoDaRipartire = scontoApplicato;
+    const allocazioni: AllocazioneRecupero[] = [];
+
+    const updatedSospesi = sospesi.map((s) => {
+      if (!selectedSospesoIds.includes(s.id)) return s;
+
+      const quotaIncasso = Math.min(s.residuo, incassoDaRipartire);
+      incassoDaRipartire -= quotaIncasso;
+
+      const residuoDopoIncasso = s.residuo - quotaIncasso;
+      const quotaSconto = Math.min(residuoDopoIncasso, scontoDaRipartire);
+      scontoDaRipartire -= quotaSconto;
+
+      const totaleChiusura = quotaIncasso + quotaSconto;
+      const nuovoRecuperato = s.recuperato + quotaIncasso;
+      const nuovoSconto = s.scontoApplicato + quotaSconto;
+      const nuovoResiduo = Math.max(0, s.importoOriginario - nuovoRecuperato - nuovoSconto);
+
+      if (totaleChiusura > 0) {
+        allocazioni.push({ sospesoId: s.id, incasso: quotaIncasso, sconto: quotaSconto });
+      }
+
+      return {
+        ...s,
+        recuperato: nuovoRecuperato,
+        scontoApplicato: nuovoSconto,
+        residuo: nuovoResiduo,
+        stato: nuovoResiduo === 0 ? "Chiuso" : "Parziale",
+        note: note || s.note,
+      };
+    });
+
+    return { updatedSospesi, allocazioni };
+  }
+
+  function saveForm() {
+    const importo = Number(form.importo || 0);
+    const sconto = isVersamentoSubagente(form.tipo) ? 0 : Number(form.sconto || 0);
+    const netto = importo - sconto;
+
+    const payload = {
+      ramo: isVersamentoSubagente(form.tipo) ? "" : form.ramo,
+      polizza: isVersamentoSubagente(form.tipo) ? "" : form.polizza,
+      contraente: isVersamentoSubagente(form.tipo) ? "" : form.contraente,
+      referenteSospesi: isVersamentoSubagente(form.tipo) ? "" : (form.referenteSospesi || form.contraente),
+      importo,
+      sconto,
+      netto,
+      modalita: form.modalita,
+      dataAssegno: form.dataAssegno,
+      tipo: form.tipo,
+      sub: form.sub,
+      segno: 1,
+      note: form.note || "",
+      dataInizioSubagente: form.dataInizioSubagente || "",
+      dataFineSubagente: form.dataFineSubagente || "",
+      allocazioniRecupero: [] as AllocazioneRecupero[],
+    };
+
+    if (editingMovement) {
+      setMovimenti((rows) => rows.map((row) => (row.id === editingMovement ? { ...row, ...payload } : row)));
+      setEditingMovement(null);
+      resetForm();
+      return;
+    }
+
+    let movimentoDaSalvare: Movimento = { id: Date.now(), ...payload };
+
+    if (!isVersamentoSubagente(payload.tipo) && (payload.modalita === "Sospeso" || (payload.modalita === "Assegno" && payload.dataAssegno > GIORNATA_CORRENTE))) {
+      setSospesi((rows) => [{
+        id: `sosp-${Date.now()}`,
+        referenteSospesi: payload.referenteSospesi,
+        contraente: payload.contraente,
+        ramo: payload.ramo,
+        polizza: payload.polizza,
+        importoOriginario: payload.importo,
+        recuperato: 0,
+        scontoApplicato: 0,
+        residuo: payload.importo,
+        stato: "Aperto",
+        dataSospeso: GIORNATA_CORRENTE,
+        note: payload.note,
+      }, ...rows]);
+    }
+
+    if (payload.tipo === "Recupero sospeso" && selectedSospesoIds.length) {
+      const { updatedSospesi, allocazioni } = applyRecuperoToSospesi(importo, sconto, payload.note);
+      setSospesi(updatedSospesi);
+      movimentoDaSalvare = { ...movimentoDaSalvare, allocazioniRecupero: allocazioni };
+      setSelectedSospesoIds([]);
+    }
+
+    setMovimenti((rows) => [movimentoDaSalvare, ...rows]);
+
+    if (selectedImport) {
+      setImportCompagnia((rows) => rows.filter((row) => row.id !== selectedImport));
+      setSelectedImport(null);
+    }
+
+    resetForm();
+  }
+
+  function openImportFileDialog() {
+    fileInputRef.current?.click();
+  }
+
+  function handleImportFile(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    const newRows: ImportRow[] = [
+      { id: `imp-${Date.now()}-1`, ramo: "001", polizza: "460010", contraente: "Ferrari Carlo", importo: 390, modalitaCompagnia: "POS", stato: "Da lavorare", fileOrigine: file.name },
+      { id: `imp-${Date.now()}-2`, ramo: "003", polizza: "460011", contraente: "Neri Paolo Srl", importo: 720, modalitaCompagnia: "Bonifico", stato: "Da lavorare", fileOrigine: file.name },
+    ];
+    setImportCompagnia((rows) => [...newRows, ...rows]);
+    event.target.value = "";
+  }
+
+  const selectedImportRow = importCompagnia.find((row) => row.id === selectedImport);
+
+  return (
+    <div className="min-h-screen bg-slate-50 p-6 text-slate-900">
+      <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-6 xl:grid-cols-[320px_1fr]">
+        <aside className="space-y-4 xl:sticky xl:top-6 xl:h-[calc(100vh-48px)] xl:overflow-auto">
+          <Card className="rounded-3xl bg-white shadow-sm">
+            <CardContent className="space-y-4 p-5">
+              <div className="flex items-center gap-3 border-b pb-4">
+                <div className="rounded-2xl bg-slate-900 p-3">
+                  <Wallet className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-semibold tracking-tight">Gestione cassa</h1>
+                  <p className="text-xs text-slate-500">06/05/2026 · Alessandro</p>
+                </div>
+              </div>
+
+              <SidebarMetric icon={Landmark} label="Avanzo precedente" value={euro(avanzoPrecedente)} />
+              <SidebarMetric icon={Banknote} label="Incassi fisici" value={euro(totals.incassiFisici)} note="Contanti e assegni validi" />
+              <SidebarMetric icon={Building2} label="Versamento" value={euro(totals.versamento)} />
+              <div className="rounded-2xl border bg-white p-4">
+                <label className="space-y-1 block">
+                  <span className="text-xs font-medium text-slate-500">
+                    Importo versamento del giorno
+                  </span>
+                  <input
+                    type="number"
+                    className="mt-2 w-full rounded-2xl border px-3 py-2 text-sm"
+                    value={versamento}
+                    onChange={(e) => setVersamento(e.target.value)}
+                  />
+                </label>
+                <p className="mt-2 text-xs text-slate-500">
+                  Il versamento decrementa la cassa.
+                </p>
+              </div>
+              <SidebarMetric icon={Wallet} label="Cassa" value={euro(totals.cassa)} note="Valore teorico" highlight />
+              <SidebarMetric icon={AlertTriangle} label="Totale sospesi" value={euro(totals.totaleSospesi)} />
+              <SidebarMetric icon={RotateCcw} label="Recuperi sospesi" value={euro(totals.totaleRecuperi)} />
+              <SidebarMetric icon={Building2} label="Totale Compagnia" value={euro(totals.totaleCompagnia)} note="Titoli giorno sub 100" />
+
+              <div className="space-y-3 border-t pt-4">
+                <div className="rounded-2xl border bg-white p-3">
+                  <p className="text-sm font-semibold">Quadratura mezza giornata</p>
+                  <input type="number" className="mt-2 w-full rounded-2xl border px-3 py-2 text-sm" placeholder="Cassa reale" value={quadMezza.cassaReale} onChange={(e) => setQuadMezza({ cassaReale: e.target.value })} />
+                  <div className={`mt-2 rounded-xl p-2 text-xs font-semibold ${totals.squadraturaMezza === 0 ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}`}>
+                    {deltaLabel(totals.squadraturaMezza)}
+                  </div>
+                </div>
+
+                <div className="rounded-2xl border bg-white p-3">
+                  <p className="text-sm font-semibold">Quadratura fine giornata</p>
+                  <input type="number" className="mt-2 w-full rounded-2xl border px-3 py-2 text-sm" placeholder="Cassa reale" value={quadSera.cassaReale} onChange={(e) => setQuadSera({ cassaReale: e.target.value })} />
+                  <div className={`mt-2 rounded-xl p-2 text-xs font-semibold ${totals.squadraturaSera === 0 ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}`}>
+                    {deltaLabel(totals.squadraturaSera)}
+                  </div>
+                </div>
+              </div>
+
+              <Button className="w-full rounded-2xl">
+                <CheckCircle2 className="mr-2 h-4 w-4" /> Chiudi giornata
+              </Button>
+            </CardContent>
+          </Card>
+        </aside>
+
+        <main className="space-y-6">
+          <Card className="rounded-3xl shadow-sm">
+            <CardContent className="space-y-5 p-6">
+              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-2xl bg-slate-100 p-3">
+                    <ClipboardList className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold">
+                      {editingMovement ? "Modifica movimento" : selectedImportRow ? "Lavora movimento importato" : "Nuovo movimento"}
+                    </h2>
+                    <p className="text-sm text-slate-500">Input operativo della giornata</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleImportFile} />
+                  <Button variant="outline" className="rounded-2xl" onClick={openImportFileDialog}>
+                    <Upload className="mr-2 h-4 w-4" /> Importa Compagnia
+                  </Button>
+                </div>
+              </div>
+
+              {selectedImportRow && (
+                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm">
+                  <p className="font-medium text-amber-900">Origine Compagnia</p>
+                  <p className="text-amber-800">Modalità indicata: {selectedImportRow.modalitaCompagnia}</p>
+                  <p className="text-amber-800">La modalità effettiva può essere diversa.</p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
+                <label className="space-y-1">
+                  <span className="text-xs font-medium text-slate-500">Tipo movimento</span>
+                  <select className="w-full rounded-2xl border px-3 py-2" value={form.tipo} onChange={(e) => handleTipoMovimentoChange(e.target.value)}>
+                    {tipiMovimento.map((m) => <option key={m}>{m}</option>)}
+                  </select>
+                </label>
+
+                {!isVersamentoSubagente(form.tipo) && (
+                  <label className="space-y-1">
+                    <span className="text-xs font-medium text-slate-500">Ramo</span>
+                    <input maxLength={3} className="w-full rounded-2xl border px-3 py-2" placeholder="001" value={form.ramo} onChange={(e) => setForm({ ...form, ramo: e.target.value.replace(/[^0-9]/g, "").slice(0, 3) })} />
+                  </label>
+                )}
+
+                <label className="space-y-1">
+                  <span className="text-xs font-medium text-slate-500">Subagenzia</span>
+                  <input maxLength={3} className="w-full rounded-2xl border px-3 py-2" value={form.sub} onChange={(e) => setForm({ ...form, sub: e.target.value.replace(/[^0-9]/g, "").slice(0, 3) })} />
+                </label>
+
+                {!isVersamentoSubagente(form.tipo) && (
+                  <label className="space-y-1">
+                    <span className="text-xs font-medium text-slate-500">Numero polizza</span>
+                    <input className="w-full rounded-2xl border px-3 py-2" value={form.polizza} onChange={(e) => setForm({ ...form, polizza: e.target.value })} />
+                  </label>
+                )}
+
+                {form.tipo === "Versamento subagente" && (
+                  <>
+                    <label className="space-y-1">
+                      <span className="text-xs font-medium text-slate-500">Da data</span>
+                      <input type="date" className="w-full rounded-2xl border px-3 py-2" value={form.dataInizioSubagente} onChange={(e) => setForm({ ...form, dataInizioSubagente: e.target.value })} />
+                    </label>
+                    <label className="space-y-1">
+                      <span className="text-xs font-medium text-slate-500">A data</span>
+                      <input type="date" className="w-full rounded-2xl border px-3 py-2" value={form.dataFineSubagente} onChange={(e) => setForm({ ...form, dataFineSubagente: e.target.value })} />
+                    </label>
+                  </>
+                )}
+
+                {!isVersamentoSubagente(form.tipo) && (
+                  <>
+                    <label className="space-y-1">
+                      <span className="text-xs font-medium text-slate-500">Contraente</span>
+                      <input className="w-full rounded-2xl border px-3 py-2" value={form.contraente} onChange={(e) => setForm({ ...form, contraente: e.target.value })} />
+                    </label>
+
+                    <label className="space-y-1">
+                      <span className="text-xs font-medium text-slate-500">Referente sospesi</span>
+                      <input className="w-full rounded-2xl border px-3 py-2" value={form.referenteSospesi} onChange={(e) => setForm({ ...form, referenteSospesi: e.target.value })} />
+                    </label>
+                  </>
+                )}
+
+                <label className="space-y-1">
+                  <span className="text-xs font-medium text-slate-500">{isVersamentoSubagente(form.tipo) ? "Importo versato" : "Importo titolo"}</span>
+                  <input type="number" className="w-full rounded-2xl border px-3 py-2" value={form.importo} onChange={(e) => setForm({ ...form, importo: e.target.value })} />
+                </label>
+
+                {!isVersamentoSubagente(form.tipo) && (
+                  <label className="space-y-1">
+                    <span className="text-xs font-medium text-slate-500">Sconto</span>
+                    <input type="number" className="w-full rounded-2xl border px-3 py-2" value={form.sconto} onChange={(e) => setForm({ ...form, sconto: e.target.value })} />
+                  </label>
+                )}
+
+                <label className="space-y-1">
+                  <span className="text-xs font-medium text-slate-500">Modalità effettiva</span>
+                  <select className="w-full rounded-2xl border px-3 py-2" value={form.modalita} onChange={(e) => setForm({ ...form, modalita: e.target.value })}>
+                    {modalita.map((m) => <option key={m}>{m}</option>)}
+                  </select>
+                </label>
+
+                {form.modalita === "Assegno" && (
+                  <label className="space-y-1">
+                    <span className="text-xs font-medium text-slate-500">Data assegno</span>
+                    <input type="date" className="w-full rounded-2xl border px-3 py-2" value={form.dataAssegno} onChange={(e) => setForm({ ...form, dataAssegno: e.target.value })} />
+                  </label>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_260px]">
+                <label className="space-y-1">
+                  <span className="text-xs font-medium text-slate-500">Note</span>
+                  <textarea className="min-h-[72px] w-full rounded-2xl border px-3 py-2" placeholder="Annotazioni su sospesi, recuperi o squadrature" value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} />
+                </label>
+
+                <div className="rounded-2xl bg-slate-100 p-4 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Netto cassa</span>
+                    <span className="font-semibold">{euro(Number(form.importo || 0) - (isVersamentoSubagente(form.tipo) ? 0 : Number(form.sconto || 0)))}</span>
+                  </div>
+                  {form.tipo === "Recupero sospeso" && selectedSospesoIds.length > 0 && (
+                    <p className="mt-2 rounded-xl bg-white p-2 text-xs text-slate-600">
+                      Riduzione residuo prevista: {euro(Number(form.importo || 0) + Number(form.sconto || 0))}
+                    </p>
+                  )}
+                  <Button className="mt-3 w-full rounded-2xl" onClick={saveForm}>
+                    {editingMovement ? "Salva modifiche" : selectedImportRow ? "Conferma movimento" : "Inserisci movimento"}
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-3xl shadow-sm">
+            <CardContent className="p-0">
+              <div className="flex items-center justify-between border-b p-5">
+                <div>
+                  <h2 className="text-lg font-semibold">Movimenti registrati nella giornata</h2>
+                  <p className="text-sm text-slate-500">Movimenti validati e lavorati dall'operatore</p>
+                </div>
+                <div className="relative w-64">
+                  <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                  <input className="w-full rounded-2xl border px-9 py-2 text-sm" placeholder="Cerca polizza o contraente" />
+                </div>
+              </div>
+
+              <div className="max-h-[420px] overflow-auto">
+                <table className="w-full text-sm">
+                  <thead className="sticky top-0 z-10 bg-slate-100 text-left text-xs uppercase tracking-wide text-slate-500">
+                    <tr>
+                      <th className="px-5 py-3">Polizza / Periodo</th>
+                      <th className="px-5 py-3">Sub</th>
+                      <th className="px-5 py-3">Contraente</th>
+                      <th className="px-5 py-3">Referente</th>
+                      <th className="px-5 py-3">Tipo</th>
+                      <th className="px-5 py-3">Modalità</th>
+                      <th className="px-5 py-3 text-right">Lordo</th>
+                      <th className="px-5 py-3 text-right">Netto</th>
+                      <th className="px-5 py-3">Note</th>
+                      <th className="px-5 py-3"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {movimenti.map((m) => {
+                      const postdatato = isAssegnoPostdatato(m);
+                      const warnPayment = m.modalita === "Sospeso" || postdatato;
+                      return (
+                        <tr key={m.id} className="border-t bg-white hover:bg-slate-50">
+                          <td className="px-5 py-4"><div className="font-medium">{descrizioneMovimento(m)}</div></td>
+                          <td className="px-5 py-4">{m.sub}</td>
+                          <td className="px-5 py-4">{m.contraente || "-"}</td>
+                          <td className="px-5 py-4">{m.referenteSospesi ? <Badge variant="purple">{m.referenteSospesi}</Badge> : "-"}</td>
+                          <td className="px-5 py-4"><Badge variant="neutral">{m.tipo}</Badge></td>
+                          <td className="px-5 py-4">
+                            <div className="flex flex-col items-start gap-1">
+                              <Badge variant={warnPayment ? "warn" : m.modalita === "POS" ? "blue" : "ok"}>{m.modalita}</Badge>
+                              {postdatato && <span className="text-xs font-medium text-rose-700">Data assegno: {m.dataAssegno}</span>}
+                            </div>
+                          </td>
+                          <td className="px-5 py-4 text-right">{euro(m.importo)}</td>
+                          <td className="px-5 py-4 text-right font-medium">{euro(m.netto)}</td>
+                          <td className="px-5 py-4 text-xs text-slate-500">{m.note || "-"}</td>
+                          <td className="px-5 py-4 text-right">
+                            <div className="flex justify-end gap-1">
+                              <Button variant="ghost" size="sm" className="rounded-xl" onClick={() => editMovement(m)}>
+                                <Edit3 className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="sm" className="rounded-xl text-rose-600 hover:text-rose-700" onClick={() => deleteMovement(m.id)}>
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-3xl border-amber-200 bg-amber-50/40 shadow-sm">
+            <CardContent className="p-0">
+              <div className="flex items-center justify-between border-b border-amber-200 p-5">
+                <div>
+                  <h2 className="text-lg font-semibold">Movimenti importati da Excel Compagnia</h2>
+                  <p className="text-sm text-slate-600">Non alimentano cassa o totale Compagnia finché non vengono lavorati</p>
+                </div>
+                <Button variant="outline" className="rounded-2xl" onClick={openImportFileDialog}>
+                  <Upload className="mr-2 h-4 w-4" /> Avvia import
+                </Button>
+              </div>
+
+              <div className="max-h-[360px] overflow-auto">
+                <table className="w-full text-sm">
+                  <thead className="sticky top-0 z-10 bg-amber-100 text-left text-xs uppercase tracking-wide text-amber-900">
+                    <tr>
+                      <th className="px-5 py-3">Polizza</th>
+                      <th className="px-5 py-3">Contraente</th>
+                      <th className="px-5 py-3">Modalità Compagnia</th>
+                      <th className="px-5 py-3">File</th>
+                      <th className="px-5 py-3 text-right">Importo</th>
+                      <th className="px-5 py-3"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {importCompagnia.map((row) => (
+                      <tr key={row.id} className={`border-t border-amber-100 bg-white/70 hover:bg-white ${selectedImport === row.id ? "ring-2 ring-amber-300" : ""}`}>
+                        <td className="px-5 py-4"><div className="font-medium">{numeroPolizzaCompleto(row)}</div></td>
+                        <td className="px-5 py-4">{row.contraente}</td>
+                        <td className="px-5 py-4"><Badge>{row.modalitaCompagnia}</Badge></td>
+                        <td className="px-5 py-4 text-xs text-slate-500">{row.fileOrigine || "demo"}</td>
+                        <td className="px-5 py-4 text-right font-medium">{euro(row.importo)}</td>
+                        <td className="px-5 py-4 text-right">
+                          <div className="flex justify-end gap-1">
+                            <Button size="sm" className="rounded-xl" onClick={() => selectImported(row)}>
+                              Lavora <ArrowRightCircle className="ml-2 h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm" className="rounded-xl text-rose-600 hover:text-rose-700" onClick={() => deleteImportedMovement(row.id)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-3xl border-violet-200 bg-violet-50/40 shadow-sm">
+            <CardContent className="p-0">
+              <div className="flex items-center justify-between border-b border-violet-200 p-5">
+                <div>
+                  <h2 className="text-lg font-semibold">Recupero sospesi</h2>
+                  <p className="text-sm text-slate-600">Cerca per referente, contraente o polizza. Puoi selezionare più sospesi dello stesso referente.</p>
+                </div>
+                <Button className="rounded-2xl" onClick={prepareRecuperoSospesi}>
+                  <RotateCcw className="mr-2 h-4 w-4" /> Recupera selezionati
+                </Button>
+              </div>
+
+              <div className="border-b border-violet-100 p-5">
+                <div className="relative">
+                  <Users className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+                  <input className="w-full rounded-2xl border px-9 py-2 text-sm" placeholder="Cerca referente sospesi, contraente o polizza" value={searchSospesi} onChange={(e) => setSearchSospesi(e.target.value)} />
+                </div>
+              </div>
+
+              <div className="max-h-[420px] overflow-auto">
+                <table className="w-full text-sm">
+                  <thead className="sticky top-0 z-10 bg-violet-100 text-left text-xs uppercase tracking-wide text-violet-900">
+                    <tr>
+                      <th className="px-5 py-3"></th>
+                      <th className="px-5 py-3">Data</th>
+                      <th className="px-5 py-3">Referente</th>
+                      <th className="px-5 py-3">Contraente / Polizza</th>
+                      <th className="px-5 py-3 text-right">Originario</th>
+                      <th className="px-5 py-3 text-right">Recuperato</th>
+                      <th className="px-5 py-3 text-right">Sconto</th>
+                      <th className="px-5 py-3 text-right">Residuo</th>
+                      <th className="px-5 py-3">Stato</th>
+                      <th className="px-5 py-3">Note</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sospesiFiltrati.map((s) => (
+                      <tr key={s.id} className={`border-t border-violet-100 bg-white/70 hover:bg-white ${selectedSospesoIds.includes(s.id) ? "ring-2 ring-violet-300" : ""}`}>
+                        <td className="px-5 py-4"><input type="checkbox" checked={selectedSospesoIds.includes(s.id)} onChange={() => toggleSospeso(s.id)} /></td>
+                        <td className="px-5 py-4 font-medium">{s.dataSospeso || "-"}</td>
+                        <td className="px-5 py-4"><Badge variant="purple">{s.referenteSospesi}</Badge></td>
+                        <td className="px-5 py-4">
+                          <div className="font-medium">{s.contraente}</div>
+                          <div className="text-xs text-slate-500">{numeroPolizzaCompleto(s)}</div>
+                        </td>
+                        <td className="px-5 py-4 text-right">{euro(s.importoOriginario)}</td>
+                        <td className="px-5 py-4 text-right">{euro(s.recuperato)}</td>
+                        <td className="px-5 py-4 text-right">{euro(s.scontoApplicato)}</td>
+                        <td className="px-5 py-4 text-right font-semibold">{euro(s.residuo)}</td>
+                        <td className="px-5 py-4"><Badge variant={s.stato === "Chiuso" ? "ok" : "warn"}>{s.stato}</Badge></td>
+                        <td className="px-5 py-4 text-xs text-slate-500">{s.note || "-"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    </div>
+  );
+}
