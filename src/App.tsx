@@ -299,7 +299,12 @@ function isVersamentoSubagente(tipo: string) {
 }
 
 function deltaLabel(value: number) {
-  function normalizzaIntestazione(value: string) {
+ const n = Number(value || 0);
+  if (n === 0) return "Quadrato";
+  return n > 0 ? `Eccedenza ${euro(n)}` : `Mancanza ${euro(Math.abs(n))}`;
+}
+
+function normalizzaIntestazione(value: string) {
   return value.trim().toLowerCase().replace(/\./g, "").replace(/\s+/g, " ");
 }
 
@@ -367,7 +372,7 @@ function importaCsvCompagnia(csvText: string, fileName: string): ImportRow[] {
   const idxTotale = findColumn(["Totale"]);
   const idxTipoPag = findColumn(["Tipo Pag.", "Tipo Pag", "Tipo pagamento"]);
 
-  const missing = [];
+  const missing: string[] = [];
   if (idxRamo < 0) missing.push("Ramo");
   if (idxPolizza < 0) missing.push("Polizza");
   if (idxContraente < 0) missing.push("Contraente");
@@ -412,11 +417,6 @@ function importaCsvCompagnia(csvText: string, fileName: string): ImportRow[] {
 
   return Array.from(grouped.values());
 }
-  const n = Number(value || 0);
-  if (n === 0) return "Quadrato";
-  return n > 0 ? `Eccedenza ${euro(n)}` : `Mancanza ${euro(Math.abs(n))}`;
-}
-
 function Badge({
   children,
   variant = "default",
