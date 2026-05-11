@@ -475,6 +475,19 @@ export default function GestioneCassa() {
   const [versamento, setVersamento] = useState("700");
   const [quadMezza, setQuadMezza] = useState({ cassaReale: "" });
   const [quadSera, setQuadSera] = useState({ cassaReale: "" });
+  const [quadMezzaBloccata, setQuadMezzaBloccata] = useState<{
+  cassaTeorica: number;
+  cassaReale: number;
+  squadratura: number;
+  dataOra: string;
+} | null>(null);
+
+const [quadSeraBloccata, setQuadSeraBloccata] = useState<{
+  cassaTeorica: number;
+  cassaReale: number;
+  squadratura: number;
+  dataOra: string;
+} | null>(null);
   const [searchSospesi, setSearchSospesi] = useState("");
   const [form, setForm] = useState<FormState>(emptyForm);
 
@@ -740,6 +753,28 @@ export default function GestioneCassa() {
     resetForm();
   }
 
+  function bloccaQuadraturaMezza() {
+  const cassaReale = Number(quadMezza.cassaReale || 0);
+
+  setQuadMezzaBloccata({
+    cassaTeorica: totals.cassa,
+    cassaReale,
+    squadratura: cassaReale - totals.cassa,
+    dataOra: new Date().toLocaleString("it-IT"),
+  });
+}
+
+function bloccaQuadraturaSera() {
+  const cassaReale = Number(quadSera.cassaReale || 0);
+
+  setQuadSeraBloccata({
+    cassaTeorica: totals.cassa,
+    cassaReale,
+    squadratura: cassaReale - totals.cassa,
+    dataOra: new Date().toLocaleString("it-IT"),
+  });
+}
+  
   function openImportFileDialog() {
     fileInputRef.current?.click();
   }
@@ -885,23 +920,119 @@ alert(
               <SidebarMetric icon={RotateCcw} label="Recuperi sospesi" value={euro(totals.totaleRecuperi)} />
               <SidebarMetric icon={Building2} label="Totale Compagnia" value={euro(totals.totaleCompagnia)} note="Titoli giorno sub 100" />
 
-              <div className="space-y-3 border-t pt-4">
-                <div className="rounded-2xl border bg-white p-3">
-                  <p className="text-sm font-semibold">Quadratura mezza giornata</p>
-                  <input type="number" className="mt-2 w-full rounded-2xl border px-3 py-2 text-sm" placeholder="Cassa reale" value={quadMezza.cassaReale} onChange={(e) => setQuadMezza({ cassaReale: e.target.value })} />
-                  <div className={`mt-2 rounded-xl p-2 text-xs font-semibold ${totals.squadraturaMezza === 0 ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}`}>
-                    {deltaLabel(totals.squadraturaMezza)}
-                  </div>
-                </div>
+             <div className="space-y-2 border-t pt-3">
+  <div className="rounded-2xl border bg-white p-2">
+    <p className="text-sm font-semibold">Quadratura mezza giornata</p>
 
-                <div className="rounded-2xl border bg-white p-3">
-                  <p className="text-sm font-semibold">Quadratura fine giornata</p>
-                  <input type="number" className="mt-2 w-full rounded-2xl border px-3 py-2 text-sm" placeholder="Cassa reale" value={quadSera.cassaReale} onChange={(e) => setQuadSera({ cassaReale: e.target.value })} />
-                  <div className={`mt-2 rounded-xl p-2 text-xs font-semibold ${totals.squadraturaSera === 0 ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"}`}>
-                    {deltaLabel(totals.squadraturaSera)}
-                  </div>
-                </div>
-              </div>
+    {!quadMezzaBloccata ? (
+      <>
+        <input
+          type="number"
+          className="mt-2 w-full rounded-2xl border px-3 py-2 text-sm"
+          placeholder="Cassa reale"
+          value={quadMezza.cassaReale}
+          onChange={(e) => setQuadMezza({ cassaReale: e.target.value })}
+        />
+
+        <div
+          className={`mt-2 rounded-xl p-2 text-xs font-semibold ${
+            totals.squadraturaMezza === 0
+              ? "bg-emerald-100 text-emerald-700"
+              : "bg-rose-100 text-rose-700"
+          }`}
+        >
+          {deltaLabel(totals.squadraturaMezza)}
+        </div>
+
+        <Button
+          className="mt-2 w-full rounded-2xl"
+          onClick={bloccaQuadraturaMezza}
+        >
+          Blocca mezza giornata
+        </Button>
+      </>
+    ) : (
+      <div className="mt-2 space-y-1 text-xs">
+        <div className="flex justify-between">
+          <span className="text-slate-500">Cassa teorica</span>
+          <span className="font-semibold">{euro(quadMezzaBloccata.cassaTeorica)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-slate-500">Cassa reale</span>
+          <span className="font-semibold">{euro(quadMezzaBloccata.cassaReale)}</span>
+        </div>
+        <div
+          className={`rounded-xl p-2 font-semibold ${
+            quadMezzaBloccata.squadratura === 0
+              ? "bg-emerald-100 text-emerald-700"
+              : "bg-rose-100 text-rose-700"
+          }`}
+        >
+          {deltaLabel(quadMezzaBloccata.squadratura)}
+        </div>
+        <p className="text-slate-500">
+          Bloccata il {quadMezzaBloccata.dataOra}
+        </p>
+      </div>
+    )}
+  </div>
+
+  <div className="rounded-2xl border bg-white p-2">
+    <p className="text-sm font-semibold">Quadratura fine giornata</p>
+
+    {!quadSeraBloccata ? (
+      <>
+        <input
+          type="number"
+          className="mt-2 w-full rounded-2xl border px-3 py-2 text-sm"
+          placeholder="Cassa reale"
+          value={quadSera.cassaReale}
+          onChange={(e) => setQuadSera({ cassaReale: e.target.value })}
+        />
+
+        <div
+          className={`mt-2 rounded-xl p-2 text-xs font-semibold ${
+            totals.squadraturaSera === 0
+              ? "bg-emerald-100 text-emerald-700"
+              : "bg-rose-100 text-rose-700"
+          }`}
+        >
+          {deltaLabel(totals.squadraturaSera)}
+        </div>
+
+        <Button
+          className="mt-2 w-full rounded-2xl"
+          onClick={bloccaQuadraturaSera}
+        >
+          Blocca fine giornata
+        </Button>
+      </>
+    ) : (
+      <div className="mt-2 space-y-1 text-xs">
+        <div className="flex justify-between">
+          <span className="text-slate-500">Cassa teorica</span>
+          <span className="font-semibold">{euro(quadSeraBloccata.cassaTeorica)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-slate-500">Cassa reale</span>
+          <span className="font-semibold">{euro(quadSeraBloccata.cassaReale)}</span>
+        </div>
+        <div
+          className={`rounded-xl p-2 font-semibold ${
+            quadSeraBloccata.squadratura === 0
+              ? "bg-emerald-100 text-emerald-700"
+              : "bg-rose-100 text-rose-700"
+          }`}
+        >
+          {deltaLabel(quadSeraBloccata.squadratura)}
+        </div>
+        <p className="text-slate-500">
+          Bloccata il {quadSeraBloccata.dataOra}
+        </p>
+      </div>
+    )}
+  </div>
+</div>
 
               <Button className="w-full rounded-2xl">
                 <CheckCircle2 className="mr-2 h-4 w-4" /> Chiudi giornata
