@@ -219,35 +219,6 @@ const sospesiSeed: Sospeso[] = [
     dataSospeso: "2026-05-06",
     note: "Assegno postdatato",
   },
-  {
-    id: "sosp-2",
-    referenteSospesi: "Verdi Anna",
-    contraente: "Verdi Anna",
-    ramo: "001",
-    polizza: "459000",
-    importoOriginario: 800,
-    recuperato: 300,
-    scontoApplicato: 50,
-    residuo: 450,
-    stato: "Parziale",
-    dataSospeso: "2026-05-03",
-    note: "Acconto precedente",
-  },
-  {
-    id: "sosp-3",
-    referenteSospesi: "Neri Paolo",
-    contraente: "Neri Paolo",
-    ramo: "003",
-    polizza: "459500",
-    importoOriginario: 250,
-    recuperato: 0,
-    scontoApplicato: 0,
-    residuo: 250,
-    stato: "Aperto",
-    dataSospeso: "2026-05-04",
-    note: "",
-  },
-];
 
 const importCompagniaSeed: ImportRow[] = [
   {
@@ -329,14 +300,15 @@ function normalizzaModalitaPagamento(value: string) {
     ASSEGNO: "Assegno",
     B: "Bonifico",
     BONIFICO: "Bonifico",
-    P: "POS",
+    J: "POS",
     POS: "POS",
     F: "Finitalia",
     FINITALIA: "Finitalia",
+    H: "App"
     APP: "App",
     M: "Mensilizzazione",
     MENSILIZZAZIONE: "Mensilizzazione",
-    V: "Virtual POS",
+    Y: "Virtual POS",
     "VIRTUAL POS": "Virtual POS",
     D: "Direzione",
     DIREZIONE: "Direzione",
@@ -540,7 +512,13 @@ function addAuditLog(azione: string) {
       })
       .reduce((sum, m) => sum + m.netto * (m.segno || 1), 0);
 
-    const totaleSospesi = sospesi.reduce((sum, s) => sum + s.residuo, 0);
+    const totaleSospesi = movimenti
+      .filter(
+        (m) =>
+        m.tipo === "Titolo del giorno" &&
+        (m.modalita === "Sospeso" || isAssegnoPostdatato(m))
+      )
+  .reduce((sum, m) => sum + m.importo, 0);
     const totaleRecuperi = movimenti
       .filter((m) => m.tipo === "Recupero sospeso")
       .reduce((sum, m) => sum + m.netto, 0);
