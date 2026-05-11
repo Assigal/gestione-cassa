@@ -219,6 +219,7 @@ const sospesiSeed: Sospeso[] = [
     dataSospeso: "2026-05-06",
     note: "Assegno postdatato",
   },
+];
 
 const importCompagniaSeed: ImportRow[] = [
   {
