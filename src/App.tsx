@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
   Banknote,
@@ -499,6 +499,55 @@ function addAuditLog(azione: string) {
 }
 
   const avanzoPrecedente = 1000;
+  useEffect(() => {
+  const saved = localStorage.getItem(`gestione-cassa-${GIORNATA_CORRENTE}`);
+  if (!saved) return;
+
+  try {
+    const data = JSON.parse(saved);
+
+    if (data.movimenti) setMovimenti(data.movimenti);
+    if (data.sospesi) setSospesi(data.sospesi);
+    if (data.importCompagnia) setImportCompagnia(data.importCompagnia);
+    if (data.versamento) setVersamento(data.versamento);
+    if (data.quadMezza) setQuadMezza(data.quadMezza);
+    if (data.quadSera) setQuadSera(data.quadSera);
+    if (data.quadMezzaBloccata) setQuadMezzaBloccata(data.quadMezzaBloccata);
+    if (data.quadSeraBloccata) setQuadSeraBloccata(data.quadSeraBloccata);
+    if (data.auditLog) setAuditLog(data.auditLog);
+  } catch {
+    console.warn("Dati locali non leggibili");
+  }
+}, []);
+
+useEffect(() => {
+  const data = {
+    movimenti,
+    sospesi,
+    importCompagnia,
+    versamento,
+    quadMezza,
+    quadSera,
+    quadMezzaBloccata,
+    quadSeraBloccata,
+    auditLog,
+  };
+
+  localStorage.setItem(
+    `gestione-cassa-${GIORNATA_CORRENTE}`,
+    JSON.stringify(data)
+  );
+}, [
+  movimenti,
+  sospesi,
+  importCompagnia,
+  versamento,
+  quadMezza,
+  quadSera,
+  quadMezzaBloccata,
+  quadSeraBloccata,
+  auditLog,
+]);
 
   const totals = useMemo(() => {
     const totaleCompagnia = movimenti
