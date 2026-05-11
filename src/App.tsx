@@ -304,7 +304,7 @@ function normalizzaModalitaPagamento(value: string) {
     POS: "POS",
     F: "Finitalia",
     FINITALIA: "Finitalia",
-    H: "App"
+    H: "App",
     APP: "App",
     M: "Mensilizzazione",
     MENSILIZZAZIONE: "Mensilizzazione",
