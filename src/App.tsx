@@ -761,8 +761,8 @@ useEffect(() => {
 
   function saveForm() {
     const importo = Number(form.importo || 0);
-    if (!form.importo || importo <= 0) {
-  alert("Inserire un importo valido prima di salvare il movimento.");
+   if (!form.importo || importo === 0) {
+  alert("Inserire un importo valido diverso da zero.");
   return;
 }
     const sconto = isVersamentoSubagente(form.tipo) ? 0 : Number(form.sconto || 0);
