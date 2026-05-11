@@ -816,7 +816,26 @@ async function handleImportFile(event: React.ChangeEvent<HTMLInputElement>) {
       }
     });
 
-    setImportCompagnia((rows) => [...Array.from(grouped.values()), ...rows]);
+const polizzeGiaPresenti = new Set([
+  ...importCompagnia.map((r) => r.polizza),
+  ...movimenti.map((m) => m.polizza),
+]);
+
+const tutteLeRighe = Array.from(grouped.values());
+
+const nuoveRighe = tutteLeRighe.filter(
+  (row) => !polizzeGiaPresenti.has(row.polizza)
+);
+
+const scartate = tutteLeRighe.length - nuoveRighe.length;
+
+setImportCompagnia((rows) => [...nuoveRighe, ...rows]);
+
+alert(
+  `Import completato.\n` +
+  `${nuoveRighe.length} nuovi movimenti importati.\n` +
+  `${scartate} movimenti già presenti scartati.`
+);
   } catch (error) {
     alert(error instanceof Error ? error.message : "Errore durante l'import CSV");
   } finally {
