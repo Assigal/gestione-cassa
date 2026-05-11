@@ -490,6 +490,14 @@ const [quadSeraBloccata, setQuadSeraBloccata] = useState<{
 } | null>(null);
   const [searchSospesi, setSearchSospesi] = useState("");
   const [form, setForm] = useState<FormState>(emptyForm);
+  const [auditLog, setAuditLog] = useState<string[]>([]);
+
+function addAuditLog(azione: string) {
+  setAuditLog((rows) => [
+    `${new Date().toLocaleString("it-IT")} - Alessandro - ${azione}`,
+    ...rows,
+  ]);
+}
 
   const avanzoPrecedente = 1000;
 
@@ -688,6 +696,10 @@ const [quadSeraBloccata, setQuadSeraBloccata] = useState<{
 
   function saveForm() {
     const importo = Number(form.importo || 0);
+    if (!form.importo || importo <= 0) {
+  alert("Inserire un importo valido prima di salvare il movimento.");
+  return;
+}
     const sconto = isVersamentoSubagente(form.tipo) ? 0 : Number(form.sconto || 0);
     const netto = importo - sconto;
 
@@ -713,6 +725,7 @@ const [quadSeraBloccata, setQuadSeraBloccata] = useState<{
     if (editingMovement) {
       setMovimenti((rows) => rows.map((row) => (row.id === editingMovement ? { ...row, ...payload } : row)));
       setEditingMovement(null);
+      addAuditLog(`Modificato movimento ${payload.tipo} - polizza ${payload.polizza || "-"}`);
       resetForm();
       return;
     }
@@ -744,7 +757,8 @@ const [quadSeraBloccata, setQuadSeraBloccata] = useState<{
     }
 
     setMovimenti((rows) => [movimentoDaSalvare, ...rows]);
-
+    
+    addAuditLog(`Inserito movimento ${payload.tipo} - polizza ${payload.polizza || "-"} - importo ${euro(payload.importo)}`);
     if (selectedImport) {
       setImportCompagnia((rows) => rows.filter((row) => row.id !== selectedImport));
       setSelectedImport(null);
@@ -756,16 +770,27 @@ const [quadSeraBloccata, setQuadSeraBloccata] = useState<{
   function bloccaQuadraturaMezza() {
   const cassaReale = Number(quadMezza.cassaReale || 0);
 
+  if (!quadMezza.cassaReale) {
+  alert("Inserire la cassa reale prima di bloccare la quadratura di mezza giornata.");
+  return;
+}
+
   setQuadMezzaBloccata({
     cassaTeorica: totals.cassa,
     cassaReale,
     squadratura: cassaReale - totals.cassa,
     dataOra: new Date().toLocaleString("it-IT"),
   });
+  addAuditLog(`Bloccata quadratura mezza giornata - cassa reale ${euro(cassaReale)}`);
 }
 
 function bloccaQuadraturaSera() {
   const cassaReale = Number(quadSera.cassaReale || 0);
+
+  if (!quadSera.cassaReale) {
+  alert("Inserire la cassa reale prima di bloccare la quadratura di fine giornata.");
+  return;
+}
 
   setQuadSeraBloccata({
     cassaTeorica: totals.cassa,
@@ -773,6 +798,7 @@ function bloccaQuadraturaSera() {
     squadratura: cassaReale - totals.cassa,
     dataOra: new Date().toLocaleString("it-IT"),
   });
+  addAuditLog(`Bloccata quadratura fine giornata - cassa reale ${euro(cassaReale)}`);
 }
   
   function openImportFileDialog() {
@@ -1172,6 +1198,18 @@ alert(
                   <Button className="mt-3 w-full rounded-2xl" onClick={saveForm}>
                     {editingMovement ? "Salva modifiche" : selectedImportRow ? "Conferma movimento" : "Inserisci movimento"}
                   </Button>
+                  {editingMovement && (
+                    <Button
+                      variant="outline"
+                      className="mt-2 w-full rounded-2xl"
+                        onClick={() => {
+                          setEditingMovement(null);
+                          resetForm();
+                        }}
+                    >
+                        Annulla modifica
+                    </Button>
+                  )}
                 </div>
               </div>
             </CardContent>
