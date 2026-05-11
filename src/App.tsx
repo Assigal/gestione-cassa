@@ -846,11 +846,11 @@ alert(
   const selectedImportRow = importCompagnia.find((row) => row.id === selectedImport);
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 text-slate-900">
-      <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-6 xl:grid-cols-[320px_1fr]">
-        <aside className="space-y-4 xl:sticky xl:top-6 xl:h-[calc(100vh-48px)] xl:overflow-auto">
-          <Card className="rounded-3xl bg-white shadow-sm">
-            <CardContent className="space-y-4 p-5">
+    <div className="min-h-screen bg-slate-50 p-4 text-slate-900">
+      <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-4 xl:grid-cols-[320px_1fr]">
+        <aside className="space-y-2 xl:sticky xl:top-4 xl:h-[calc(100vh-48px)] xl:overflow-auto">
+          <Card className="rounded-2xl bg-white shadow-sm">
+            <CardContent className="space-y-2 p-3">
               <div className="flex items-center gap-3 border-b pb-4">
                 <div className="rounded-2xl bg-slate-900 p-3">
                   <Wallet className="h-6 w-6 text-white" />
@@ -911,9 +911,9 @@ alert(
         </aside>
 
         <main className="space-y-6">
-          <Card className="rounded-3xl shadow-sm">
-            <CardContent className="space-y-5 p-6">
-              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+          <Card className="rounded-2xl shadow-sm">
+            <CardContent className="space-y-3 p-4">
+              <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                 <div className="flex items-start gap-3">
                   <div className="rounded-2xl bg-slate-100 p-3">
                     <ClipboardList className="h-5 w-5" />
@@ -941,7 +941,7 @@ alert(
                 </div>
               )}
 
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
+              <div className="grid grid-cols-1 gap-2 lg:grid-cols-4">
                 <label className="space-y-1">
                   <span className="text-xs font-medium text-slate-500">Tipo movimento</span>
                   <select className="w-full rounded-2xl border px-3 py-2" value={form.tipo} onChange={(e) => handleTipoMovimentoChange(e.target.value)}>
@@ -1022,7 +1022,7 @@ alert(
                 )}
               </div>
 
-              <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_260px]">
+              <div className="grid grid-cols-1 gap-2 lg:grid-cols-[1fr_260px]">
                 <label className="space-y-1">
                   <span className="text-xs font-medium text-slate-500">Note</span>
                   <textarea className="min-h-[72px] w-full rounded-2xl border px-3 py-2" placeholder="Annotazioni su sospesi, recuperi o squadrature" value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} />
@@ -1046,9 +1046,9 @@ alert(
             </CardContent>
           </Card>
 
-          <Card className="rounded-3xl shadow-sm">
+          <Card className="rounded-2xl shadow-sm">
             <CardContent className="p-0">
-              <div className="flex items-center justify-between border-b p-5">
+              <div className="flex items-center justify-between border-b p-3">
                 <div>
                   <h2 className="text-lg font-semibold">Movimenti registrati nella giornata</h2>
                   <p className="text-sm text-slate-500">Movimenti validati e lavorati dall'operatore</p>
@@ -1063,16 +1063,16 @@ alert(
                 <table className="w-full text-sm">
                   <thead className="sticky top-0 z-10 bg-slate-100 text-left text-xs uppercase tracking-wide text-slate-500">
                     <tr>
-                      <th className="px-5 py-3">Polizza / Periodo</th>
-                      <th className="px-5 py-3">Sub</th>
-                      <th className="px-5 py-3">Contraente</th>
-                      <th className="px-5 py-3">Referente</th>
-                      <th className="px-5 py-3">Tipo</th>
-                      <th className="px-5 py-3">Modalità</th>
-                      <th className="px-5 py-3 text-right">Lordo</th>
-                      <th className="px-5 py-3 text-right">Netto</th>
-                      <th className="px-5 py-3">Note</th>
-                      <th className="px-5 py-3"></th>
+                      <th className="px-3 py-2">Polizza / Periodo</th>
+                      <th className="px-3 py-2">Sub</th>
+                      <th className="px-3 py-2">Contraente</th>
+                      <th className="px-3 py-2">Referente</th>
+                      <th className="px-3 py-2">Tipo</th>
+                      <th className="px-3 py-2">Modalità</th>
+                      <th className="px-3 py-2 text-right">Lordo</th>
+                      <th className="px-3 py-2 text-right">Netto</th>
+                      <th className="px-3 py-2">Note</th>
+                      <th className="px-3 py-2"></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1081,21 +1081,21 @@ alert(
                       const warnPayment = m.modalita === "Sospeso" || postdatato;
                       return (
                         <tr key={m.id} className="border-t bg-white hover:bg-slate-50">
-                          <td className="px-5 py-4"><div className="font-medium">{descrizioneMovimento(m)}</div></td>
-                          <td className="px-5 py-4">{m.sub}</td>
-                          <td className="px-5 py-4">{m.contraente || "-"}</td>
-                          <td className="px-5 py-4">{m.referenteSospesi ? <Badge variant="purple">{m.referenteSospesi}</Badge> : "-"}</td>
-                          <td className="px-5 py-4"><Badge variant="neutral">{m.tipo}</Badge></td>
-                          <td className="px-5 py-4">
+                          <td className="px-3 py-2"><div className="font-medium">{descrizioneMovimento(m)}</div></td>
+                          <td className="px-3 py-2">{m.sub}</td>
+                          <td className="px-3 py-2">{m.contraente || "-"}</td>
+                          <td className="px-3 py-2">{m.referenteSospesi ? <Badge variant="purple">{m.referenteSospesi}</Badge> : "-"}</td>
+                          <td className="px-3 py-2"><Badge variant="neutral">{m.tipo}</Badge></td>
+                          <td className="px-3 py-2">
                             <div className="flex flex-col items-start gap-1">
                               <Badge variant={warnPayment ? "warn" : m.modalita === "POS" ? "blue" : "ok"}>{m.modalita}</Badge>
                               {postdatato && <span className="text-xs font-medium text-rose-700">Data assegno: {m.dataAssegno}</span>}
                             </div>
                           </td>
-                          <td className="px-5 py-4 text-right">{euro(m.importo)}</td>
-                          <td className="px-5 py-4 text-right font-medium">{euro(m.netto)}</td>
-                          <td className="px-5 py-4 text-xs text-slate-500">{m.note || "-"}</td>
-                          <td className="px-5 py-4 text-right">
+                          <td className="px-3 py-2 text-right">{euro(m.importo)}</td>
+                          <td className="px-3 py-2 text-right font-medium">{euro(m.netto)}</td>
+                          <td className="px-3 py-2 text-xs text-slate-500">{m.note || "-"}</td>
+                          <td className="px-3 py-2 text-right">
                             <div className="flex justify-end gap-1">
                               <Button variant="ghost" size="sm" className="rounded-xl" onClick={() => editMovement(m)}>
                                 <Edit3 className="h-4 w-4" />
@@ -1114,9 +1114,9 @@ alert(
             </CardContent>
           </Card>
 
-          <Card className="rounded-3xl border-amber-200 bg-amber-50/40 shadow-sm">
+          <Card className="rounded-2xl border-amber-200 bg-amber-50/40 shadow-sm">
             <CardContent className="p-0">
-              <div className="flex items-center justify-between border-b border-amber-200 p-5">
+              <div className="flex items-center justify-between border-b border-amber-200 p-3">
                 <div>
                   <h2 className="text-lg font-semibold">Movimenti importati da Excel Compagnia</h2>
                   <p className="text-sm text-slate-600">Non alimentano cassa o totale Compagnia finché non vengono lavorati</p>
@@ -1130,23 +1130,23 @@ alert(
                 <table className="w-full text-sm">
                   <thead className="sticky top-0 z-10 bg-amber-100 text-left text-xs uppercase tracking-wide text-amber-900">
                     <tr>
-                      <th className="px-5 py-3">Polizza</th>
-                      <th className="px-5 py-3">Contraente</th>
-                      <th className="px-5 py-3">Modalità Compagnia</th>
-                      <th className="px-5 py-3">File</th>
-                      <th className="px-5 py-3 text-right">Importo</th>
-                      <th className="px-5 py-3"></th>
+                      <th className="px-3 py-2">Polizza</th>
+                      <th className="px-3 py-2">Contraente</th>
+                      <th className="px-3 py-2">Modalità Compagnia</th>
+                      <th className="px-3 py-2">File</th>
+                      <th className="px-3 py-2 text-right">Importo</th>
+                      <th className="px-3 py-2"></th>
                     </tr>
                   </thead>
                   <tbody>
                     {importCompagnia.map((row) => (
                       <tr key={row.id} className={`border-t border-amber-100 bg-white/70 hover:bg-white ${selectedImport === row.id ? "ring-2 ring-amber-300" : ""}`}>
-                        <td className="px-5 py-4"><div className="font-medium">{numeroPolizzaCompleto(row)}</div></td>
-                        <td className="px-5 py-4">{row.contraente}</td>
-                        <td className="px-5 py-4"><Badge>{row.modalitaCompagnia}</Badge></td>
-                        <td className="px-5 py-4 text-xs text-slate-500">{row.fileOrigine || "demo"}</td>
-                        <td className="px-5 py-4 text-right font-medium">{euro(row.importo)}</td>
-                        <td className="px-5 py-4 text-right">
+                        <td className="px-3 py-2"><div className="font-medium">{numeroPolizzaCompleto(row)}</div></td>
+                        <td className="px-3 py-2">{row.contraente}</td>
+                        <td className="px-3 py-2"><Badge>{row.modalitaCompagnia}</Badge></td>
+                        <td className="px-3 py-2 text-xs text-slate-500">{row.fileOrigine || "demo"}</td>
+                        <td className="px-3 py-2 text-right font-medium">{euro(row.importo)}</td>
+                        <td className="px-3 py-2 text-right">
                           <div className="flex justify-end gap-1">
                             <Button size="sm" className="rounded-xl" onClick={() => selectImported(row)}>
                               Lavora <ArrowRightCircle className="ml-2 h-4 w-4" />
@@ -1164,9 +1164,9 @@ alert(
             </CardContent>
           </Card>
 
-          <Card className="rounded-3xl border-violet-200 bg-violet-50/40 shadow-sm">
+          <Card className="rounded-2xl border-violet-200 bg-violet-50/40 shadow-sm">
             <CardContent className="p-0">
-              <div className="flex items-center justify-between border-b border-violet-200 p-5">
+              <div className="flex items-center justify-between border-b border-violet-200 p-3">
                 <div>
                   <h2 className="text-lg font-semibold">Recupero sospesi</h2>
                   <p className="text-sm text-slate-600">Cerca per referente, contraente o polizza. Puoi selezionare più sospesi dello stesso referente.</p>
@@ -1176,7 +1176,7 @@ alert(
                 </Button>
               </div>
 
-              <div className="border-b border-violet-100 p-5">
+              <div className="border-b border-violet-100 p-3">
                 <div className="relative">
                   <Users className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                   <input className="w-full rounded-2xl border px-9 py-2 text-sm" placeholder="Cerca referente sospesi, contraente o polizza" value={searchSospesi} onChange={(e) => setSearchSospesi(e.target.value)} />
@@ -1187,34 +1187,34 @@ alert(
                 <table className="w-full text-sm">
                   <thead className="sticky top-0 z-10 bg-violet-100 text-left text-xs uppercase tracking-wide text-violet-900">
                     <tr>
-                      <th className="px-5 py-3"></th>
-                      <th className="px-5 py-3">Data</th>
-                      <th className="px-5 py-3">Referente</th>
-                      <th className="px-5 py-3">Contraente / Polizza</th>
-                      <th className="px-5 py-3 text-right">Originario</th>
-                      <th className="px-5 py-3 text-right">Recuperato</th>
-                      <th className="px-5 py-3 text-right">Sconto</th>
-                      <th className="px-5 py-3 text-right">Residuo</th>
-                      <th className="px-5 py-3">Stato</th>
-                      <th className="px-5 py-3">Note</th>
+                      <th className="px-3 py-2"></th>
+                      <th className="px-3 py-2">Data</th>
+                      <th className="px-3 py-2">Referente</th>
+                      <th className="px-3 py-2">Contraente / Polizza</th>
+                      <th className="px-3 py-2 text-right">Originario</th>
+                      <th className="px-3 py-2 text-right">Recuperato</th>
+                      <th className="px-3 py-2 text-right">Sconto</th>
+                      <th className="px-3 py-2 text-right">Residuo</th>
+                      <th className="px-3 py-2">Stato</th>
+                      <th className="px-3 py-2">Note</th>
                     </tr>
                   </thead>
                   <tbody>
                     {sospesiFiltrati.map((s) => (
                       <tr key={s.id} className={`border-t border-violet-100 bg-white/70 hover:bg-white ${selectedSospesoIds.includes(s.id) ? "ring-2 ring-violet-300" : ""}`}>
-                        <td className="px-5 py-4"><input type="checkbox" checked={selectedSospesoIds.includes(s.id)} onChange={() => toggleSospeso(s.id)} /></td>
-                        <td className="px-5 py-4 font-medium">{s.dataSospeso || "-"}</td>
-                        <td className="px-5 py-4"><Badge variant="purple">{s.referenteSospesi}</Badge></td>
-                        <td className="px-5 py-4">
+                        <td className="px-3 py-2"><input type="checkbox" checked={selectedSospesoIds.includes(s.id)} onChange={() => toggleSospeso(s.id)} /></td>
+                        <td className="px-3 py-2 font-medium">{s.dataSospeso || "-"}</td>
+                        <td className="px-3 py-2"><Badge variant="purple">{s.referenteSospesi}</Badge></td>
+                        <td className="px-3 py-2">
                           <div className="font-medium">{s.contraente}</div>
                           <div className="text-xs text-slate-500">{numeroPolizzaCompleto(s)}</div>
                         </td>
-                        <td className="px-5 py-4 text-right">{euro(s.importoOriginario)}</td>
-                        <td className="px-5 py-4 text-right">{euro(s.recuperato)}</td>
-                        <td className="px-5 py-4 text-right">{euro(s.scontoApplicato)}</td>
-                        <td className="px-5 py-4 text-right font-semibold">{euro(s.residuo)}</td>
-                        <td className="px-5 py-4"><Badge variant={s.stato === "Chiuso" ? "ok" : "warn"}>{s.stato}</Badge></td>
-                        <td className="px-5 py-4 text-xs text-slate-500">{s.note || "-"}</td>
+                        <td className="px-3 py-2 text-right">{euro(s.importoOriginario)}</td>
+                        <td className="px-3 py-2 text-right">{euro(s.recuperato)}</td>
+                        <td className="px-3 py-2 text-right">{euro(s.scontoApplicato)}</td>
+                        <td className="px-3 py-2 text-right font-semibold">{euro(s.residuo)}</td>
+                        <td className="px-3 py-2"><Badge variant={s.stato === "Chiuso" ? "ok" : "warn"}>{s.stato}</Badge></td>
+                        <td className="px-3 py-2 text-xs text-slate-500">{s.note || "-"}</td>
                       </tr>
                     ))}
                   </tbody>
