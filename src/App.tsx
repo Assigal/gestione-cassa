@@ -319,6 +319,32 @@ function parseImportoItaliano(value: string) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+function normalizzaModalitaPagamento(value: string) {
+  const v = (value || "").trim().toUpperCase();
+
+  const map: Record<string, string> = {
+    C: "Contanti",
+    CONTANTI: "Contanti",
+    A: "Assegno",
+    ASSEGNO: "Assegno",
+    B: "Bonifico",
+    BONIFICO: "Bonifico",
+    P: "POS",
+    POS: "POS",
+    F: "Finitalia",
+    FINITALIA: "Finitalia",
+    APP: "App",
+    M: "Mensilizzazione",
+    MENSILIZZAZIONE: "Mensilizzazione",
+    V: "Virtual POS",
+    "VIRTUAL POS": "Virtual POS",
+    D: "Direzione",
+    DIREZIONE: "Direzione",
+  };
+
+  return map[v] || value || "Contanti";
+}
+
 function parseCsvLine(line: string, separator = ";") {
   const result: string[] = [];
   let current = "";
@@ -515,7 +541,9 @@ function addAuditLog(azione: string) {
       .reduce((sum, m) => sum + m.netto * (m.segno || 1), 0);
 
     const totaleSospesi = sospesi.reduce((sum, s) => sum + s.residuo, 0);
-    const totaleRecuperi = sospesi.reduce((sum, s) => sum + s.recuperato, 0);
+    const totaleRecuperi = movimenti
+      .filter((m) => m.tipo === "Recupero sospeso")
+      .reduce((sum, m) => sum + m.netto, 0);
     const vers = Number(versamento || 0);
     const cassa = avanzoPrecedente + incassiFisici - vers;
 
@@ -599,6 +627,15 @@ function addAuditLog(azione: string) {
       }));
     }
 
+    if (
+      movimento &&
+      movimento.tipo === "Titolo del giorno" &&
+      (movimento.modalita === "Sospeso" || isAssegnoPostdatato(movimento))
+    ) {
+      setSospesi((rows) =>
+        rows.filter((s) => s.polizza !== movimento.polizza)
+    );
+}
     setMovimenti((rows) => rows.filter((row) => row.id !== id));
   }
 
@@ -855,7 +892,7 @@ async function handleImportFile(event: React.ChangeEvent<HTMLInputElement>) {
       const ramo = cols[idxRamo] || "";
       const polizza = cols[idxPolizza] || "";
       const contraente = cols[idxContraente] || "";
-      const modalitaCompagnia = cols[idxTipoPag] || "";
+      const modalitaCompagnia = normalizzaModalitaPagamento(cols[idxTipoPag] || "");
 
       const key = `${ramo}|${polizza}|${contraente}|${modalitaCompagnia}`;
 
