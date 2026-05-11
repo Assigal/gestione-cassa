@@ -744,14 +744,79 @@ export default function GestioneCassa() {
     fileInputRef.current?.click();
   }
 
- async function handleImportFile(event: React.ChangeEvent<HTMLInputElement>) {
+async function handleImportFile(event: React.ChangeEvent<HTMLInputElement>) {
   const file = event.target.files?.[0];
   if (!file) return;
 
   try {
     const text = await file.text();
-    const newRows = importaCsvCompagnia(text, file.name);
-    setImportCompagnia((rows) => [...newRows, ...rows]);
+
+    const parseImporto = (value: string) => {
+      if (!value) return 0;
+      return Number(
+        value
+          .replace(/€/g, "")
+          .replace(/\s/g, "")
+          .replace(/\./g, "")
+          .replace(/,/g, ".")
+      ) || 0;
+    };
+
+    const parseLine = (line: string) => line.split(";").map((v) => v.trim());
+
+    const lines = text
+      .replace(/^\uFEFF/, "")
+      .split(/\r?\n/)
+      .filter((line) => line.trim());
+
+    const headers = parseLine(lines[0]).map((h) =>
+      h.toLowerCase().replace(/\./g, "").trim()
+    );
+
+    const idxRamo = headers.indexOf("ramo");
+    const idxPolizza = headers.indexOf("polizza");
+    const idxContraente = headers.indexOf("contraente");
+    const idxTotale = headers.indexOf("totale");
+    const idxTipoPag = headers.indexOf("tipo pag");
+
+    if ([idxRamo, idxPolizza, idxContraente, idxTotale, idxTipoPag].some((i) => i < 0)) {
+      throw new Error("Colonne mancanti nel CSV: Ramo, Polizza, Contraente, Totale, Tipo Pag.");
+    }
+
+    const grouped = new Map<string, ImportRow>();
+
+    lines.slice(1).forEach((line, index) => {
+      const cols = parseLine(line);
+      const totale = parseImporto(cols[idxTotale]);
+
+      if (!totale) return;
+
+      const ramo = cols[idxRamo] || "";
+      const polizza = cols[idxPolizza] || "";
+      const contraente = cols[idxContraente] || "";
+      const modalitaCompagnia = cols[idxTipoPag] || "";
+
+      const key = `${ramo}|${polizza}|${contraente}|${modalitaCompagnia}`;
+
+      const existing = grouped.get(key);
+
+      if (existing) {
+        existing.importo = Number((existing.importo + totale).toFixed(2));
+      } else {
+        grouped.set(key, {
+          id: `imp-${Date.now()}-${index}`,
+          ramo,
+          polizza,
+          contraente,
+          importo: Number(totale.toFixed(2)),
+          modalitaCompagnia,
+          stato: "Da lavorare",
+          fileOrigine: file.name,
+        });
+      }
+    });
+
+    setImportCompagnia((rows) => [...Array.from(grouped.values()), ...rows]);
   } catch (error) {
     alert(error instanceof Error ? error.message : "Errore durante l'import CSV");
   } finally {
