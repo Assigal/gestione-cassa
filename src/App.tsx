@@ -499,6 +499,7 @@ const [quadSeraBloccata, setQuadSeraBloccata] = useState<{
   const [searchSospesi, setSearchSospesi] = useState("");
   const [form, setForm] = useState<FormState>(emptyForm);
   const [auditLog, setAuditLog] = useState<string[]>([]);
+  const [giornataChiusa, setGiornataChiusa] = useState(false);
 
 function addAuditLog(azione: string) {
   setAuditLog((rows) => [
@@ -542,6 +543,9 @@ function addAuditLog(azione: string) {
     if (data.quadMezzaBloccata) setQuadMezzaBloccata(data.quadMezzaBloccata);
     if (data.quadSeraBloccata) setQuadSeraBloccata(data.quadSeraBloccata);
     if (data.auditLog) setAuditLog(data.auditLog);
+    if (typeof data.giornataChiusa === "boolean") {
+      setGiornataChiusa(data.giornataChiusa);
+    }
   } catch {
     console.warn("Dati locali non leggibili");
   }
@@ -558,6 +562,7 @@ useEffect(() => {
     quadMezzaBloccata,
     quadSeraBloccata,
     auditLog,
+    giornataChiusa
   };
 
   localStorage.setItem(
@@ -574,6 +579,7 @@ useEffect(() => {
   quadMezzaBloccata,
   quadSeraBloccata,
   auditLog,
+  giornataChiusa
 ]);
 
   const totals = useMemo(() => {
@@ -954,6 +960,21 @@ function bloccaQuadraturaSera() {
   addAuditLog(`Bloccata quadratura fine giornata - cassa reale ${euro(cassaReale)}`);
 }
   
+  function chiudiGiornata() {
+  if (!quadSeraBloccata) {
+    alert("Prima di chiudere la giornata devi bloccare la quadratura di fine giornata.");
+    return;
+  }
+
+  const conferma = window.confirm(
+    "Confermi la chiusura della giornata? Dopo la chiusura non sarà possibile inserire, modificare, cancellare o importare movimenti."
+  );
+
+  if (!conferma) return;
+
+  setGiornataChiusa(true);
+  addAuditLog(`Chiusa giornata ${giornataCorrente} - cassa finale ${euro(totals.cassa)}`);
+  }
   function openImportFileDialog() {
     fileInputRef.current?.click();
   }
@@ -1084,6 +1105,11 @@ alert(
                     value={giornataCorrente}
                     onChange={(e) => setGiornataCorrente(e.target.value)}
                   />
+                  {giornataChiusa && (
+                    <div className="mt-2 rounded-xl bg-emerald-100 px-3 py-2 text-xs font-semibold text-emerald-700">
+                      Giornata chiusa e non modificabile
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -1225,8 +1251,13 @@ alert(
   </div>
 </div>
 
-              <Button className="w-full rounded-2xl">
-                <CheckCircle2 className="mr-2 h-4 w-4" /> Chiudi giornata
+              <Button
+                className="w-full rounded-2xl"
+                onClick={chiudiGiornata}
+                disabled={giornataChiusa}
+              >
+                <CheckCircle2 className="mr-2 h-4 w-4" />
+                {giornataChiusa ? "Giornata chiusa" : "Chiudi giornata"}
               </Button>
             </CardContent>
           </Card>
@@ -1249,7 +1280,12 @@ alert(
                 </div>
                 <div className="flex gap-2">
                   <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleImportFile} />
-                  <Button variant="outline" className="rounded-2xl" onClick={openImportFileDialog}>
+                  <Button
+                    variant="outline"
+                    className="rounded-2xl"
+                    onClick={openImportFileDialog}
+                    disabled={giornataChiusa}
+                  >
                     <Upload className="mr-2 h-4 w-4" /> Importa Compagnia
                   </Button>
                 </div>
@@ -1360,7 +1396,11 @@ alert(
                       Riduzione residuo prevista: {euro(Number(form.importo || 0) + Number(form.sconto || 0))}
                     </p>
                   )}
-                  <Button className="mt-3 w-full rounded-2xl" onClick={saveForm}>
+                  <Button
+                    className="mt-3 w-full rounded-2xl"
+                    onClick={saveForm}
+                    disabled={giornataChiusa}
+                  >
                     {editingMovement ? "Salva modifiche" : selectedImportRow ? "Conferma movimento" : "Inserisci movimento"}
                   </Button>
                   {editingMovement && (
@@ -1395,7 +1435,7 @@ alert(
 
               <div className="max-h-[420px] overflow-auto">
                 <table className="w-full text-sm">
-                  <thead className="sticky top-0 z-10 bg-slate-100 text-left text-xs uppercase tracking-wide text-slate-500">
+                  <thead className="sticky top-0 z-10 bg-emerald-100 text-left text-xs uppercase tracking-wide text-emerald-900">
                     <tr>
                       <th className="px-3 py-2">Polizza / Periodo</th>
                       <th className="px-3 py-2">Sub</th>
@@ -1431,10 +1471,22 @@ alert(
                           <td className="px-3 py-2 text-xs text-slate-500">{m.note || "-"}</td>
                           <td className="px-3 py-2 text-right">
                             <div className="flex justify-end gap-1">
-                              <Button variant="ghost" size="sm" className="rounded-xl" onClick={() => editMovement(m)}>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="rounded-xl"
+                                onClick={() => editMovement(m)}
+                                disabled={giornataChiusa}
+                              >
                                 <Edit3 className="h-4 w-4" />
                               </Button>
-                              <Button variant="ghost" size="sm" className="rounded-xl text-rose-600 hover:text-rose-700" onClick={() => deleteMovement(m.id)}>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="rounded-xl text-rose-600 hover:text-rose-700"
+                                onClick={() => deleteMovement(m.id)}
+                                disabled={giornataChiusa}
+                              >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
                             </div>
@@ -1455,7 +1507,12 @@ alert(
                   <h2 className="text-lg font-semibold">Movimenti importati da Excel Compagnia</h2>
                   <p className="text-sm text-slate-600">Non alimentano cassa o totale Compagnia finché non vengono lavorati</p>
                 </div>
-                <Button variant="outline" className="rounded-2xl" onClick={openImportFileDialog}>
+                <Button
+                  variant="outline"
+                  className="rounded-2xl"
+                  onClick={openImportFileDialog}
+                  disabled={giornataChiusa}
+                >
                   <Upload className="mr-2 h-4 w-4" /> Avvia import
                 </Button>
               </div>
@@ -1486,10 +1543,21 @@ alert(
                         <td className="px-3 py-2 text-right font-medium">{euro(row.importo)}</td>
                         <td className="px-3 py-2 text-right">
                           <div className="flex justify-end gap-1">
-                            <Button size="sm" className="rounded-xl" onClick={() => selectImported(row)}>
+                            <Button
+                              size="sm"
+                              className="rounded-xl"
+                              onClick={() => selectImported(row)}
+                              disabled={giornataChiusa}
+                            >
                               Lavora <ArrowRightCircle className="ml-2 h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="sm" className="rounded-xl text-rose-600 hover:text-rose-700" onClick={() => deleteImportedMovement(row.id)}>
+                           <Button
+                              variant="ghost"
+                              size="sm"
+                              className="rounded-xl text-rose-600 hover:text-rose-700"
+                              onClick={() => deleteImportedMovement(row.id)}
+                              disabled={giornataChiusa}
+                            >
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
