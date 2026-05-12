@@ -811,13 +811,74 @@ useEffect(() => {
       allocazioniRecupero: [] as AllocazioneRecupero[],
     };
 
-    if (editingMovement) {
-      setMovimenti((rows) => rows.map((row) => (row.id === editingMovement ? { ...row, ...payload } : row)));
-      setEditingMovement(null);
-      addAuditLog(`Modificato movimento ${payload.tipo} - polizza ${payload.polizza || "-"}`);
-      resetForm();
-      return;
-    }
+   if (editingMovement) {
+  const movimentoOriginale = movimenti.find((row) => row.id === editingMovement);
+
+  const primaEraSospeso =
+    movimentoOriginale &&
+    movimentoOriginale.tipo === "Titolo del giorno" &&
+    (movimentoOriginale.modalita === "Sospeso" ||
+      isAssegnoPostdatato(movimentoOriginale, giornataCorrente));
+
+  const oraESospeso =
+    payload.tipo === "Titolo del giorno" &&
+    (payload.modalita === "Sospeso" ||
+      (payload.modalita === "Assegno" && payload.dataAssegno > giornataCorrente));
+
+  setMovimenti((rows) =>
+    rows.map((row) => (row.id === editingMovement ? { ...row, ...payload } : row))
+  );
+
+  if (primaEraSospeso && !oraESospeso) {
+    setSospesi((rows) =>
+      rows.filter((s) => s.polizza !== movimentoOriginale?.polizza)
+    );
+  }
+
+  if (!primaEraSospeso && oraESospeso) {
+    setSospesi((rows) => [
+      {
+        id: `sosp-${Date.now()}`,
+        referenteSospesi: payload.referenteSospesi,
+        contraente: payload.contraente,
+        ramo: payload.ramo,
+        polizza: payload.polizza,
+        importoOriginario: payload.importo,
+        recuperato: 0,
+        scontoApplicato: 0,
+        residuo: payload.importo,
+        stato: "Aperto",
+        dataSospeso: giornataCorrente,
+        note: payload.note,
+      },
+      ...rows,
+    ]);
+  }
+
+  if (primaEraSospeso && oraESospeso) {
+    setSospesi((rows) =>
+      rows.map((s) =>
+        s.polizza === movimentoOriginale?.polizza
+          ? {
+              ...s,
+              referenteSospesi: payload.referenteSospesi,
+              contraente: payload.contraente,
+              ramo: payload.ramo,
+              polizza: payload.polizza,
+              importoOriginario: payload.importo,
+              residuo: payload.importo - s.recuperato - s.scontoApplicato,
+              note: payload.note,
+            }
+          : s
+      )
+    );
+  }
+
+  setEditingMovement(null);
+  addAuditLog(`Modificato movimento ${payload.tipo} - polizza ${payload.polizza || "-"}`);
+  resetForm();
+  return;
+}
 
     let movimentoDaSalvare: Movimento = { id: Date.now(), ...payload };
 
