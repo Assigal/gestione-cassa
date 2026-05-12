@@ -262,8 +262,11 @@ function descrizioneMovimento(row: Movimento) {
   return numeroPolizzaCompleto(row);
 }
 
-function isAssegnoPostdatato(row: { modalita: string; dataAssegno: string }) {
-  return row.modalita === "Assegno" && !!row.dataAssegno && row.dataAssegno > GIORNATA_CORRENTE;
+function isAssegnoPostdatato(
+  row: { modalita: string; dataAssegno: string },
+  giornata: string
+) {
+  return row.modalita === "Assegno" && !!row.dataAssegno && row.dataAssegno > giornata;
 }
 
 function isVersamentoSubagente(tipo: string) {
@@ -465,6 +468,7 @@ function SidebarMetric({
 
 export default function GestioneCassa() {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [giornataCorrente, setGiornataCorrente] = useState(GIORNATA_CORRENTE);
   const [movimenti, setMovimenti] = useState<Movimento[]>(movimentiRegistratiSeed);
   const [sospesi, setSospesi] = useState<Sospeso[]>(sospesiSeed);
   const [importCompagnia, setImportCompagnia] = useState<ImportRow[]>(importCompagniaSeed);
@@ -500,7 +504,7 @@ function addAuditLog(azione: string) {
 
   const avanzoPrecedente = 1000;
   useEffect(() => {
-  const saved = localStorage.getItem(`gestione-cassa-${GIORNATA_CORRENTE}`);
+  const saved = localStorage.getItem(`gestione-cassa-${giornataCorrente}`)
   if (!saved) return;
 
   try {
@@ -518,7 +522,7 @@ function addAuditLog(azione: string) {
   } catch {
     console.warn("Dati locali non leggibili");
   }
-}, []);
+}, [giornataCorrente]);
 
 useEffect(() => {
   const data = {
@@ -534,7 +538,7 @@ useEffect(() => {
   };
 
   localStorage.setItem(
-    `gestione-cassa-${GIORNATA_CORRENTE}`,
+    `gestione-cassa-${giornataCorrente}`,
     JSON.stringify(data)
   );
 }, [
@@ -557,7 +561,7 @@ useEffect(() => {
     const incassiFisici = movimenti
       .filter((m) => {
         if (m.modalita === "Contanti") return true;
-        if (m.modalita === "Assegno" && !isAssegnoPostdatato(m)) return true;
+        if (m.modalita === "Assegno" && !isAssegnoPostdatato(m, giornataCorrente)) return true;
         return false;
       })
       .reduce((sum, m) => sum + m.netto * (m.segno || 1), 0);
@@ -566,7 +570,7 @@ useEffect(() => {
       .filter(
         (m) =>
         m.tipo === "Titolo del giorno" &&
-        (m.modalita === "Sospeso" || isAssegnoPostdatato(m))
+        (m.modalita === "Sospeso" || isAssegnoPostdatato(m, giornataCorrente))
       )
   .reduce((sum, m) => sum + m.importo, 0);
     const totaleRecuperi = movimenti
@@ -658,7 +662,7 @@ useEffect(() => {
     if (
       movimento &&
       movimento.tipo === "Titolo del giorno" &&
-      (movimento.modalita === "Sospeso" || isAssegnoPostdatato(movimento))
+      (movimento.modalita === "Sospeso" || isAssegnoPostdatato(movimento, giornataCorrente))
     ) {
       setSospesi((rows) =>
         rows.filter((s) => s.polizza !== movimento.polizza)
@@ -797,7 +801,7 @@ useEffect(() => {
 
     let movimentoDaSalvare: Movimento = { id: Date.now(), ...payload };
 
-    if (!isVersamentoSubagente(payload.tipo) && (payload.modalita === "Sospeso" || (payload.modalita === "Assegno" && payload.dataAssegno > GIORNATA_CORRENTE))) {
+    if (!isVersamentoSubagente(payload.tipo) && (payload.modalita === "Sospeso" || (payload.modalita === "Assegno" && payload.dataAssegno > giornataCorrente))) {
       setSospesi((rows) => [{
         id: `sosp-${Date.now()}`,
         referenteSospesi: payload.referenteSospesi,
@@ -809,7 +813,7 @@ useEffect(() => {
         scontoApplicato: 0,
         residuo: payload.importo,
         stato: "Aperto",
-        dataSospeso: GIORNATA_CORRENTE,
+        dataSospeso: giornataCorrente,
         note: payload.note,
       }, ...rows]);
     }
@@ -983,7 +987,16 @@ alert(
                 </div>
                 <div>
                   <h1 className="text-xl font-semibold tracking-tight">Gestione cassa</h1>
-                  <p className="text-xs text-slate-500">06/05/2026 · Alessandro</p>
+                  <p className="text-xs text-slate-500">
+                    {giornataCorrente} · Alessandro
+                  </p>
+
+                  <input
+                    type="date"
+                    className="mt-2 w-full rounded-2xl border px-3 py-2 text-sm"
+                    value={giornataCorrente}
+                    onChange={(e) => setGiornataCorrente(e.target.value)}
+                  />
                 </div>
               </div>
 
@@ -1311,7 +1324,7 @@ alert(
                   </thead>
                   <tbody>
                     {movimenti.map((m) => {
-                      const postdatato = isAssegnoPostdatato(m);
+                      const postdatato = isAssegnoPostdatato(m, giornataCorrente);
                       const warnPayment = m.modalita === "Sospeso" || postdatato;
                       return (
                         <tr key={m.id} className="border-t bg-white hover:bg-slate-50">
