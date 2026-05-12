@@ -1197,7 +1197,7 @@ alert(
               )}
 
                <div className="grid grid-cols-1 gap-2 lg:grid-cols-12">
-                <label className="space-y-1 lg:col-span-1">
+                <label className="space-y-1 lg:col-span-3">
                   <span className="text-xs font-medium text-slate-500">Tipo movimento</span>
                   <select className="w-full rounded-2xl border px-3 py-2" value={form.tipo} onChange={(e) => handleTipoMovimentoChange(e.target.value)}>
                     {tipiMovimento.map((m) => <option key={m}>{m}</option>)}
@@ -1210,14 +1210,14 @@ alert(
                 </label>
                  
                  {!isVersamentoSubagente(form.tipo) && (
-                  <label className="space-y-1 lg:col-span-2">
+                  <label className="space-y-1 lg:col-span-1">
                     <span className="text-xs font-medium text-slate-500">Ramo</span>
                     <input maxLength={3} className="w-full rounded-2xl border px-3 py-2" placeholder="001" value={form.ramo} onChange={(e) => setForm({ ...form, ramo: e.target.value.replace(/[^0-9]/g, "").slice(0, 3) })} />
                   </label>
                 )}
 
                 {!isVersamentoSubagente(form.tipo) && (
-                  <label className="space-y-1 lg:col-span-3">
+                  <label className="space-y-1 lg:col-span-2">
                     <span className="text-xs font-medium text-slate-500">Numero polizza</span>
                     <input className="w-full rounded-2xl border px-3 py-2" value={form.polizza} onChange={(e) => setForm({ ...form, polizza: e.target.value })} />
                   </label>
@@ -1238,7 +1238,7 @@ alert(
 
                 {!isVersamentoSubagente(form.tipo) && (
                   <>
-                    <label className="space-y-1 lg:col-span-1">
+                    <label className="space-y-1 lg:col-span-5">
                       <span className="text-xs font-medium text-slate-500">Contraente</span>
                       <input className="w-full rounded-2xl border px-3 py-2" value={form.contraente} onChange={(e) => setForm({ ...form, contraente: e.target.value })} />
                     </label>
@@ -1250,19 +1250,19 @@ alert(
                   </>
                 )}
 
-                <label className="space-y-1 lg:col-span-1">
+                <label className="space-y-1 lg:col-span-2">
                   <span className="text-xs font-medium text-slate-500">{isVersamentoSubagente(form.tipo) ? "Importo versato" : "Importo titolo"}</span>
                   <input type="number" className="w-full rounded-2xl border px-3 py-2" value={form.importo} onChange={(e) => setForm({ ...form, importo: e.target.value })} />
                 </label>
 
                 {!isVersamentoSubagente(form.tipo) && (
-                  <label className="space-y-1 lg:col-span-1">
+                  <label className="space-y-1 lg:col-span-2">
                     <span className="text-xs font-medium text-slate-500">Sconto</span>
                     <input type="number" className="w-full rounded-2xl border px-3 py-2" value={form.sconto} onChange={(e) => setForm({ ...form, sconto: e.target.value })} />
                   </label>
                 )}
 
-                <label className="space-y-1">
+                <label className="space-y-1 lg:col-span-3">
                   <span className="text-xs font-medium text-slate-500">Modalità effettiva</span>
                   <select className="w-full rounded-2xl border px-3 py-2" value={form.modalita} onChange={(e) => setForm({ ...form, modalita: e.target.value })}>
                     {modalita.map((m) => <option key={m}>{m}</option>)}
