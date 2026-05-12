@@ -1292,11 +1292,11 @@ alert(
 
                 {form.tipo === "Versamento subagente" && (
                   <>
-                    <label className="space-y-1">
+                    <label className="space-y-1 lg:col-span-2">
                       <span className="text-xs font-medium text-slate-500">Da data</span>
                       <input type="date" className="w-full rounded-2xl border px-3 py-2" value={form.dataInizioSubagente} onChange={(e) => setForm({ ...form, dataInizioSubagente: e.target.value })} />
                     </label>
-                    <label className="space-y-1">
+                    <label className="space-y-1 lg:col-span-2">
                       <span className="text-xs font-medium text-slate-500">A data</span>
                       <input type="date" className="w-full rounded-2xl border px-3 py-2" value={form.dataFineSubagente} onChange={(e) => setForm({ ...form, dataFineSubagente: e.target.value })} />
                     </label>
