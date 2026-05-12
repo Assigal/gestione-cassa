@@ -468,7 +468,9 @@ function SidebarMetric({
 
 export default function GestioneCassa() {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [giornataCorrente, setGiornataCorrente] = useState(GIORNATA_CORRENTE);
+  const [giornataCorrente, setGiornataCorrente] = useState(
+    localStorage.getItem("gestione-cassa-data-corrente") || GIORNATA_CORRENTE
+  );
   const [movimenti, setMovimenti] = useState<Movimento[]>(movimentiRegistratiSeed);
   const [sospesi, setSospesi] = useState<Sospeso[]>(sospesiSeed);
   const [importCompagnia, setImportCompagnia] = useState<ImportRow[]>(importCompagniaSeed);
@@ -504,8 +506,26 @@ function addAuditLog(azione: string) {
 
   const avanzoPrecedente = 1000;
   useEffect(() => {
-  const saved = localStorage.getItem(`gestione-cassa-${giornataCorrente}`)
-  if (!saved) return;
+    localStorage.setItem("gestione-cassa-data-corrente", giornataCorrente);
+  }, [giornataCorrente]);
+  useEffect(() => {
+  const saved = localStorage.getItem(`gestione-cassa-${giornataCorrente}`);
+
+  if (!saved) {
+    setMovimenti([]);
+    setImportCompagnia([]);
+    setVersamento("0");
+    setQuadMezza({ cassaReale: "" });
+    setQuadSera({ cassaReale: "" });
+    setQuadMezzaBloccata(null);
+    setQuadSeraBloccata(null);
+    setAuditLog([]);
+    setSelectedImport(null);
+    setEditingMovement(null);
+    setSelectedSospesoIds([]);
+    setForm(emptyForm);
+    return;
+  }
 
   try {
     const data = JSON.parse(saved);
