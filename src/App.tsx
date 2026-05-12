@@ -1337,7 +1337,7 @@ alert(
                 </label>
 
                 {form.modalita === "Assegno" && (
-                  <label className="space-y-1">
+                  <label className="space-y-1 lg:col-span-2">
                     <span className="text-xs font-medium text-slate-500">Data assegno</span>
                     <input type="date" className="w-full rounded-2xl border px-3 py-2" value={form.dataAssegno} onChange={(e) => setForm({ ...form, dataAssegno: e.target.value })} />
                   </label>
