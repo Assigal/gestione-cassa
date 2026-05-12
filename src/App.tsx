@@ -1243,7 +1243,7 @@ alert(
                       <input className="w-full rounded-2xl border px-3 py-2" value={form.contraente} onChange={(e) => setForm({ ...form, contraente: e.target.value })} />
                     </label>
 
-                    <label className="space-y-1">
+                    <label className="space-y-1 lg:col-span-5">
                       <span className="text-xs font-medium text-slate-500">Referente sospesi</span>
                       <input className="w-full rounded-2xl border px-3 py-2" value={form.referenteSospesi} onChange={(e) => setForm({ ...form, referenteSospesi: e.target.value })} />
                     </label>
