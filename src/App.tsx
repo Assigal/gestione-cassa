@@ -84,6 +84,7 @@ interface Sospeso {
 
 interface ImportRow {
   id: string;
+  sub: string;
   ramo: string;
   polizza: string;
   contraente: string;
@@ -224,6 +225,7 @@ const sospesiSeed: Sospeso[] = [
 const importCompagniaSeed: ImportRow[] = [
   {
     id: "imp-1",
+    sub: "100",
     ramo: "001",
     polizza: "459000",
     contraente: "Verdi Anna",
@@ -233,6 +235,7 @@ const importCompagniaSeed: ImportRow[] = [
   },
   {
     id: "imp-2",
+    sub: "100",
     ramo: "004",
     polizza: "459002",
     contraente: "Esposito Laura",
@@ -653,7 +656,7 @@ useEffect(() => {
       referenteSospesi: row.contraente,
       importo: String(row.importo),
       modalita: row.modalitaCompagnia,
-      sub: "100",
+      sub: row.sub || "100",
       tipo: "Titolo del giorno",
     });
   }
@@ -985,13 +988,14 @@ async function handleImportFile(event: React.ChangeEvent<HTMLInputElement>) {
     );
 
     const idxRamo = headers.indexOf("ramo");
+    const idxSub = headers.indexOf("subag");
     const idxPolizza = headers.indexOf("polizza");
     const idxContraente = headers.indexOf("contraente");
     const idxTotale = headers.indexOf("totale");
     const idxTipoPag = headers.indexOf("tipo pag");
 
-    if ([idxRamo, idxPolizza, idxContraente, idxTotale, idxTipoPag].some((i) => i < 0)) {
-      throw new Error("Colonne mancanti nel CSV: Ramo, Polizza, Contraente, Totale, Tipo Pag.");
+    if ([idxSub, idxRamo, idxPolizza, idxContraente, idxTotale, idxTipoPag].some((i) => i < 0)) {
+      throw new Error("Colonne mancanti nel CSV: Sub, Ramo, Polizza, Contraente, Totale, Tipo Pag.");
     }
 
     const grouped = new Map<string, ImportRow>();
@@ -1002,13 +1006,14 @@ async function handleImportFile(event: React.ChangeEvent<HTMLInputElement>) {
 
       if (!totale) return;
 
+      const sub = cols[idxSub] || "";
       const ramo = cols[idxRamo] || "";
       const polizza = cols[idxPolizza] || "";
       const contraente = cols[idxContraente] || "";
       const modalitaCompagnia = normalizzaModalitaPagamento(cols[idxTipoPag] || "");
 
-      const key = `${ramo}|${polizza}|${contraente}|${modalitaCompagnia}`;
-
+      const key = `${sub}|${ramo}|${polizza}|${contraente}|${modalitaCompagnia}`;
+      
       const existing = grouped.get(key);
 
       if (existing) {
@@ -1016,6 +1021,7 @@ async function handleImportFile(event: React.ChangeEvent<HTMLInputElement>) {
       } else {
         grouped.set(key, {
           id: `imp-${Date.now()}-${index}`,
+          sub,
           ramo,
           polizza,
           contraente,
@@ -1458,6 +1464,7 @@ alert(
                 <table className="w-full text-sm">
                   <thead className="sticky top-0 z-10 bg-amber-100 text-left text-xs uppercase tracking-wide text-amber-900">
                     <tr>
+                      <th className="px-3 py-2">Sub</th>
                       <th className="px-3 py-2">Polizza</th>
                       <th className="px-3 py-2">Contraente</th>
                       <th className="px-3 py-2">Modalità Compagnia</th>
@@ -1469,6 +1476,9 @@ alert(
                   <tbody>
                     {importCompagnia.map((row) => (
                       <tr key={row.id} className={`border-t border-amber-100 bg-white/70 hover:bg-white ${selectedImport === row.id ? "ring-2 ring-amber-300" : ""}`}>
+                        <td className="px-3 py-2 font-medium">
+                          {row.sub || "100"}
+                        </td>    
                         <td className="px-3 py-2"><div className="font-medium">{numeroPolizzaCompleto(row)}</div></td>
                         <td className="px-3 py-2">{row.contraente}</td>
                         <td className="px-3 py-2"><Badge>{row.modalitaCompagnia}</Badge></td>
