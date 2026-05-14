@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { supabase } from "./supabaseClient";
 
 const GIORNATA_CORRENTE = new Date().toISOString().slice(0, 10);
 
@@ -359,6 +360,7 @@ export default function GestioneCassa() {
   const [giornataCorrente, setGiornataCorrente] = useState(
     localStorage.getItem("gestione-cassa-data-corrente") || GIORNATA_CORRENTE
   );
+  const [giornataDbId, setGiornataDbId] = useState<string | null>(null);
   const [movimenti, setMovimenti] = useState<Movimento[]>(movimentiRegistratiSeed);
   const [sospesi, setSospesi] = useState<Sospeso[]>(sospesiSeed);
   const [importCompagnia, setImportCompagnia] = useState<ImportRow[]>(importCompagniaSeed);
@@ -394,6 +396,49 @@ function addAuditLog(azione: string) {
 }
 
   const avanzoPrecedente = 0;
+  
+  useEffect(() => {
+  async function caricaOCreaGiornata() {
+    const { data: giornataEsistente, error: selectError } = await supabase
+      .from("giornate_cassa")
+      .select("*")
+      .eq("data_giornata", giornataCorrente)
+      .maybeSingle();
+
+    if (selectError) {
+      console.error(selectError);
+      alert("Errore nel caricamento giornata da Supabase");
+      return;
+    }
+
+    if (giornataEsistente) {
+      setGiornataDbId(giornataEsistente.id);
+      setGiornataChiusa(giornataEsistente.stato === "chiusa");
+      return;
+    }
+
+    const { data: nuovaGiornata, error: insertError } = await supabase
+      .from("giornate_cassa")
+      .insert({
+        data_giornata: giornataCorrente,
+        stato: "aperta",
+        avanzo_precedente: 0,
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      console.error(insertError);
+      alert("Errore nella creazione giornata su Supabase");
+      return;
+    }
+
+    setGiornataDbId(nuovaGiornata.id);
+    setGiornataChiusa(false);
+  }
+
+  caricaOCreaGiornata();
+}, [giornataCorrente]);
   useEffect(() => {
     localStorage.setItem("gestione-cassa-data-corrente", giornataCorrente);
   }, [giornataCorrente]);
@@ -993,6 +1038,11 @@ alert(
                   {giornataChiusa && (
                     <div className="mt-2 rounded-xl bg-emerald-100 px-3 py-2 text-xs font-semibold text-emerald-700">
                       Giornata chiusa e non modificabile
+                    </div>
+                  )}
+                  {giornataDbId && (
+                    <div className="mt-2 rounded-xl bg-blue-100 px-3 py-2 text-xs font-semibold text-blue-700">
+                      Giornata collegata a Supabase
                     </div>
                   )}
                 </div>
