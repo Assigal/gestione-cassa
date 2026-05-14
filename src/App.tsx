@@ -19,7 +19,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-const GIORNATA_CORRENTE = "2026-05-06";
+const GIORNATA_CORRENTE = new Date().toISOString().slice(0, 10);
 
 const modalita = [
   "Contanti",
