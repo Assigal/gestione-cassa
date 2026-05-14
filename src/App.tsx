@@ -722,7 +722,7 @@ useEffect(() => {
     return { updatedSospesi, allocazioni };
   }
 
-  function saveForm() {
+  async function saveForm() {
     const importo = Number(form.importo || 0);
    if (!form.importo || importo === 0) {
   alert("Inserire un importo valido diverso da zero.");
@@ -846,6 +846,31 @@ useEffect(() => {
     }
 
     setMovimenti((rows) => [movimentoDaSalvare, ...rows]);
+    if (giornataDbId) {
+      const { error } = await supabase.from("movimenti_cassa").insert({
+        giornata_id: giornataDbId,
+        tipo_movimento: payload.tipo,
+        codice_subagenzia: payload.sub,
+        ramo: payload.ramo || null,
+        polizza: payload.polizza || null,
+        contraente: payload.contraente || null,
+        referente_sospesi: payload.referenteSospesi || null,
+        modalita_pagamento: payload.modalita,
+        data_assegno: payload.dataAssegno || null,
+        importo_lordo: payload.importo,
+        sconto: payload.sconto,
+        importo_netto: payload.netto,
+        segno: payload.segno,
+        note: payload.note || null,
+        data_inizio_subagente: payload.dataInizioSubagente || null,
+        data_fine_subagente: payload.dataFineSubagente || null,
+      });
+
+  if (error) {
+    console.error(error);
+    alert("Movimento salvato localmente, ma non salvato su Supabase.");
+  }
+}
     
     addAuditLog(`Inserito movimento ${payload.tipo} - polizza ${payload.polizza || "-"} - importo ${euro(payload.importo)}`);
     if (selectedImport) {
