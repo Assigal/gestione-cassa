@@ -126,7 +126,7 @@ const emptyForm: FormState = {
   dataFineSubagente: "",
 };
 
-const movimentiRegistratiSeed: Movimento[] = [
+const movimentiRegistratiSeed: Movimento[] = [];
   {
     id: 1,
     ramo: "001",
@@ -205,7 +205,7 @@ const movimentiRegistratiSeed: Movimento[] = [
   },
 ];
 
-const sospesiSeed: Sospeso[] = [
+const sospesiSeed: Sospeso[] = [];
   {
     id: "sosp-1",
     referenteSospesi: "Neri Paolo",
@@ -222,7 +222,7 @@ const sospesiSeed: Sospeso[] = [
   },
 ];
 
-const importCompagniaSeed: ImportRow[] = [
+const importCompagniaSeed: ImportRow[] = [];
   {
     id: "imp-1",
     sub: "100",
@@ -508,7 +508,7 @@ function addAuditLog(azione: string) {
   ]);
 }
 
-  const avanzoPrecedente = 1000;
+  const avanzoPrecedente = 0;
   useEffect(() => {
     localStorage.setItem("gestione-cassa-data-corrente", giornataCorrente);
   }, [giornataCorrente]);
