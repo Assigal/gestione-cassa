@@ -1209,6 +1209,40 @@ async function bloccaQuadraturaSera() {
       }
     }
   }
+  async function riapriGiornata() {
+    const motivo = window.prompt("Inserisci il motivo della riapertura giornata:");
+  
+    if (!motivo || !motivo.trim()) {
+      alert("Motivo riapertura obbligatorio.");
+      return;
+    }
+  
+    const conferma = window.confirm(
+      "Confermi la riapertura della giornata? Le modifiche potranno incidere sugli avanzi delle giornate successive."
+    );
+  
+    if (!conferma) return;
+  
+    setGiornataChiusa(false);
+    addAuditLog(`Riaperta giornata ${giornataCorrente} - motivo: ${motivo}`);
+  
+    if (giornataDbId) {
+      const { error } = await supabase
+        .from("giornate_cassa")
+        .update({
+          stato: "riaperta",
+          riaperta_il: new Date().toISOString(),
+          motivo_riapertura: motivo,
+          ricalcolo_richiesto: true,
+        })
+        .eq("id", giornataDbId);
+  
+      if (error) {
+        console.error(error);
+        alert("Giornata riaperta localmente, ma non aggiornata su Supabase.");
+      }
+    }
+  }
   function openImportFileDialog() {
     fileInputRef.current?.click();
   }
@@ -1519,6 +1553,15 @@ alert(
                 <CheckCircle2 className="mr-2 h-4 w-4" />
                 {giornataChiusa ? "Giornata chiusa" : "Chiudi giornata"}
               </Button>
+              {giornataChiusa && (
+              <Button
+                variant="outline"
+                className="w-full rounded-2xl border-amber-300 bg-amber-50 font-semibold text-amber-800 hover:bg-amber-100"
+                onClick={riapriGiornata}
+              >
+                Riapri giornata
+              </Button>
+            )}
             </CardContent>
           </Card>
         </aside>
