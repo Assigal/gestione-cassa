@@ -889,7 +889,7 @@ useEffect(() => {
     };
 
    if (editingMovement) {
-  const movimentoOriginale = movimenti.find((row) => row.id === editingMovement);
+    const movimentoOriginale = movimenti.find((row) => row.id === editingMovement);
 
   const primaEraSospeso =
     movimentoOriginale &&
@@ -905,6 +905,34 @@ useEffect(() => {
   setMovimenti((rows) =>
     rows.map((row) => (row.id === editingMovement ? { ...row, ...payload } : row))
   );
+
+  if (giornataDbId) {
+    const { error } = await supabase
+      .from("movimenti_cassa")
+      .update({
+        tipo_movimento: payload.tipo,
+        codice_subagenzia: payload.sub,
+        ramo: payload.ramo || null,
+        polizza: payload.polizza || null,
+        contraente: payload.contraente || null,
+        referente_sospesi: payload.referenteSospesi || null,
+        modalita_pagamento: payload.modalita,
+        data_assegno: payload.dataAssegno || null,
+        importo_lordo: payload.importo,
+        sconto: payload.sconto,
+        importo_netto: payload.netto,
+        segno: payload.segno,
+        note: payload.note || null,
+        data_inizio_subagente: payload.dataInizioSubagente || null,
+        data_fine_subagente: payload.dataFineSubagente || null,
+      })
+      .eq("id", editingMovement);
+  
+    if (error) {
+      console.error(error);
+      alert("Movimento modificato localmente, ma non aggiornato su Supabase.");
+    }
+  }
 
   if (primaEraSospeso && !oraESospeso) {
     setSospesi((rows) =>
