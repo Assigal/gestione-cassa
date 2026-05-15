@@ -395,7 +395,7 @@ function addAuditLog(azione: string) {
   ]);
 }
 
-  const avanzoPrecedente = 0;
+  const [avanzoPrecedente, setAvanzoPrecedente] = useState(0);
   
   useEffect(() => {
   async function caricaOCreaGiornata() {
@@ -411,19 +411,32 @@ function addAuditLog(azione: string) {
       return;
     }
 
-    if (giornataEsistente) {
+   if (giornataEsistente) {
       setGiornataDbId(giornataEsistente.id);
       setGiornataChiusa(giornataEsistente.stato === "chiusa");
+      setAvanzoPrecedente(Number(giornataEsistente.avanzo_precedente || 0));
       return;
     }
 
+    const { data: ultimaGiornataChiusa } = await supabase
+      .from("giornate_cassa")
+      .select("cassa_finale_teorica")
+      .lt("data_giornata", giornataCorrente)
+      .eq("stato", "chiusa")
+      .order("data_giornata", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    
+    const avanzoCalcolato = Number(ultimaGiornataChiusa?.cassa_finale_teorica || 0);
+    
     const { data: nuovaGiornata, error: insertError } = await supabase
       .from("giornate_cassa")
       .insert({
         data_giornata: giornataCorrente,
         stato: "aperta",
-        avanzo_precedente: 0,
+        avanzo_precedente: avanzoCalcolato,
       })
+      
       .select()
       .single();
 
@@ -435,6 +448,7 @@ function addAuditLog(azione: string) {
 
     setGiornataDbId(nuovaGiornata.id);
     setGiornataChiusa(false);
+    setAvanzoPrecedente(avanzoCalcolato);
   }
 
   caricaOCreaGiornata();
