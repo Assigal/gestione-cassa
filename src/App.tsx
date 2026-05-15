@@ -511,6 +511,48 @@ useEffect(() => {
   auditLog,
   giornataChiusa
 ]);
+  
+  useEffect(() => {
+    async function caricaMovimentiDaSupabase() {
+      if (!giornataDbId) return;
+  
+      const { data, error } = await supabase
+        .from("movimenti_cassa")
+        .select("*")
+        .eq("giornata_id", giornataDbId)
+        .order("created_at", { ascending: false });
+  
+      if (error) {
+        console.error(error);
+        alert("Errore caricamento movimenti da Supabase");
+        return;
+      }
+  
+      const movimentiDb: Movimento[] = (data || []).map((row) => ({
+        id: row.id,
+        ramo: row.ramo || "",
+        polizza: row.polizza || "",
+        contraente: row.contraente || "",
+        referenteSospesi: row.referente_sospesi || "",
+        importo: Number(row.importo_lordo || 0),
+        sconto: Number(row.sconto || 0),
+        netto: Number(row.importo_netto || 0),
+        modalita: row.modalita_pagamento || "Contanti",
+        tipo: row.tipo_movimento || "Titolo del giorno",
+        sub: row.codice_subagenzia || "100",
+        dataAssegno: row.data_assegno || "",
+        segno: Number(row.segno || 1),
+        note: row.note || "",
+        dataInizioSubagente: row.data_inizio_subagente || "",
+        dataFineSubagente: row.data_fine_subagente || "",
+        allocazioniRecupero: [],
+      }));
+  
+      setMovimenti(movimentiDb);
+    }
+  
+    caricaMovimentiDaSupabase();
+  }, [giornataDbId]);
 
   const totals = useMemo(() => {
     const totaleCompagnia = movimenti
