@@ -554,6 +554,40 @@ useEffect(() => {
     caricaMovimentiDaSupabase();
   }, [giornataDbId]);
 
+  useEffect(() => {
+  async function caricaSospesiDaSupabase() {
+    const { data, error } = await supabase
+      .from("sospesi_cassa")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error(error);
+      alert("Errore caricamento sospesi da Supabase");
+      return;
+    }
+
+    const sospesiDb: Sospeso[] = (data || []).map((row) => ({
+      id: row.id,
+      referenteSospesi: row.referente_sospesi || "",
+      contraente: row.contraente || "",
+      ramo: row.ramo || "",
+      polizza: row.polizza || "",
+      importoOriginario: Number(row.importo_originario || 0),
+      recuperato: Number(row.recuperato || 0),
+      scontoApplicato: Number(row.sconto_applicato || 0),
+      residuo: Number(row.residuo || 0),
+      stato: row.stato || "Aperto",
+      dataSospeso: row.data_sospeso || "",
+      note: row.note || "",
+    }));
+
+    setSospesi(sospesiDb);
+  }
+
+  caricaSospesiDaSupabase();
+}, [giornataDbId]);
+
   const totals = useMemo(() => {
     const totaleCompagnia = movimenti
       .filter((m) => m.tipo === "Titolo del giorno" && m.sub === "100")
