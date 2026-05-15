@@ -552,8 +552,59 @@ useEffect(() => {
     }
   
     caricaMovimentiDaSupabase();
-  }, [giornataDbId]);
+   }, [giornataDbId]);
+    
+      useEffect(() => {
+      async function caricaQuadratureDaSupabase() {
+        if (!giornataDbId) return;
+    
+        const { data, error } = await supabase
+          .from("quadrature_cassa")
+          .select("*")
+          .eq("giornata_id", giornataDbId)
+          .order("bloccata_il", { ascending: false });
+    
+        if (error) {
+          console.error(error);
+          alert("Errore caricamento quadrature da Supabase");
+          return;
+        }
+    
+        const quadrature = data || [];
+    
+        const mezza = quadrature.find((q) => q.tipo === "mezza_giornata");
+        const sera = quadrature.find((q) => q.tipo === "fine_giornata");
+    
+        setQuadMezzaBloccata(
+          mezza
+            ? {
+                cassaTeorica: Number(mezza.cassa_teorica || 0),
+                cassaReale: Number(mezza.cassa_reale || 0),
+                squadratura: Number(mezza.squadratura || 0),
+                dataOra: mezza.bloccata_il
+                  ? new Date(mezza.bloccata_il).toLocaleString("it-IT")
+                  : "",
+              }
+            : null
+        );
 
+    setQuadSeraBloccata(
+      sera
+        ? {
+            cassaTeorica: Number(sera.cassa_teorica || 0),
+            cassaReale: Number(sera.cassa_reale || 0),
+            squadratura: Number(sera.squadratura || 0),
+            dataOra: sera.bloccata_il
+              ? new Date(sera.bloccata_il).toLocaleString("it-IT")
+              : "",
+          }
+        : null
+    );
+  }
+
+  caricaQuadratureDaSupabase();
+}, [giornataDbId]);
+  
   useEffect(() => {
   async function caricaSospesiDaSupabase() {
     const { data, error } = await supabase
