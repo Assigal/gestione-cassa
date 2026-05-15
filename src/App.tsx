@@ -908,7 +908,7 @@ useEffect(() => {
     resetForm();
   }
 
-  function bloccaQuadraturaMezza() {
+ async function bloccaQuadraturaMezza() {
   const cassaReale = Number(quadMezza.cassaReale || 0);
 
   if (!quadMezza.cassaReale) {
@@ -922,10 +922,25 @@ useEffect(() => {
     squadratura: cassaReale - totals.cassa,
     dataOra: new Date().toLocaleString("it-IT"),
   });
+   if (giornataDbId) {
+      const { error } = await supabase.from("quadrature_cassa").insert({
+        giornata_id: giornataDbId,
+        tipo: "mezza_giornata",
+        cassa_teorica: totals.cassa,
+        cassa_reale: cassaReale,
+        squadratura: cassaReale - totals.cassa,
+        bloccata: true,
+      });
+    
+      if (error) {
+        console.error(error);
+        alert("Quadratura mezza giornata salvata localmente, ma non salvata su Supabase.");
+      }
+    }
   addAuditLog(`Bloccata quadratura mezza giornata - cassa reale ${euro(cassaReale)}`);
 }
 
-function bloccaQuadraturaSera() {
+async function bloccaQuadraturaSera() {
   const cassaReale = Number(quadSera.cassaReale || 0);
 
   if (!quadSera.cassaReale) {
@@ -939,6 +954,21 @@ function bloccaQuadraturaSera() {
     squadratura: cassaReale - totals.cassa,
     dataOra: new Date().toLocaleString("it-IT"),
   });
+  if (giornataDbId) {
+    const { error } = await supabase.from("quadrature_cassa").insert({
+      giornata_id: giornataDbId,
+      tipo: "fine_giornata",
+      cassa_teorica: totals.cassa,
+      cassa_reale: cassaReale,
+      squadratura: cassaReale - totals.cassa,
+      bloccata: true,
+    });
+  
+    if (error) {
+      console.error(error);
+      alert("Quadratura fine giornata salvata localmente, ma non salvata su Supabase.");
+    }
+  }
   addAuditLog(`Bloccata quadratura fine giornata - cassa reale ${euro(cassaReale)}`);
 }
   
