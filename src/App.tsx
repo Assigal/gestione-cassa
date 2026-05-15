@@ -1051,6 +1051,27 @@ const scartate = tutteLeRighe.length - nuoveRighe.length;
 
 setImportCompagnia((rows) => [...nuoveRighe, ...rows]);
 
+if (giornataDbId && nuoveRighe.length > 0) {
+  const { error } = await supabase.from("import_compagnia").insert(
+    nuoveRighe.map((row) => ({
+      giornata_id: giornataDbId,
+      sub: row.sub || null,
+      ramo: row.ramo || null,
+      polizza: row.polizza || null,
+      contraente: row.contraente || null,
+      importo: row.importo,
+      modalita_compagnia: row.modalitaCompagnia || null,
+      stato: row.stato || "Da lavorare",
+      file_origine: row.fileOrigine || null,
+    }))
+  );
+
+  if (error) {
+    console.error(error);
+    alert("Import salvato localmente, ma non salvato su Supabase.");
+  }
+}
+
 alert(
   `Import completato.\n` +
   `${nuoveRighe.length} nuovi movimenti importati.\n` +
