@@ -724,7 +724,7 @@ useEffect(() => {
     });
   }
 
-  function deleteMovement(id: number) {
+  async function deleteMovement(id: number) {
     const movimento = movimenti.find((row) => row.id === id);
 
     if (movimento?.tipo === "Recupero sospeso" && movimento.allocazioniRecupero?.length) {
@@ -755,6 +755,17 @@ useEffect(() => {
     );
 }
     setMovimenti((rows) => rows.filter((row) => row.id !== id));
+    if (giornataDbId) {
+      const { error } = await supabase
+        .from("movimenti_cassa")
+        .delete()
+        .eq("id", id);
+    
+      if (error) {
+        console.error(error);
+        alert("Movimento eliminato localmente, ma non eliminato da Supabase.");
+      }
+    }
   }
 
   function deleteImportedMovement(id: string) {
