@@ -821,8 +821,12 @@ useEffect(() => {
 
     let movimentoDaSalvare: Movimento = { id: Date.now(), ...payload };
 
-    if (!isVersamentoSubagente(payload.tipo) && (payload.modalita === "Sospeso" || (payload.modalita === "Assegno" && payload.dataAssegno > giornataCorrente))) {
-      setSospesi((rows) => [{
+   if (
+      !isVersamentoSubagente(payload.tipo) &&
+      (payload.modalita === "Sospeso" ||
+        (payload.modalita === "Assegno" && payload.dataAssegno > giornataCorrente))
+    ) {
+      const nuovoSospeso = {
         id: `sosp-${Date.now()}`,
         referenteSospesi: payload.referenteSospesi,
         contraente: payload.contraente,
@@ -835,7 +839,30 @@ useEffect(() => {
         stato: "Aperto",
         dataSospeso: giornataCorrente,
         note: payload.note,
-      }, ...rows]);
+      };
+    
+      setSospesi((rows) => [nuovoSospeso, ...rows]);
+    
+      if (giornataDbId) {
+        const { error } = await supabase.from("sospesi_cassa").insert({
+          data_sospeso: giornataCorrente,
+          referente_sospesi: nuovoSospeso.referenteSospesi,
+          contraente: nuovoSospeso.contraente || null,
+          ramo: nuovoSospeso.ramo || null,
+          polizza: nuovoSospeso.polizza || null,
+          importo_originario: nuovoSospeso.importoOriginario,
+          recuperato: nuovoSospeso.recuperato,
+          sconto_applicato: nuovoSospeso.scontoApplicato,
+          residuo: nuovoSospeso.residuo,
+          stato: nuovoSospeso.stato,
+          note: nuovoSospeso.note || null,
+        });
+    
+        if (error) {
+          console.error(error);
+          alert("Sospeso salvato localmente, ma non salvato su Supabase.");
+        }
+      }
     }
 
     if (payload.tipo === "Recupero sospeso" && selectedSospesoIds.length) {
