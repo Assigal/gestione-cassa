@@ -972,7 +972,7 @@ async function bloccaQuadraturaSera() {
   addAuditLog(`Bloccata quadratura fine giornata - cassa reale ${euro(cassaReale)}`);
 }
   
-  function chiudiGiornata() {
+  async function chiudiGiornata() {
   if (!quadSeraBloccata) {
     alert("Prima di chiudere la giornata devi bloccare la quadratura di fine giornata.");
     return;
@@ -984,8 +984,24 @@ async function bloccaQuadraturaSera() {
 
   if (!conferma) return;
 
-  setGiornataChiusa(true);
-  addAuditLog(`Chiusa giornata ${giornataCorrente} - cassa finale ${euro(totals.cassa)}`);
+ setGiornataChiusa(true);
+    addAuditLog(`Chiusa giornata ${giornataCorrente} - cassa finale ${euro(totals.cassa)}`);
+    
+    if (giornataDbId) {
+      const { error } = await supabase
+        .from("giornate_cassa")
+        .update({
+          stato: "chiusa",
+          cassa_finale_teorica: totals.cassa,
+          chiusa_il: new Date().toISOString(),
+        })
+        .eq("id", giornataDbId);
+    
+      if (error) {
+        console.error(error);
+        alert("Giornata chiusa localmente, ma non aggiornata su Supabase.");
+      }
+    }
   }
   function openImportFileDialog() {
     fileInputRef.current?.click();
