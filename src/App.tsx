@@ -1352,6 +1352,10 @@ useEffect(() => {
   if (movimentoCreato) {
      movimentoDaSalvare.id = movimentoCreato.id;
   }
+  alert(
+    `Movimento: ${movimentoCreato?.id || "nessuno"} - Storici: ${storicoSospesiDaCollegare.join(", ")}`
+  );
+    
   if (movimentoCreato?.id && storicoSospesiDaCollegare.length > 0) {
     const { error: linkStoricoError } = await supabase
       .from("sospesi_movimenti")
