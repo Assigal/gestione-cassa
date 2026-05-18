@@ -1126,82 +1126,82 @@ useEffect(() => {
 
     let movimentoDaSalvare: Movimento = { id: Date.now(), ...payload };
 
-  if (
-    payload.tipo === "Titolo del giorno" &&
-    !isVersamentoSubagente(payload.tipo) &&
-    (payload.modalita === "Sospeso" ||
-      (payload.modalita === "Assegno" && payload.dataAssegno > giornataCorrente))
-  ) {
-      const nuovoSospeso = {
-        id: `sosp-${Date.now()}`,
-        referenteSospesi: payload.referenteSospesi,
-        contraente: payload.contraente,
-        ramo: payload.ramo,
-        polizza: payload.polizza,
-        importoOriginario: payload.importo,
-        recuperato: 0,
-        scontoApplicato: 0,
-        residuo: payload.importo,
-        stato: "Aperto",
-        dataSospeso: giornataCorrente,
-        note: payload.note,
-      };
-    
-     // lo inseriamo nello state dopo aver ricevuto l'id vero da Supabase
-    
-      if (giornataDbId) {
-        const { data: sospesoCreato, error } = await supabase
-          .from("sospesi_cassa")
-          .insert({
-            data_sospeso: giornataCorrente,
-            referente_sospesi: nuovoSospeso.referenteSospesi,
-            contraente: nuovoSospeso.contraente || null,
-            ramo: nuovoSospeso.ramo || null,
-            polizza: nuovoSospeso.polizza || null,
-            importo_originario: nuovoSospeso.importoOriginario,
-            recuperato: nuovoSospeso.recuperato,
-            sconto_applicato: nuovoSospeso.scontoApplicato,
-            residuo: nuovoSospeso.residuo,
-            stato: nuovoSospeso.stato,
-            note: nuovoSospeso.note || null,
-          })
-          .select()
-          .single();
-      
-        if (error) {
-          console.error(error);
-          alert("Sospeso salvato localmente, ma non salvato su Supabase.");
-        }
-      
-        if (sospesoCreato) {
-          setSospesi((rows) => [
-            {
-              ...nuovoSospeso,
-              id: sospesoCreato.id,
-            },
-            ...rows,
-          ]);
-          const { error: storicoError } = await supabase
-            .from("sospesi_movimenti")
-            .insert({
-              sospeso_id: sospesoCreato.id,
-              tipo: "origine",
-              data_movimento: giornataCorrente,
-              importo: nuovoSospeso.importoOriginario,
-              modalita_pagamento: payload.modalita,
-              note: payload.note || null,
-              user_id: session?.user?.id || null,
-              user_email: session?.user?.email || null,
-            });
-      
-          if (storicoError) {
-            console.error(storicoError);
-            alert("Sospeso creato, ma storico origine non salvato: " + storicoError.message);
-          }
-        }
-      }
+ if (
+  payload.tipo === "Titolo del giorno" &&
+  !isVersamentoSubagente(payload.tipo) &&
+  (payload.modalita === "Sospeso" ||
+    (payload.modalita === "Assegno" && payload.dataAssegno > giornataCorrente))
+) {
+  const tempId = `sosp-${Date.now()}`;
+
+  const nuovoSospeso = {
+    id: tempId,
+    referenteSospesi: payload.referenteSospesi,
+    contraente: payload.contraente,
+    ramo: payload.ramo,
+    polizza: payload.polizza,
+    importoOriginario: payload.importo,
+    recuperato: 0,
+    scontoApplicato: 0,
+    residuo: payload.importo,
+    stato: "Aperto",
+    dataSospeso: giornataCorrente,
+    note: payload.note,
+  };
+
+  setSospesi((rows) => [nuovoSospeso, ...rows]);
+
+  if (giornataDbId) {
+    const { data: sospesoCreato, error } = await supabase
+      .from("sospesi_cassa")
+      .insert({
+        data_sospeso: giornataCorrente,
+        referente_sospesi: nuovoSospeso.referenteSospesi,
+        contraente: nuovoSospeso.contraente || null,
+        ramo: nuovoSospeso.ramo || null,
+        polizza: nuovoSospeso.polizza || null,
+        importo_originario: nuovoSospeso.importoOriginario,
+        recuperato: nuovoSospeso.recuperato,
+        sconto_applicato: nuovoSospeso.scontoApplicato,
+        residuo: nuovoSospeso.residuo,
+        stato: nuovoSospeso.stato,
+        note: nuovoSospeso.note || null,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error(error);
+      alert("Sospeso salvato localmente, ma non salvato su Supabase.");
     }
 
+    if (sospesoCreato) {
+      setSospesi((rows) =>
+        rows.map((s) =>
+          s.id === tempId ? { ...s, id: sospesoCreato.id } : s
+        )
+      );
+
+      const { error: storicoError } = await supabase
+        .from("sospesi_movimenti")
+        .insert({
+          sospeso_id: sospesoCreato.id,
+          tipo: "origine",
+          data_movimento: giornataCorrente,
+          importo: nuovoSospeso.importoOriginario,
+          modalita_pagamento: payload.modalita,
+          note: payload.note || null,
+          user_id: session?.user?.id || null,
+          user_email: session?.user?.email || null,
+        });
+
+      if (storicoError) {
+        console.error(storicoError);
+        alert("Sospeso creato, ma storico origine non salvato: " + storicoError.message);
+      }
+    }
+  }
+}
    if (payload.tipo === "Recupero sospeso" && selectedSospesoIds.length) {
      const recuperaSospesoStessaGiornata = sospesi.some(
       (s) => selectedSospesoIds.includes(s.id) && s.dataSospeso === giornataCorrente
