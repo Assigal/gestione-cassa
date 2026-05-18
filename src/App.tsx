@@ -1115,42 +1115,54 @@ useEffect(() => {
     }
 
    if (payload.tipo === "Recupero sospeso" && selectedSospesoIds.length) {
-  const recuperoDiventaNuovoSospeso =
-    payload.modalita === "Sospeso" ||
-    (payload.modalita === "Assegno" && payload.dataAssegno > giornataCorrente);
+     const recuperaSospesoStessaGiornata = sospesi.some(
+      (s) => selectedSospesoIds.includes(s.id) && s.dataSospeso === giornataCorrente
+    );
+    
+    if (recuperaSospesoStessaGiornata) {
+      const conferma = window.confirm(
+        "Attenzione: stai recuperando un sospeso creato nella stessa giornata. Se si tratta di correggere modalità o data pagamento, è meglio modificare il movimento originale dal box Movimenti registrati. Vuoi continuare comunque?"
+      );
+    
+      if (!conferma) return;
+    }
+     
+    const recuperoDiventaNuovoSospeso =
+      payload.modalita === "Sospeso" ||
+      (payload.modalita === "Assegno" && payload.dataAssegno > giornataCorrente);
+  
+    const { updatedSospesi, allocazioni } = applyRecuperoToSospesi(
+      importo,
+      sconto,
+      payload.note
+    );
 
-  const { updatedSospesi, allocazioni } = applyRecuperoToSospesi(
-    importo,
-    sconto,
-    payload.note
-  );
-
-  setSospesi(updatedSospesi);
-  movimentoDaSalvare = { ...movimentoDaSalvare, allocazioniRecupero: allocazioni };
-
-  if (giornataDbId) {
-    for (const sospesoId of selectedSospesoIds) {
-      const sospesoAggiornato = updatedSospesi.find((s) => s.id === sospesoId);
-
-      if (sospesoAggiornato) {
-        const { error } = await supabase
-          .from("sospesi_cassa")
-          .update({
-            recuperato: sospesoAggiornato.recuperato,
-            sconto_applicato: sospesoAggiornato.scontoApplicato,
-            residuo: sospesoAggiornato.residuo,
-            stato: sospesoAggiornato.stato,
-            note: sospesoAggiornato.note || null,
-          })
-          .eq("id", sospesoId);
-
-        if (error) {
-          console.error(error);
-          alert("Recupero aggiornato localmente, ma non salvato su Supabase.");
+    setSospesi(updatedSospesi);
+    movimentoDaSalvare = { ...movimentoDaSalvare, allocazioniRecupero: allocazioni };
+  
+    if (giornataDbId) {
+      for (const sospesoId of selectedSospesoIds) {
+        const sospesoAggiornato = updatedSospesi.find((s) => s.id === sospesoId);
+  
+        if (sospesoAggiornato) {
+          const { error } = await supabase
+            .from("sospesi_cassa")
+            .update({
+              recuperato: sospesoAggiornato.recuperato,
+              sconto_applicato: sospesoAggiornato.scontoApplicato,
+              residuo: sospesoAggiornato.residuo,
+              stato: sospesoAggiornato.stato,
+              note: sospesoAggiornato.note || null,
+            })
+            .eq("id", sospesoId);
+  
+          if (error) {
+            console.error(error);
+            alert("Recupero aggiornato localmente, ma non salvato su Supabase.");
+          }
         }
       }
     }
-  }
 
   if (recuperoDiventaNuovoSospeso) {
     const nuovoSospeso = {
