@@ -357,6 +357,25 @@ function SidebarMetric({
 
 export default function GestioneCassa() {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [session, setSession] = useState<any>(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      setAuthLoading(false);
+    });
+  
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+  
+    return () => subscription.unsubscribe();
+  }, []);
+  
   const [giornataCorrente, setGiornataCorrente] = useState(
     localStorage.getItem("gestione-cassa-data-corrente") || GIORNATA_CORRENTE
   );
@@ -388,6 +407,21 @@ const [quadSeraBloccata, setQuadSeraBloccata] = useState<{
   const [auditLog, setAuditLog] = useState<string[]>([]);
   const [giornataChiusa, setGiornataChiusa] = useState(false);
 
+async function login() {
+  const { error } = await supabase.auth.signInWithPassword({
+    email: loginEmail,
+    password: loginPassword,
+  });
+
+  if (error) {
+    alert("Login non riuscito: " + error.message);
+  }
+}
+
+async function logout() {
+  await supabase.auth.signOut();
+}
+  
 async function addAuditLog(azione: string) {
   setAuditLog((rows) => [
     `${new Date().toLocaleString("it-IT")} - Alessandro - ${azione}`,
@@ -1592,7 +1626,52 @@ alert(
 }
 
   const selectedImportRow = importCompagnia.find((row) => row.id === selectedImport);
-
+  
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 text-slate-700">
+        Caricamento...
+      </div>
+    );
+  }
+  
+  if (!session) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
+        <Card className="w-full max-w-md rounded-2xl shadow-sm">
+          <CardContent className="space-y-4 p-6">
+            <div>
+              <h1 className="text-xl font-semibold">Accesso Gestione Cassa</h1>
+              <p className="text-sm text-slate-500">
+                Inserisci le credenziali operative.
+              </p>
+            </div>
+  
+            <input
+              type="email"
+              className="w-full rounded-2xl border px-3 py-2"
+              placeholder="Email"
+              value={loginEmail}
+              onChange={(e) => setLoginEmail(e.target.value)}
+            />
+  
+            <input
+              type="password"
+              className="w-full rounded-2xl border px-3 py-2"
+              placeholder="Password"
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+            />
+  
+            <Button className="w-full rounded-2xl" onClick={login}>
+              Accedi
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+  
   return (
     <div className="min-h-screen bg-slate-50 p-4 text-slate-900">
       <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-4 xl:grid-cols-[320px_1fr]">
@@ -1606,9 +1685,16 @@ alert(
                 <div>
                   <h1 className="text-xl font-semibold tracking-tight">Gestione cassa</h1>
                   <p className="text-xs text-slate-500">
-                    {giornataCorrente} · Alessandro
+                    {giornataCorrente} · {session.user.email}
                   </p>
-
+                  
+                  <Button
+                    variant="outline"
+                    className="mt-2 rounded-2xl text-xs"
+                    onClick={logout}
+                  >
+                    Esci
+                  </Button>
                   <input
                     type="date"
                     className="mt-2 w-full rounded-2xl border px-3 py-2 text-sm"
