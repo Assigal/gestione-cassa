@@ -398,6 +398,7 @@ function addAuditLog(azione: string) {
   const [avanzoPrecedente, setAvanzoPrecedente] = useState(0);
   
   useEffect(() => {
+    
   async function caricaOCreaGiornata() {
     const { data: giornataEsistente, error: selectError } = await supabase
       .from("giornate_cassa")
@@ -415,6 +416,7 @@ function addAuditLog(azione: string) {
       setGiornataDbId(giornataEsistente.id);
       setGiornataChiusa(giornataEsistente.stato === "chiusa");
       setAvanzoPrecedente(Number(giornataEsistente.avanzo_precedente || 0));
+      setVersamento(String(giornataEsistente.versamento || 0));
       return;
     }
 
@@ -1318,6 +1320,24 @@ async function bloccaQuadraturaSera() {
       cassaFinalePrecedente = nuovaCassaFinale;
     }
   }
+  
+  async function aggiornaVersamento(value: string) {
+    setVersamento(value);
+  
+    if (!giornataDbId) return;
+  
+    const { error } = await supabase
+      .from("giornate_cassa")
+      .update({
+        versamento: Number(value || 0),
+      })
+      .eq("id", giornataDbId);
+  
+    if (error) {
+      console.error(error);
+    }
+  }
+  
   function openImportFileDialog() {
     fileInputRef.current?.click();
   }
@@ -1494,7 +1514,7 @@ alert(
                     type="number"
                     className="mt-2 w-full rounded-2xl border px-3 py-2 text-sm"
                     value={versamento}
-                    onChange={(e) => setVersamento(e.target.value)}
+                    onChange={(e) => aggiornaVersamento(e.target.value)}
                   />
                 </label>
                 <p className="mt-2 text-xs text-slate-500">
