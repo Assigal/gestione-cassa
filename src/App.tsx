@@ -1203,21 +1203,7 @@ useEffect(() => {
   }
 }
    if (payload.tipo === "Recupero sospeso" && selectedSospesoIds.length) {
-     const recuperaSospesoStessaGiornata = sospesi.some(
-      (s) => selectedSospesoIds.includes(s.id) && s.dataSospeso === giornataCorrente
-    );
-    
-   if (recuperaSospesoStessaGiornata) {
-      const conferma = window.confirm(
-        "Attenzione: stai recuperando un sospeso creato nella stessa giornata. Se si tratta di correggere modalità o data pagamento, è meglio modificare il movimento originale dal box Movimenti registrati. Vuoi continuare comunque?"
-      );
-    
-      if (!conferma) {
-        return;
-      }
-    }
-     
-    const recuperoDiventaNuovoSospeso =
+      const recuperoDiventaNuovoSospeso =
       payload.modalita === "Sospeso" ||
       (payload.modalita === "Assegno" && payload.dataAssegno > giornataCorrente);
   
