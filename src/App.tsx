@@ -1055,8 +1055,8 @@ useEffect(() => {
     .select()
     .single();
   
-  if (sospesoCreato) {
-    await supabase.from("sospesi_movimenti").insert({
+ if (sospesoCreato) {
+    const { error: storicoError } = await supabase.from("sospesi_movimenti").insert({
       sospeso_id: sospesoCreato.id,
       tipo: "origine",
       data_movimento: giornataCorrente,
@@ -1066,6 +1066,11 @@ useEffect(() => {
       user_id: session?.user?.id || null,
       user_email: session?.user?.email || null,
     });
+  
+    if (storicoError) {
+      console.error(storicoError);
+      alert("Sospeso creato, ma storico origine non salvato: " + storicoError.message);
+    }
   }
    
   if (error) {
@@ -1121,11 +1126,12 @@ useEffect(() => {
 
     let movimentoDaSalvare: Movimento = { id: Date.now(), ...payload };
 
-   if (
-      !isVersamentoSubagente(payload.tipo) &&
-      (payload.modalita === "Sospeso" ||
-        (payload.modalita === "Assegno" && payload.dataAssegno > giornataCorrente))
-    ) {
+  if (
+    payload.tipo === "Titolo del giorno" &&
+    !isVersamentoSubagente(payload.tipo) &&
+    (payload.modalita === "Sospeso" ||
+      (payload.modalita === "Assegno" && payload.dataAssegno > giornataCorrente))
+  ) {
       const nuovoSospeso = {
         id: `sosp-${Date.now()}`,
         referenteSospesi: payload.referenteSospesi,
