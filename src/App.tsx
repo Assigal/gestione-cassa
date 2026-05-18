@@ -1147,7 +1147,7 @@ useEffect(() => {
         note: payload.note,
       };
     
-      setSospesi((rows) => [nuovoSospeso, ...rows]);
+     // lo inseriamo nello state dopo aver ricevuto l'id vero da Supabase
     
       if (giornataDbId) {
         const { data: sospesoCreato, error } = await supabase
@@ -1174,6 +1174,13 @@ useEffect(() => {
         }
       
         if (sospesoCreato) {
+          setSospesi((rows) => [
+            {
+              ...nuovoSospeso,
+              id: sospesoCreato.id,
+            },
+            ...rows,
+          ]);
           const { error: storicoError } = await supabase
             .from("sospesi_movimenti")
             .insert({
