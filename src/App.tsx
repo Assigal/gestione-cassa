@@ -1352,17 +1352,17 @@ useEffect(() => {
   if (movimentoCreato) {
      movimentoDaSalvare.id = movimentoCreato.id;
   }
-  alert(
-    `Movimento: ${movimentoCreato?.id || "nessuno"} - Storici: ${storicoSospesiDaCollegare.join(", ")}`
-  );
-    
-  if (movimentoCreato?.id && storicoSospesiDaCollegare.length > 0) {
+     
+ if (movimentoCreato?.id && payload.tipo === "Titolo del giorno") {
     const { error: linkStoricoError } = await supabase
       .from("sospesi_movimenti")
       .update({
         movimento_cassa_id: movimentoCreato.id,
       })
-      .in("id", storicoSospesiDaCollegare);
+      .eq("tipo", "origine")
+      .eq("data_movimento", giornataCorrente)
+      .eq("importo", payload.importo)
+      .is("movimento_cassa_id", null);
   
     if (linkStoricoError) {
       console.error(linkStoricoError);
