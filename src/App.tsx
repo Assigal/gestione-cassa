@@ -924,74 +924,104 @@ useEffect(() => {
    if (editingMovement) {
     const movimentoOriginale = movimenti.find((row) => row.id === editingMovement);
 
-  const primaEraSospeso =
-    movimentoOriginale &&
-    movimentoOriginale.tipo === "Titolo del giorno" &&
-    (movimentoOriginale.modalita === "Sospeso" ||
-      isAssegnoPostdatato(movimentoOriginale, giornataCorrente));
-
-  const oraESospeso =
-    payload.tipo === "Titolo del giorno" &&
-    (payload.modalita === "Sospeso" ||
-      (payload.modalita === "Assegno" && payload.dataAssegno > giornataCorrente));
-
-  setMovimenti((rows) =>
-    rows.map((row) => (row.id === editingMovement ? { ...row, ...payload } : row))
-  );
-
-  if (giornataDbId) {
-    const { error } = await supabase
-      .from("movimenti_cassa")
-      .update({
-        tipo_movimento: payload.tipo,
-        codice_subagenzia: payload.sub,
-        ramo: payload.ramo || null,
-        polizza: payload.polizza || null,
-        contraente: payload.contraente || null,
-        referente_sospesi: payload.referenteSospesi || null,
-        modalita_pagamento: payload.modalita,
-        data_assegno: payload.dataAssegno || null,
-        importo_lordo: payload.importo,
-        sconto: payload.sconto,
-        importo_netto: payload.netto,
-        segno: payload.segno,
-        note: payload.note || null,
-        data_inizio_subagente: payload.dataInizioSubagente || null,
-        data_fine_subagente: payload.dataFineSubagente || null,
-      })
-      .eq("id", editingMovement);
+    const primaEraSospeso =
+      movimentoOriginale &&
+      movimentoOriginale.tipo === "Titolo del giorno" &&
+      (movimentoOriginale.modalita === "Sospeso" ||
+        isAssegnoPostdatato(movimentoOriginale, giornataCorrente));
   
-    if (error) {
+    const oraESospeso =
+      payload.tipo === "Titolo del giorno" &&
+      (payload.modalita === "Sospeso" ||
+        (payload.modalita === "Assegno" && payload.dataAssegno > giornataCorrente));
+  
+    setMovimenti((rows) =>
+      rows.map((row) => (row.id === editingMovement ? { ...row, ...payload } : row))
+    );
+
+    if (giornataDbId) {
+      const { error } = await supabase
+        .from("movimenti_cassa")
+        .update({
+          tipo_movimento: payload.tipo,
+          codice_subagenzia: payload.sub,
+          ramo: payload.ramo || null,
+          polizza: payload.polizza || null,
+          contraente: payload.contraente || null,
+          referente_sospesi: payload.referenteSospesi || null,
+          modalita_pagamento: payload.modalita,
+          data_assegno: payload.dataAssegno || null,
+          importo_lordo: payload.importo,
+          sconto: payload.sconto,
+          importo_netto: payload.netto,
+          segno: payload.segno,
+          note: payload.note || null,
+          data_inizio_subagente: payload.dataInizioSubagente || null,
+          data_fine_subagente: payload.dataFineSubagente || null,
+        })
+        .eq("id", editingMovement);
+    
+      if (error) {
       console.error(error);
       alert("Movimento modificato localmente, ma non aggiornato su Supabase.");
     }
   }
 
-  if (primaEraSospeso && !oraESospeso) {
+ if (primaEraSospeso && !oraESospeso) {
     setSospesi((rows) =>
       rows.filter((s) => s.polizza !== movimentoOriginale?.polizza)
     );
+  
+    if (movimentoOriginale?.polizza) {
+      const { error } = await supabase
+        .from("sospesi_cassa")
+        .delete()
+        .eq("polizza", movimentoOriginale.polizza);
+  
+      if (error) {
+        console.error(error);
+        alert("Sospeso rimosso localmente, ma non eliminato da Supabase.");
+      }
+    }
   }
 
-  if (!primaEraSospeso && oraESospeso) {
-    setSospesi((rows) => [
-      {
-        id: `sosp-${Date.now()}`,
-        referenteSospesi: payload.referenteSospesi,
-        contraente: payload.contraente,
-        ramo: payload.ramo,
-        polizza: payload.polizza,
-        importoOriginario: payload.importo,
-        recuperato: 0,
-        scontoApplicato: 0,
-        residuo: payload.importo,
-        stato: "Aperto",
-        dataSospeso: giornataCorrente,
-        note: payload.note,
-      },
-      ...rows,
-    ]);
+ if (!primaEraSospeso && oraESospeso) {
+  const nuovoSospeso = {
+    id: `sosp-${Date.now()}`,
+    referenteSospesi: payload.referenteSospesi,
+    contraente: payload.contraente,
+    ramo: payload.ramo,
+    polizza: payload.polizza,
+    importoOriginario: payload.importo,
+    recuperato: 0,
+    scontoApplicato: 0,
+    residuo: payload.importo,
+    stato: "Aperto",
+    dataSospeso: giornataCorrente,
+    note: payload.note,
+  };
+
+  setSospesi((rows) => [nuovoSospeso, ...rows]);
+
+  const { error } = await supabase.from("sospesi_cassa").insert({
+    data_sospeso: giornataCorrente,
+    referente_sospesi: nuovoSospeso.referenteSospesi,
+    contraente: nuovoSospeso.contraente || null,
+    ramo: nuovoSospeso.ramo || null,
+    polizza: nuovoSospeso.polizza || null,
+    importo_originario: nuovoSospeso.importoOriginario,
+    recuperato: nuovoSospeso.recuperato,
+    sconto_applicato: nuovoSospeso.scontoApplicato,
+    residuo: nuovoSospeso.residuo,
+    stato: nuovoSospeso.stato,
+    note: nuovoSospeso.note || null,
+  });
+
+  if (error) {
+    console.error(error);
+    alert("Sospeso creato localmente, ma non salvato su Supabase.");
   }
+}
 
   if (primaEraSospeso && oraESospeso) {
     setSospesi((rows) =>
@@ -1010,6 +1040,26 @@ useEffect(() => {
           : s
       )
     );
+  
+    if (movimentoOriginale?.polizza) {
+      const { error } = await supabase
+        .from("sospesi_cassa")
+        .update({
+          referente_sospesi: payload.referenteSospesi,
+          contraente: payload.contraente || null,
+          ramo: payload.ramo || null,
+          polizza: payload.polizza || null,
+          importo_originario: payload.importo,
+          residuo: payload.importo,
+          note: payload.note || null,
+        })
+        .eq("polizza", movimentoOriginale.polizza);
+  
+      if (error) {
+        console.error(error);
+        alert("Sospeso aggiornato localmente, ma non aggiornato su Supabase.");
+      }
+    }
   }
 
   setEditingMovement(null);
