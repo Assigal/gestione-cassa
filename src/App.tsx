@@ -1212,40 +1212,40 @@ async function bloccaQuadraturaSera() {
     await ricalcolaAvanziDa(giornataCorrente);
   }
   async function riapriGiornata() {
-    const motivo = window.prompt("Inserisci il motivo della riapertura giornata:");
-  
-    if (!motivo || !motivo.trim()) {
-      alert("Motivo riapertura obbligatorio.");
-      return;
-    }
-  
-    const conferma = window.confirm(
-      "Confermi la riapertura della giornata? Le modifiche potranno incidere sugli avanzi delle giornate successive."
-    );
-  
-    if (!conferma) return;
-  
-    setGiornataChiusa(false);
-    addAuditLog(`Riaperta giornata ${giornataCorrente} - motivo: ${motivo}`);
-  
-    if (giornataDbId) {
-      const { error } = await supabase
-        .from("giornate_cassa")
-        .update({
-          stato: "riaperta",
-          riaperta_il: new Date().toISOString(),
-          motivo_riapertura: motivo,
-          ricalcolo_richiesto: true,
-        })
-        .eq("id", giornataDbId);
-  
-      if (error) {
-        console.error(error);
-        alert("Giornata riaperta localmente, ma non aggiornata su Supabase.");
+      const motivo = window.prompt("Inserisci il motivo della riapertura giornata:");
+    
+      if (!motivo || !motivo.trim()) {
+        alert("Motivo riapertura obbligatorio.");
+        return;
+      }
+    
+      const conferma = window.confirm(
+        "Confermi la riapertura della giornata? Le modifiche potranno incidere sugli avanzi delle giornate successive."
+      );
+    
+      if (!conferma) return;
+    
+      setGiornataChiusa(false);
+      addAuditLog(`Riaperta giornata ${giornataCorrente} - motivo: ${motivo}`);
+    
+      if (giornataDbId) {
+        const { error } = await supabase
+          .from("giornate_cassa")
+          .update({
+            stato: "riaperta",
+            riaperta_il: new Date().toISOString(),
+            motivo_riapertura: motivo,
+            ricalcolo_richiesto: true,
+          })
+          .eq("id", giornataDbId);
+    
+        if (error) {
+          console.error(error);
+          alert("Giornata riaperta localmente, ma non aggiornata su Supabase.");
+        }
       }
     }
-  }
-  async function ricalcolaAvanziDa(dataRiferimento: string) {
+   async function ricalcolaAvanziDa(dataRiferimento: string) {
     const { data: giornate, error } = await supabase
       .from("giornate_cassa")
       .select("*")
@@ -1257,13 +1257,15 @@ async function bloccaQuadraturaSera() {
       return;
     }
   
+    let cassaFinalePrecedente: number | null = null;
+  
     for (let i = 0; i < giornate.length; i++) {
       const giornata = giornate[i];
   
       let avanzo = 0;
   
-      if (i > 0) {
-        avanzo = Number(giornate[i - 1].cassa_finale_teorica || 0);
+      if (cassaFinalePrecedente !== null) {
+        avanzo = cassaFinalePrecedente;
       } else {
         const { data: precedente } = await supabase
           .from("giornate_cassa")
@@ -1287,7 +1289,6 @@ async function bloccaQuadraturaSera() {
       const incassiFisici = rows
         .filter((m) => {
           if (m.modalita_pagamento === "Contanti") return true;
-  
           if (
             m.modalita_pagamento === "Assegno" &&
             m.data_assegno &&
@@ -1295,17 +1296,14 @@ async function bloccaQuadraturaSera() {
           ) {
             return true;
           }
-  
           return false;
         })
         .reduce(
-          (sum, m) =>
-            sum + Number(m.importo_netto || 0) * Number(m.segno || 1),
+          (sum, m) => sum + Number(m.importo_netto || 0) * Number(m.segno || 1),
           0
         );
   
       const versamento = Number(giornata.versamento || 0);
-  
       const nuovaCassaFinale = avanzo + incassiFisici - versamento;
   
       await supabase
@@ -1316,6 +1314,8 @@ async function bloccaQuadraturaSera() {
           ricalcolo_richiesto: false,
         })
         .eq("id", giornata.id);
+  
+      cassaFinalePrecedente = nuovaCassaFinale;
     }
   }
   function openImportFileDialog() {
