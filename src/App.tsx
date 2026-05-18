@@ -388,11 +388,25 @@ const [quadSeraBloccata, setQuadSeraBloccata] = useState<{
   const [auditLog, setAuditLog] = useState<string[]>([]);
   const [giornataChiusa, setGiornataChiusa] = useState(false);
 
-function addAuditLog(azione: string) {
+async function addAuditLog(azione: string) {
   setAuditLog((rows) => [
     `${new Date().toLocaleString("it-IT")} - Alessandro - ${azione}`,
     ...rows,
   ]);
+
+  if (!giornataDbId) return;
+
+  const { error } = await supabase.from("audit_log").insert({
+    giornata_id: giornataDbId,
+    azione,
+    dettaglio: {
+      data_giornata: giornataCorrente,
+    },
+  });
+
+  if (error) {
+    console.error(error);
+  }
 }
 
   const [avanzoPrecedente, setAvanzoPrecedente] = useState(0);
