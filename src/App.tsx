@@ -1056,7 +1056,9 @@ useEffect(() => {
     .single();
   
  if (sospesoCreato) {
-    const { error: storicoError } = await supabase.from("sospesi_movimenti").insert({
+    const { data: storicoCreato, error: storicoError } = await supabase
+     .from("sospesi_movimenti")
+    .insert({
       sospeso_id: sospesoCreato.id,
       tipo: "origine",
       data_movimento: giornataCorrente,
@@ -1065,7 +1067,14 @@ useEffect(() => {
       note: payload.note || null,
       user_id: session?.user?.id || null,
       user_email: session?.user?.email || null,
-    });
+    })
+    .select("id")
+    .single();
+  
+  if (storicoCreato?.id) {
+    storicoSospesiDaCollegare.push(storicoCreato.id);
+  }
+   
   
     if (storicoError) {
       console.error(storicoError);
@@ -1125,6 +1134,7 @@ useEffect(() => {
 }
 
     let movimentoDaSalvare: Movimento = { id: Date.now(), ...payload };
+    const storicoSospesiDaCollegare: string[] = [];
 
  if (
   payload.tipo === "Titolo del giorno" &&
@@ -1341,6 +1351,19 @@ useEffect(() => {
   }
   if (movimentoCreato) {
      movimentoDaSalvare.id = movimentoCreato.id;
+  }
+  if (movimentoCreato?.id && storicoSospesiDaCollegare.length > 0) {
+    const { error: linkStoricoError } = await supabase
+      .from("sospesi_movimenti")
+      .update({
+        movimento_cassa_id: movimentoCreato.id,
+      })
+      .in("id", storicoSospesiDaCollegare);
+  
+    if (linkStoricoError) {
+      console.error(linkStoricoError);
+      alert("Movimento salvato, ma storico sospesi non collegato al movimento.");
+    }
   }
 }
     
