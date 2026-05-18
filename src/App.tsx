@@ -1308,7 +1308,6 @@ useEffect(() => {
   }
 
   setSelectedSospesoIds([]);
-}
  
 }
     setMovimenti((rows) => [movimentoDaSalvare, ...rows]);
