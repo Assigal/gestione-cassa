@@ -386,6 +386,7 @@ export default function GestioneCassa() {
   const [selectedImport, setSelectedImport] = useState<string | null>(null);
   const [editingMovement, setEditingMovement] = useState<number | null>(null);
   const [selectedSospesoIds, setSelectedSospesoIds] = useState<string[]>([]);
+  const [recuperoStessaGiornataConfermato, setRecuperoStessaGiornataConfermato] = useState(false);
   const [versamento, setVersamento] = useState("700");
   const [quadMezza, setQuadMezza] = useState({ cassaReale: "" });
   const [quadSera, setQuadSera] = useState({ cassaReale: "" });
@@ -1207,12 +1208,14 @@ useEffect(() => {
       (s) => selectedSospesoIds.includes(s.id) && s.dataSospeso === giornataCorrente
     );
     
-    if (recuperaSospesoStessaGiornata) {
+   if (recuperaSospesoStessaGiornata && !recuperoStessaGiornataConfermato) {
       const conferma = window.confirm(
         "Attenzione: stai recuperando un sospeso creato nella stessa giornata. Se si tratta di correggere modalità o data pagamento, è meglio modificare il movimento originale dal box Movimenti registrati. Vuoi continuare comunque?"
       );
     
       if (!conferma) return;
+    
+      setRecuperoStessaGiornataConfermato(true);
     }
      
     const recuperoDiventaNuovoSospeso =
@@ -1318,6 +1321,7 @@ useEffect(() => {
   }
 
   setSelectedSospesoIds([]);
+  setRecuperoStessaGiornataConfermato(false);
 }
     setMovimenti((rows) => [movimentoDaSalvare, ...rows]);
     if (giornataDbId) {
