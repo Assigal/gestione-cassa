@@ -1312,7 +1312,9 @@ useEffect(() => {
 }
     setMovimenti((rows) => [movimentoDaSalvare, ...rows]);
     if (giornataDbId) {
-      const { error } = await supabase.from("movimenti_cassa").insert({
+      const { data: movimentoCreato, error } = await supabase
+      .from("movimenti_cassa")
+      .insert({
         giornata_id: giornataDbId,
         tipo_movimento: payload.tipo,
         codice_subagenzia: payload.sub,
@@ -1330,10 +1332,15 @@ useEffect(() => {
         data_inizio_subagente: payload.dataInizioSubagente || null,
         data_fine_subagente: payload.dataFineSubagente || null,
       });
+      .select("id")
+      .single();
 
   if (error) {
     console.error(error);
     alert("Movimento salvato localmente, ma non salvato su Supabase.");
+  }
+  if (movimentoCreato) {
+     movimentoDaSalvare.id = movimentoCreato.id;
   }
 }
     
