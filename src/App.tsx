@@ -1037,20 +1037,37 @@ useEffect(() => {
 
   setSospesi((rows) => [nuovoSospeso, ...rows]);
 
-  const { error } = await supabase.from("sospesi_cassa").insert({
-    data_sospeso: giornataCorrente,
-    referente_sospesi: nuovoSospeso.referenteSospesi,
-    contraente: nuovoSospeso.contraente || null,
-    ramo: nuovoSospeso.ramo || null,
-    polizza: nuovoSospeso.polizza || null,
-    importo_originario: nuovoSospeso.importoOriginario,
-    recuperato: nuovoSospeso.recuperato,
-    sconto_applicato: nuovoSospeso.scontoApplicato,
-    residuo: nuovoSospeso.residuo,
-    stato: nuovoSospeso.stato,
-    note: nuovoSospeso.note || null,
-  });
-
+   const { data: sospesoCreato, error } = await supabase
+    .from("sospesi_cassa")
+    .insert({
+      data_sospeso: giornataCorrente,
+      referente_sospesi: nuovoSospeso.referenteSospesi,
+      contraente: nuovoSospeso.contraente || null,
+      ramo: nuovoSospeso.ramo || null,
+      polizza: nuovoSospeso.polizza || null,
+      importo_originario: nuovoSospeso.importoOriginario,
+      recuperato: nuovoSospeso.recuperato,
+      sconto_applicato: nuovoSospeso.scontoApplicato,
+      residuo: nuovoSospeso.residuo,
+      stato: nuovoSospeso.stato,
+      note: nuovoSospeso.note || null,
+    })
+    .select()
+    .single();
+  
+  if (sospesoCreato) {
+    await supabase.from("sospesi_movimenti").insert({
+      sospeso_id: sospesoCreato.id,
+      tipo: "origine",
+      data_movimento: giornataCorrente,
+      importo: nuovoSospeso.importoOriginario,
+      modalita_pagamento: payload.modalita,
+      note: payload.note || null,
+      user_id: session?.user?.id || null,
+      user_email: session?.user?.email || null,
+    });
+  }
+   
   if (error) {
     console.error(error);
     alert("Sospeso creato localmente, ma non salvato su Supabase.");
