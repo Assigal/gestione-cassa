@@ -1056,6 +1056,7 @@ useEffect(() => {
     .single();
   
  if (sospesoCreato) {
+    alert("Sospeso creato con id: " + sospesoCreato.id);
     const { error: storicoError } = await supabase.from("sospesi_movimenti").insert({
       sospeso_id: sospesoCreato.id,
       tipo: "origine",
