@@ -1331,7 +1331,7 @@ useEffect(() => {
         note: payload.note || null,
         data_inizio_subagente: payload.dataInizioSubagente || null,
         data_fine_subagente: payload.dataFineSubagente || null,
-      });
+      })
       .select("id")
       .single();
 
