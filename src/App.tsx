@@ -458,24 +458,27 @@ function addAuditLog(azione: string) {
   useEffect(() => {
     localStorage.setItem("gestione-cassa-data-corrente", giornataCorrente);
   }, [giornataCorrente]);
+ 
   useEffect(() => {
-  const saved = localStorage.getItem(`gestione-cassa-${giornataCorrente}`);
+    const saved = localStorage.getItem(`gestione-cassa-${giornataCorrente}`);
 
-  if (!saved) {
-    setMovimenti([]);
-    setImportCompagnia([]);
-    setVersamento("0");
-    setQuadMezza({ cassaReale: "" });
-    setQuadSera({ cassaReale: "" });
-    setQuadMezzaBloccata(null);
-    setQuadSeraBloccata(null);
-    setAuditLog([]);
-    setSelectedImport(null);
-    setEditingMovement(null);
-    setSelectedSospesoIds([]);
-    setForm(emptyForm);
-    return;
-  }
+    if (giornataDbId) return;
+
+    if (!saved) {
+      setMovimenti([]);
+      setImportCompagnia([]);
+      setVersamento("0");
+      setQuadMezza({ cassaReale: "" });
+      setQuadSera({ cassaReale: "" });
+      setQuadMezzaBloccata(null);
+      setQuadSeraBloccata(null);
+      setAuditLog([]);
+      setSelectedImport(null);
+      setEditingMovement(null);
+      setSelectedSospesoIds([]);
+      setForm(emptyForm);
+      return;
+    }
 
   try {
     const data = JSON.parse(saved);
@@ -495,7 +498,7 @@ function addAuditLog(azione: string) {
   } catch {
     console.warn("Dati locali non leggibili");
   }
-}, [giornataCorrente]);
+}, [giornataCorrente, giornataDbId]);
 
 useEffect(() => {
   const data = {
