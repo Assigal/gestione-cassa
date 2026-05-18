@@ -1114,39 +1114,86 @@ useEffect(() => {
       }
     }
 
-    if (payload.tipo === "Recupero sospeso" && selectedSospesoIds.length) {
-      const { updatedSospesi, allocazioni } = applyRecuperoToSospesi(importo, sconto, payload.note);
-    
-      setSospesi(updatedSospesi);
-      movimentoDaSalvare = { ...movimentoDaSalvare, allocazioniRecupero: allocazioni };
-    
-      if (giornataDbId) {
-        for (const sospesoId of selectedSospesoIds) {
-          const sospesoAggiornato = updatedSospesi.find((s) => s.id === sospesoId);
-    
-          if (sospesoAggiornato) {
-            const { error } = await supabase
-              .from("sospesi_cassa")
-              .update({
-                recuperato: sospesoAggiornato.recuperato,
-                sconto_applicato: sospesoAggiornato.scontoApplicato,
-                residuo: sospesoAggiornato.residuo,
-                stato: sospesoAggiornato.stato,
-                note: sospesoAggiornato.note || null,
-              })
-              .eq("id", sospesoId);
-    
-            if (error) {
-              console.error(error);
-              alert("Recupero aggiornato localmente, ma non salvato su Supabase.");
-            }
-          }
+   if (payload.tipo === "Recupero sospeso" && selectedSospesoIds.length) {
+  const recuperoDiventaNuovoSospeso =
+    payload.modalita === "Sospeso" ||
+    (payload.modalita === "Assegno" && payload.dataAssegno > giornataCorrente);
+
+  const { updatedSospesi, allocazioni } = applyRecuperoToSospesi(
+    importo,
+    sconto,
+    payload.note
+  );
+
+  setSospesi(updatedSospesi);
+  movimentoDaSalvare = { ...movimentoDaSalvare, allocazioniRecupero: allocazioni };
+
+  if (giornataDbId) {
+    for (const sospesoId of selectedSospesoIds) {
+      const sospesoAggiornato = updatedSospesi.find((s) => s.id === sospesoId);
+
+      if (sospesoAggiornato) {
+        const { error } = await supabase
+          .from("sospesi_cassa")
+          .update({
+            recuperato: sospesoAggiornato.recuperato,
+            sconto_applicato: sospesoAggiornato.scontoApplicato,
+            residuo: sospesoAggiornato.residuo,
+            stato: sospesoAggiornato.stato,
+            note: sospesoAggiornato.note || null,
+          })
+          .eq("id", sospesoId);
+
+        if (error) {
+          console.error(error);
+          alert("Recupero aggiornato localmente, ma non salvato su Supabase.");
         }
       }
+    }
+  }
+
+  if (recuperoDiventaNuovoSospeso) {
+    const nuovoSospeso = {
+      id: `sosp-${Date.now()}`,
+      referenteSospesi: payload.referenteSospesi,
+      contraente: payload.contraente,
+      ramo: payload.ramo,
+      polizza: payload.polizza,
+      importoOriginario: payload.importo,
+      recuperato: 0,
+      scontoApplicato: 0,
+      residuo: payload.importo,
+      stato: "Aperto",
+      dataSospeso: giornataCorrente,
+      note: payload.note || "Recupero sospeso con pagamento non incassabile",
+    };
+
+    setSospesi((rows) => [nuovoSospeso, ...rows]);
+
+    if (giornataDbId) {
+      const { error } = await supabase.from("sospesi_cassa").insert({
+        data_sospeso: giornataCorrente,
+        referente_sospesi: nuovoSospeso.referenteSospesi,
+        contraente: nuovoSospeso.contraente || null,
+        ramo: nuovoSospeso.ramo || null,
+        polizza: nuovoSospeso.polizza || null,
+        importo_originario: nuovoSospeso.importoOriginario,
+        recuperato: 0,
+        sconto_applicato: 0,
+        residuo: nuovoSospeso.residuo,
+        stato: nuovoSospeso.stato,
+        note: nuovoSospeso.note,
+      });
+
+      if (error) {
+        console.error(error);
+        alert("Nuovo sospeso creato localmente, ma non salvato su Supabase.");
+      }
+    }
+  }
 
   setSelectedSospesoIds([]);
 }
-
     setMovimenti((rows) => [movimentoDaSalvare, ...rows]);
     if (giornataDbId) {
       const { error } = await supabase.from("movimenti_cassa").insert({
