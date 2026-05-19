@@ -423,25 +423,31 @@ async function logout() {
 }
   
 async function addAuditLog(azione: string) {
+  const utente =
+    session?.user?.email ||
+    session?.user?.user_metadata?.full_name ||
+    "Utente sconosciuto";
+
   setAuditLog((rows) => [
-    `${new Date().toLocaleString("it-IT")} - Alessandro - ${azione}`,
-    ...rows,
-  ]);
-
-  if (!giornataDbId) return;
-
-  const { error } = await supabase.from("audit_log").insert({
-    giornata_id: giornataDbId,
-    azione,
-    dettaglio: {
-      data_giornata: giornataCorrente,
-    },
-  });
-
-  if (error) {
-    console.error(error);
+      `${new Date().toLocaleString("it-IT")} - ${utente} - ${azione}`,
+      ...rows,
+    ]);
+  
+    if (!giornataDbId) return;
+  
+    const { error } = await supabase.from("audit_log").insert({
+      giornata_id: giornataDbId,
+      azione,
+      utente_id: session?.user?.id || null,
+      dettaglio: {
+        data_giornata: giornataCorrente,
+      },
+    });
+  
+    if (error) {
+      console.error(error);
+    }
   }
-}
 
   const [avanzoPrecedente, setAvanzoPrecedente] = useState(0);
   
