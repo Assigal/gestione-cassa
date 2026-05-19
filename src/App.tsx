@@ -1249,29 +1249,35 @@ useEffect(() => {
         }
 
         if (allocazione?.incasso) {
-          await supabase.from("sospesi_movimenti").insert({
-            sospeso_id: sospesoId,
-            tipo: "recupero",
-            data_movimento: giornataCorrente,
-            importo: allocazione.incasso,
-            modalita_pagamento: payload.modalita,
-            note: payload.note || null,
-            user_id: session?.user?.id || null,
-            user_email: session?.user?.email || null,
-          });
+          await supabase
+            .from("sospesi_movimenti")
+            .insert({
+              sospeso_id: sospesoId,
+              tipo: "recupero",
+              data_movimento: giornataCorrente,
+              importo: allocazione.incasso,
+              modalita_pagamento: payload.modalita,
+              note: payload.note || null,
+              user_id: session?.user?.id || null,
+              user_email: session?.user?.email || null,
+              movimento_cassa_id: movimentoDaSalvare.id,
+            });
         }
 
         if (allocazione?.sconto) {
-          await supabase.from("sospesi_movimenti").insert({
-            sospeso_id: sospesoId,
-            tipo: "sconto",
-            data_movimento: giornataCorrente,
-            importo: allocazione.sconto,
-            modalita_pagamento: payload.modalita,
-            note: payload.note || "Sconto applicato su recupero sospeso",
-            user_id: session?.user?.id || null,
-            user_email: session?.user?.email || null,
-          });
+          await supabase
+            .from("sospesi_movimenti")
+            .insert({
+              sospeso_id: sospesoId,
+              tipo: "sconto",
+              data_movimento: giornataCorrente,
+              importo: allocazione.sconto,
+              modalita_pagamento: payload.modalita,
+              note: payload.note || "Sconto applicato su recupero sospeso",
+              user_id: session?.user?.id || null,
+              user_email: session?.user?.email || null,
+              movimento_cassa_id: movimentoDaSalvare.id,
+            });
         }
       }
     }
