@@ -358,12 +358,18 @@ function SidebarMetric({
 export default function GestioneCassa() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [session, setSession] = useState<any>(null);
+  const [profiloUtente, setProfiloUtente] = useState<any>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
+
+      if (data.session?.user?.id) {
+        await caricaProfiloUtente(data.session.user.id);
+      }
+      
       setAuthLoading(false);
     });
   
@@ -371,6 +377,12 @@ export default function GestioneCassa() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+
+      if (session?.user?.id) {
+        caricaProfiloUtente(session.user.id);
+      } else {
+        setProfiloUtente(null);
+      }
     });
   
     return () => subscription.unsubscribe();
@@ -407,6 +419,21 @@ const [quadSeraBloccata, setQuadSeraBloccata] = useState<{
   const [auditLog, setAuditLog] = useState<string[]>([]);
   const [giornataChiusa, setGiornataChiusa] = useState(false);
 
+async function caricaProfiloUtente(userId: string) {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", userId)
+    .single();
+
+  if (error) {
+    console.error(error);
+    alert("Profilo utente non trovato.");
+    return;
+  }
+
+  setProfiloUtente(data);
+}
 async function login() {
   const { error } = await supabase.auth.signInWithPassword({
     email: loginEmail,
