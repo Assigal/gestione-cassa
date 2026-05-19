@@ -438,7 +438,7 @@ async function addAuditLog(azione: string) {
     const { error } = await supabase.from("audit_log").insert({
       giornata_id: giornataDbId,
       azione,
-      utente_id: session?.user?.id || null,
+      utente_id: null,
       dettaglio: {
         data_giornata: giornataCorrente,
         utente_email: utente,
