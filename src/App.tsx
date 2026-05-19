@@ -418,6 +418,7 @@ const [quadSeraBloccata, setQuadSeraBloccata] = useState<{
   const [form, setForm] = useState<FormState>(emptyForm);
   const [auditLog, setAuditLog] = useState<string[]>([]);
   const [giornataChiusa, setGiornataChiusa] = useState(false);
+  const isAdmin = profiloUtente?.ruolo === "admin";
 
 async function caricaProfiloUtente(userId: string) {
   const { data, error } = await supabase
@@ -1531,6 +1532,11 @@ async function bloccaQuadraturaSera() {
     await ricalcolaAvanziDa(giornataCorrente);
   }
   async function riapriGiornata() {
+      if (!isAdmin) {
+        alert("Solo un amministratore può riaprire una giornata chiusa.");
+        return;
+      }
+    
       const motivo = window.prompt("Inserisci il motivo della riapertura giornata:");
     
       if (!motivo || !motivo.trim()) {
@@ -2021,14 +2027,14 @@ alert(
                 <CheckCircle2 className="mr-2 h-4 w-4" />
                 {giornataChiusa ? "Giornata chiusa" : "Chiudi giornata"}
               </Button>
-              {giornataChiusa && (
-              <Button
-                variant="outline"
-                className="w-full rounded-2xl border-amber-300 bg-amber-50 font-semibold text-amber-800 hover:bg-amber-100"
-                onClick={riapriGiornata}
-              >
-                Riapri giornata
-              </Button>
+              {giornataChiusa && isAdmin && (
+                <Button
+                  variant="outline"
+                  className="w-full rounded-2xl border-amber-300 bg-amber-50 font-semibold text-amber-800 hover:bg-amber-100"
+                  onClick={riapriGiornata}
+                >
+                  Riapri giornata
+                </Button>
             )}
             </CardContent>
           </Card>
