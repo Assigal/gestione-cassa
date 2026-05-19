@@ -1135,6 +1135,7 @@ useEffect(() => {
 
     let movimentoDaSalvare: Movimento = { id: Date.now(), ...payload };
     const storicoSospesiDaCollegare: string[] = [];
+    const storicoSospesiDaInserire: any[] = [];
 
  if (
   payload.tipo === "Titolo del giorno" &&
@@ -1249,35 +1250,29 @@ useEffect(() => {
         }
 
         if (allocazione?.incasso) {
-          await supabase
-            .from("sospesi_movimenti")
-            .insert({
-              sospeso_id: sospesoId,
-              tipo: "recupero",
-              data_movimento: giornataCorrente,
-              importo: allocazione.incasso,
-              modalita_pagamento: payload.modalita,
-              note: payload.note || null,
-              user_id: session?.user?.id || null,
-              user_email: session?.user?.email || null,
-              movimento_cassa_id: movimentoDaSalvare.id,
-            });
+          storicoSospesiDaInserire.push({
+            sospeso_id: sospesoId,
+            tipo: "recupero",
+            data_movimento: giornataCorrente,
+            importo: allocazione.incasso,
+            modalita_pagamento: payload.modalita,
+            note: payload.note || null,
+            user_id: session?.user?.id || null,
+            user_email: session?.user?.email || null,
+          });
         }
-
+        
         if (allocazione?.sconto) {
-          await supabase
-            .from("sospesi_movimenti")
-            .insert({
-              sospeso_id: sospesoId,
-              tipo: "sconto",
-              data_movimento: giornataCorrente,
-              importo: allocazione.sconto,
-              modalita_pagamento: payload.modalita,
-              note: payload.note || "Sconto applicato su recupero sospeso",
-              user_id: session?.user?.id || null,
-              user_email: session?.user?.email || null,
-              movimento_cassa_id: movimentoDaSalvare.id,
-            });
+          storicoSospesiDaInserire.push({
+            sospeso_id: sospesoId,
+            tipo: "sconto",
+            data_movimento: giornataCorrente,
+            importo: allocazione.sconto,
+            modalita_pagamento: payload.modalita,
+            note: payload.note || "Sconto applicato su recupero sospeso",
+            user_id: session?.user?.id || null,
+            user_email: session?.user?.email || null,
+          });
         }
       }
     }
@@ -1355,8 +1350,25 @@ useEffect(() => {
     console.error(error);
     alert("Movimento salvato localmente, ma non salvato su Supabase.");
   }
+      
   if (movimentoCreato) {
      movimentoDaSalvare.id = movimentoCreato.id;
+  }
+      
+  if (movimentoCreato?.id && storicoSospesiDaInserire.length > 0) {
+    const { error: storicoRecuperiError } = await supabase
+      .from("sospesi_movimenti")
+      .insert(
+        storicoSospesiDaInserire.map((row) => ({
+          ...row,
+          movimento_cassa_id: movimentoCreato.id,
+        }))
+      );
+  
+    if (storicoRecuperiError) {
+      console.error(storicoRecuperiError);
+      alert("Movimento salvato, ma storico recuperi/sconti non salvato.");
+    }
   }
      
  if (movimentoCreato?.id && payload.tipo === "Titolo del giorno") {
