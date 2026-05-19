@@ -441,11 +441,13 @@ async function addAuditLog(azione: string) {
       utente_id: session?.user?.id || null,
       dettaglio: {
         data_giornata: giornataCorrente,
+        utente_email: utente,
       },
     });
   
     if (error) {
       console.error(error);
+      alert("Errore salvataggio audit: " + error.message);
     }
   }
 
