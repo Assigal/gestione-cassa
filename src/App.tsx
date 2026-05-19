@@ -1845,6 +1845,10 @@ alert(
                     {giornataCorrente} · {session.user.email}
                   </p>
                   
+                  <div className="mt-1 inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                    Ruolo: {profiloUtente?.ruolo || "nessuno"}
+                  </div>
+                  
                   <Button
                     variant="outline"
                     className="mt-2 rounded-2xl text-xs"
