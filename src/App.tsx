@@ -363,13 +363,13 @@ export default function GestioneCassa() {
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(async ({ data }) => {
       setSession(data.session);
-
+    
       if (data.session?.user?.id) {
         await caricaProfiloUtente(data.session.user.id);
       }
-      
+    
       setAuthLoading(false);
     });
   
