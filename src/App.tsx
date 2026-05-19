@@ -1219,7 +1219,7 @@ useEffect(() => {
     (payload.modalita === "Assegno" && payload.dataAssegno > giornataCorrente);
 
   const { updatedSospesi, allocazioni } = applyRecuperoToSospesi(
-    importo,
+    netto,
     sconto,
     payload.note
   );
