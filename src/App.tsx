@@ -386,26 +386,26 @@ export default function GestioneCassa() {
     });
   
     return () => subscription.unsubscribe();
-  }, []);
-  
-  const [giornataCorrente, setGiornataCorrente] = useState(
-    localStorage.getItem("gestione-cassa-data-corrente") || GIORNATA_CORRENTE
-  );
-  const [giornataDbId, setGiornataDbId] = useState<string | null>(null);
-  const [movimenti, setMovimenti] = useState<Movimento[]>(movimentiRegistratiSeed);
-  const [sospesi, setSospesi] = useState<Sospeso[]>(sospesiSeed);
-  const [importCompagnia, setImportCompagnia] = useState<ImportRow[]>(importCompagniaSeed);
-  const [selectedImport, setSelectedImport] = useState<string | null>(null);
-  const [editingMovement, setEditingMovement] = useState<number | null>(null);
-  const [selectedSospesoIds, setSelectedSospesoIds] = useState<string[]>([]);
-  const [versamento, setVersamento] = useState("700");
-  const [quadMezza, setQuadMezza] = useState({ cassaReale: "" });
-  const [quadSera, setQuadSera] = useState({ cassaReale: "" });
-  const [quadMezzaBloccata, setQuadMezzaBloccata] = useState<{
-  cassaTeorica: number;
-  cassaReale: number;
-  squadratura: number;
-  dataOra: string;
+    }, []);
+    
+    const [giornataCorrente, setGiornataCorrente] = useState(
+      localStorage.getItem("gestione-cassa-data-corrente") || GIORNATA_CORRENTE
+    );
+    const [giornataDbId, setGiornataDbId] = useState<string | null>(null);
+    const [movimenti, setMovimenti] = useState<Movimento[]>(movimentiRegistratiSeed);
+    const [sospesi, setSospesi] = useState<Sospeso[]>(sospesiSeed);
+    const [importCompagnia, setImportCompagnia] = useState<ImportRow[]>(importCompagniaSeed);
+    const [selectedImport, setSelectedImport] = useState<string | null>(null);
+    const [editingMovement, setEditingMovement] = useState<number | null>(null);
+    const [selectedSospesoIds, setSelectedSospesoIds] = useState<string[]>([]);
+    const [versamento, setVersamento] = useState("700");
+    const [quadMezza, setQuadMezza] = useState({ cassaReale: "" });
+    const [quadSera, setQuadSera] = useState({ cassaReale: "" });
+    const [quadMezzaBloccata, setQuadMezzaBloccata] = useState<{
+    cassaTeorica: number;
+    cassaReale: number;
+    squadratura: number;
+    dataOra: string;
 } | null>(null);
 
 const [quadSeraBloccata, setQuadSeraBloccata] = useState<{
@@ -419,6 +419,11 @@ const [quadSeraBloccata, setQuadSeraBloccata] = useState<{
   const [auditLog, setAuditLog] = useState<string[]>([]);
   const [giornataChiusa, setGiornataChiusa] = useState(false);
   const isAdmin = profiloUtente?.ruolo === "admin";
+  const canManageMovimento = (movimento: Movimento) => {
+    if (isAdmin) return true;
+    if (profiloUtente?.ruolo === "supervisor") return true;
+    return movimento.createdByEmail === session?.user?.email;
+  };
 
 async function caricaProfiloUtente(userId: string) {
   const { data, error } = await supabase
@@ -835,7 +840,10 @@ useEffect(() => {
 
   async function deleteMovement(id: number) {
     const movimento = movimenti.find((row) => row.id === id);
-
+    if (movimento && !canManageMovimento(movimento)) {
+      alert("Puoi cancellare solo i movimenti inseriti da te.");
+      return;
+    }
     if (movimento?.tipo === "Recupero sospeso" && movimento.allocazioniRecupero?.length) {
       setSospesi((rows) => rows.map((s) => {
         const allocazione = movimento.allocazioniRecupero.find((a) => a.sospesoId === s.id);
@@ -886,6 +894,10 @@ useEffect(() => {
   }
 
   function editMovement(row: Movimento) {
+    if (!canManageMovimento(row)) {
+      alert("Puoi modificare solo i movimenti inseriti da te.");
+      return;
+    }
     setEditingMovement(row.id);
     setSelectedImport(null);
     setSelectedSospesoIds([]);
