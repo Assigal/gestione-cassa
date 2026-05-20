@@ -1139,18 +1139,23 @@ useEffect(() => {
       alert("Sospeso creato, ma storico origine non salvato: " + storicoError.message);
     }
   }
-    if (payload.modalita === "Sospeso") {
-      const stampa = window.confirm(
-        "Vuoi stampare il modulo sospeso da far firmare al cliente?"
-      );
-    
-      if (stampa) {
-        stampaModuloSospeso({
-          ...nuovoSospeso,
-          id: sospesoCreato?.id || nuovoSospeso.id,
-        });
-      }
+   
+   alert("Modalità payload: " + payload.modalita);
+   
+   if (payload.modalita?.trim() === "Sospeso") {
+    alert("Sono dentro la stampa sospeso");
+  
+    const stampa = window.confirm(
+      "Vuoi stampare il modulo sospeso da far firmare al cliente?"
+    );
+  
+    if (stampa) {
+      stampaModuloSospeso({
+        ...nuovoSospeso,
+        id: sospesoCreato?.id || nuovoSospeso.id,
+      });
     }
+  }
    
   if (error) {
     console.error(error);
