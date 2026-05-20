@@ -1411,7 +1411,7 @@ useEffect(() => {
 
   if (error) {
     console.error(error);
-    alert("Movimento salvato localmente, ma non salvato su Supabase.");
+    alert("Movimento salvato localmente, ma non salvato su Supabase: " + error.message);
   }
       
   if (movimentoCreato) {
