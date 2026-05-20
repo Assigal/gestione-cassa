@@ -1304,7 +1304,6 @@ useEffect(() => {
     }
   }
 }
-}
    if (payload.tipo === "Recupero sospeso" && selectedSospesoIds.length) {
   const recuperoDiventaNuovoSospeso =
     payload.modalita === "Sospeso" ||
