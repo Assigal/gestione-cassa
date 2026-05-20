@@ -1401,6 +1401,8 @@ useEffect(() => {
         importo_netto: payload.netto,
         segno: payload.segno,
         note: payload.note || null,
+        created_by: session?.user?.id || null,
+        created_by_email: session?.user?.email || null,
         data_inizio_subagente: payload.dataInizioSubagente || null,
         data_fine_subagente: payload.dataFineSubagente || null,
       })
