@@ -983,10 +983,10 @@ useEffect(() => {
 
   async function saveForm() {
     const importo = Number(form.importo || 0);
-   if (!form.importo || importo === 0) {
-  alert("Inserire un importo valido diverso da zero.");
-  return;
-}
+    if (!form.importo || importo === 0) {
+      alert("Inserire un importo valido diverso da zero.");
+      return;
+    }
     const sconto = isVersamentoSubagente(form.tipo) ? 0 : Number(form.sconto || 0);
     const netto = importo - sconto;
 
@@ -1044,6 +1044,9 @@ useEffect(() => {
           importo_netto: payload.netto,
           segno: payload.segno,
           note: payload.note || null,
+          updated_by: null,
+          updated_by_email: session?.user?.email || null,
+          updated_at: new Date().toISOString(),
           data_inizio_subagente: payload.dataInizioSubagente || null,
           data_fine_subagente: payload.dataFineSubagente || null,
         })
