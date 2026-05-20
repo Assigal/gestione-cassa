@@ -1166,8 +1166,28 @@ useEffect(() => {
     console.error(error);
     alert("Sospeso creato localmente, ma non salvato su Supabase.");
   }
-}
-
+  if (payload.modalita === "Sospeso") {
+    const stampa = window.confirm(
+      "Vuoi stampare il modulo sospeso da far firmare al cliente?"
+    );
+  
+    if (stampa) {
+      stampaModuloSospeso({
+        id: `sosp-${Date.now()}`,
+        referenteSospesi: payload.referenteSospesi,
+        contraente: payload.contraente,
+        ramo: payload.ramo,
+        polizza: payload.polizza,
+        importoOriginario: payload.importo,
+        recuperato: 0,
+        scontoApplicato: 0,
+        residuo: payload.importo,
+        stato: "Aperto",
+        dataSospeso: giornataCorrente,
+        note: payload.note,
+      });
+    }
+  }  
   if (primaEraSospeso && oraESospeso) {
     setSospesi((rows) =>
       rows.map((s) =>
@@ -1207,6 +1227,26 @@ useEffect(() => {
     }
   }
 
+  if (payload.sconto >= sogliaStampaAbbuono) {
+    const stampa = window.confirm(
+      "Vuoi stampare il modulo abbuono provvigioni?"
+    );
+  
+    if (stampa) {
+      const motivazione =
+        window.prompt("Inserisci la motivazione dell'abbuono") || "";
+  
+      stampaModuloAbbuono(
+        {
+          id: editingMovement,
+          ...payload,
+          createdByEmail: session?.user?.email || "",
+        },
+        motivazione
+      );
+    }
+  }
+  
   setEditingMovement(null);
   addAuditLog(`Modificato movimento ${payload.tipo} - polizza ${payload.polizza || "-"}`);
   resetForm();
