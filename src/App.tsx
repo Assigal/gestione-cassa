@@ -645,6 +645,7 @@ useEffect(() => {
       dataAssegno: row.data_assegno || "",
       segno: Number(row.segno || 1),
       note: row.note || "",
+      createdByEmail: row.created_by_email || "",
       dataInizioSubagente: row.data_inizio_subagente || "",
       dataFineSubagente: row.data_fine_subagente || "",
       allocazioniRecupero: [],
@@ -2243,6 +2244,7 @@ alert(
                     <tr>
                       <th className="px-3 py-2">Polizza / Periodo</th>
                       <th className="px-3 py-2">Sub</th>
+                      <th className="px-3 py-2">Operatore</th>
                       <th className="px-3 py-2">Contraente</th>
                       <th className="px-3 py-2">Referente</th>
                       <th className="px-3 py-2">Tipo</th>
@@ -2261,6 +2263,9 @@ alert(
                         <tr key={m.id} className="border-t bg-white hover:bg-slate-50">
                           <td className="px-3 py-2"><div className="font-medium">{descrizioneMovimento(m)}</div></td>
                           <td className="px-3 py-2">{m.sub}</td>
+                          <td className="px-3 py-2 text-xs text-slate-500">
+                            {m.createdByEmail || "-"}
+                          </td>
                           <td className="px-3 py-2">{m.contraente || "-"}</td>
                           <td className="px-3 py-2">{m.referenteSospesi ? <Badge variant="purple">{m.referenteSospesi}</Badge> : "-"}</td>
                           <td className="px-3 py-2"><Badge variant="neutral">{m.tipo}</Badge></td>
