@@ -1187,7 +1187,8 @@ useEffect(() => {
         note: payload.note,
       });
     }
-  }  
+  }
+ }
   if (primaEraSospeso && oraESospeso) {
     setSospesi((rows) =>
       rows.map((s) =>
