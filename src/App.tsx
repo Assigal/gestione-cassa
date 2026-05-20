@@ -651,6 +651,8 @@ useEffect(() => {
       segno: Number(row.segno || 1),
       note: row.note || "",
       createdByEmail: row.created_by_email || "",
+      updatedByEmail: row.updated_by_email || "",
+      updatedAt: row.updated_at || "",
       dataInizioSubagente: row.data_inizio_subagente || "",
       dataFineSubagente: row.data_fine_subagente || "",
       allocazioniRecupero: [],
@@ -1802,27 +1804,6 @@ const scartate = tutteLeRighe.length - nuoveRighe.length;
 
 setImportCompagnia((rows) => [...nuoveRighe, ...rows]);
 
-if (giornataDbId && nuoveRighe.length > 0) {
-  const { error } = await supabase.from("import_compagnia").insert(
-    nuoveRighe.map((row) => ({
-      giornata_id: giornataDbId,
-      sub: row.sub || null,
-      ramo: row.ramo || null,
-      polizza: row.polizza || null,
-      contraente: row.contraente || null,
-      importo: row.importo,
-      modalita_compagnia: row.modalitaCompagnia || null,
-      stato: row.stato || "Da lavorare",
-      file_origine: row.fileOrigine || null,
-    }))
-  );
-
-  if (error) {
-    console.error(error);
-    alert("Import salvato localmente, ma non salvato su Supabase.");
-  }
-}
-
 alert(
   `Import completato.\n` +
   `${nuoveRighe.length} nuovi movimenti importati.\n` +
@@ -2283,7 +2264,14 @@ alert(
                           <td className="px-3 py-2"><div className="font-medium">{descrizioneMovimento(m)}</div></td>
                           <td className="px-3 py-2">{m.sub}</td>
                           <td className="px-3 py-2 text-xs text-slate-500">
-                            {m.createdByEmail || "-"}
+                            <div>{m.createdByEmail || "-"}</div>
+                          
+                            {m.updatedByEmail &&
+                              m.updatedByEmail !== m.createdByEmail && (
+                                <div className="mt-1 rounded-full bg-amber-100 px-2 py-0.5 font-semibold text-amber-700">
+                                  Mod. {m.updatedByEmail}
+                                </div>
+                              )}
                           </td>
                           <td className="px-3 py-2">{m.contraente || "-"}</td>
                           <td className="px-3 py-2">{m.referenteSospesi ? <Badge variant="purple">{m.referenteSospesi}</Badge> : "-"}</td>
