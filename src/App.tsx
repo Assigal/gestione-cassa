@@ -1185,6 +1185,7 @@ useEffect(() => {
           m.tipo === "Titolo del giorno" &&
           m.polizza?.trim() === payload.polizza?.trim() &&
           Number(m.importo) === Number(payload.importo)
+          m.id !== editingMovement
       );
     
       if (duplicato) {
