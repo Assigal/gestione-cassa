@@ -408,15 +408,16 @@ export default function GestioneCassa() {
     dataOra: string;
 } | null>(null);
 
-const [quadSeraBloccata, setQuadSeraBloccata] = useState<{
-  cassaTeorica: number;
-  cassaReale: number;
-  squadratura: number;
-  dataOra: string;
-} | null>(null);
+  const [quadSeraBloccata, setQuadSeraBloccata] = useState<{
+    cassaTeorica: number;
+    cassaReale: number;
+    squadratura: number;
+    dataOra: string;
+  } | null>(null);
   const [searchSospesi, setSearchSospesi] = useState("");
   const [form, setForm] = useState<FormState>(emptyForm);
   const [auditLog, setAuditLog] = useState<string[]>([]);
+  const [sogliaStampaAbbuono, setSogliaStampaAbbuono] = useState(3);
   const [giornataChiusa, setGiornataChiusa] = useState(false);
   const isAdmin = profiloUtente?.ruolo === "admin";
   const canManageMovimento = (movimento: Movimento) => {
@@ -722,38 +723,59 @@ useEffect(() => {
 }, [giornataDbId]);
   
   useEffect(() => {
-  async function caricaSospesiDaSupabase() {
-    const { data, error } = await supabase
-      .from("sospesi_cassa")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      console.error(error);
-      alert("Errore caricamento sospesi da Supabase");
-      return;
+    async function caricaSospesiDaSupabase() {
+      const { data, error } = await supabase
+        .from("sospesi_cassa")
+        .select("*")
+        .order("created_at", { ascending: false });
+  
+      if (error) {
+        console.error(error);
+        alert("Errore caricamento sospesi da Supabase");
+        return;
+      }
+  
+      const sospesiDb: Sospeso[] = (data || []).map((row) => ({
+        id: row.id,
+        referenteSospesi: row.referente_sospesi || "",
+        contraente: row.contraente || "",
+        ramo: row.ramo || "",
+        polizza: row.polizza || "",
+        importoOriginario: Number(row.importo_originario || 0),
+        recuperato: Number(row.recuperato || 0),
+        scontoApplicato: Number(row.sconto_applicato || 0),
+        residuo: Number(row.residuo || 0),
+        stato: row.stato || "Aperto",
+        dataSospeso: row.data_sospeso || "",
+        note: row.note || "",
+      }));
+  
+      setSospesi(sospesiDb);
     }
+  
+    caricaSospesiDaSupabase();
+  }, [giornataDbId]);
 
-    const sospesiDb: Sospeso[] = (data || []).map((row) => ({
-      id: row.id,
-      referenteSospesi: row.referente_sospesi || "",
-      contraente: row.contraente || "",
-      ramo: row.ramo || "",
-      polizza: row.polizza || "",
-      importoOriginario: Number(row.importo_originario || 0),
-      recuperato: Number(row.recuperato || 0),
-      scontoApplicato: Number(row.sconto_applicato || 0),
-      residuo: Number(row.residuo || 0),
-      stato: row.stato || "Aperto",
-      dataSospeso: row.data_sospeso || "",
-      note: row.note || "",
-    }));
-
-    setSospesi(sospesiDb);
-  }
-
-  caricaSospesiDaSupabase();
-}, [giornataDbId]);
+  useEffect(() => {
+    async function caricaConfigurazioneSistema() {
+      const { data, error } = await supabase
+        .from("configurazione_sistema")
+        .select("valore")
+        .eq("chiave", "soglia_stampa_abbuono")
+        .maybeSingle();
+  
+      if (error) {
+        console.error(error);
+        return;
+      }
+  
+      if (data?.valore) {
+        setSogliaStampaAbbuono(Number(data.valore));
+      }
+    }
+  
+    caricaConfigurazioneSistema();
+  }, []);
 
   const totals = useMemo(() => {
     const totaleCompagnia = movimenti
@@ -1481,15 +1503,33 @@ useEffect(() => {
     }
   }
 }
+    if (payload.sconto >= sogliaStampaAbbuono) {
+      const stampa = window.confirm(
+        "Vuoi stampare il modulo abbuono provvigioni?"
+      );
     
-    addAuditLog(`Inserito movimento ${payload.tipo} - polizza ${payload.polizza || "-"} - importo ${euro(payload.importo)}`);
-    if (selectedImport) {
-      setImportCompagnia((rows) => rows.filter((row) => row.id !== selectedImport));
-      setSelectedImport(null);
+      if (stampa) {
+        const motivazione =
+          window.prompt("Inserisci la motivazione dell'abbuono") || "";
+    
+        stampaModuloAbbuono(
+          {
+            ...movimentoDaSalvare,
+            createdByEmail: session?.user?.email || "",
+          },
+          motivazione
+        );
+      }
     }
 
-    resetForm();
-  }
+    addAuditLog(`Inserito movimento ${payload.tipo} - polizza ${payload.polizza || "-"} - importo ${euro(payload.importo)}`);
+      if (selectedImport) {
+        setImportCompagnia((rows) => rows.filter((row) => row.id !== selectedImport));
+        setSelectedImport(null);
+      }
+  
+      resetForm();
+    }
 
  async function bloccaQuadraturaMezza() {
   const cassaReale = Number(quadMezza.cassaReale || 0);
@@ -1772,6 +1812,57 @@ async function bloccaQuadraturaSera() {
     `;
   
     const win = window.open("", "_blank");
+    if (win) {
+      win.document.write(html);
+      win.document.close();
+    }
+  }
+
+  function stampaModuloAbbuono(movimento: Movimento, motivazione: string) {
+    const html = `
+      <html>
+        <head>
+          <title>Modulo abbuono provvigioni</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 40px; color: #111; }
+            h1 { text-align: center; font-size: 22px; margin-bottom: 30px; }
+            .box { border: 1px solid #333; padding: 18px; margin-bottom: 20px; }
+            .row { margin: 10px 0; font-size: 14px; }
+            .label { font-weight: bold; }
+            .firma { margin-top: 60px; display: flex; justify-content: space-between; }
+            .linea { border-top: 1px solid #333; width: 220px; text-align: center; padding-top: 8px; }
+          </style>
+        </head>
+        <body>
+          <h1>Modulo abbuono provvigioni</h1>
+  
+          <div class="box">
+            <div class="row"><span class="label">Data:</span> ${giornataCorrente}</div>
+            <div class="row"><span class="label">Contraente:</span> ${movimento.contraente}</div>
+            <div class="row"><span class="label">Polizza:</span> ${movimento.ramo}/${movimento.polizza}</div>
+            <div class="row"><span class="label">Importo lordo:</span> ${euro(movimento.importo)}</div>
+            <div class="row"><span class="label">Sconto applicato:</span> ${euro(movimento.sconto)}</div>
+            <div class="row"><span class="label">Motivazione:</span> ${motivazione}</div>
+          </div>
+  
+          <p>
+            Il cliente dichiara di essere stato informato dell'abbuono provvigionale applicato.
+          </p>
+  
+          <div class="firma">
+            <div class="linea">Firma cliente</div>
+            <div class="linea">Operatore</div>
+          </div>
+  
+          <script>
+            window.print();
+          </script>
+        </body>
+      </html>
+    `;
+  
+    const win = window.open("", "_blank");
+  
     if (win) {
       win.document.write(html);
       win.document.close();
