@@ -1140,18 +1140,6 @@ useEffect(() => {
     }
   }
   
-  if (payload.modalita?.trim() === "Sospeso") {
-      const stampa = window.confirm(
-      "Vuoi stampare il modulo sospeso da far firmare al cliente?"
-    );
-  
-    if (stampa) {
-      stampaModuloSospeso({
-        ...nuovoSospeso,
-        id: sospesoCreato?.id || nuovoSospeso.id,
-      });
-    }
-  }
   if (error) {
     console.error(error);
     alert("Sospeso creato localmente, ma non salvato su Supabase.");
@@ -1306,6 +1294,16 @@ useEffect(() => {
       }
     }
   }
+  if (payload.modalita === "Sospeso") {
+    const stampa = window.confirm(
+      "Vuoi stampare il modulo sospeso da far firmare al cliente?"
+    );
+
+    if (stampa) {
+      stampaModuloSospeso(nuovoSospeso);
+    }
+  }
+}
 }
    if (payload.tipo === "Recupero sospeso" && selectedSospesoIds.length) {
   const recuperoDiventaNuovoSospeso =
