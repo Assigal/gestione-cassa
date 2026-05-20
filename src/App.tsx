@@ -1175,7 +1175,11 @@ useEffect(() => {
   return;
 }
 
-    let movimentoDaSalvare: Movimento = { id: Date.now(), ...payload };
+    let movimentoDaSalvare: Movimento = {
+      id: Date.now(),
+      ...payload,
+      createdByEmail: session?.user?.email || "",
+    };
     if (
       payload.tipo === "Titolo del giorno" &&
       payload.polizza &&
