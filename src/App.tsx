@@ -1139,13 +1139,9 @@ useEffect(() => {
       alert("Sospeso creato, ma storico origine non salvato: " + storicoError.message);
     }
   }
-   
-   alert("Modalità payload: " + payload.modalita);
-   
-   if (payload.modalita?.trim() === "Sospeso") {
-    alert("Sono dentro la stampa sospeso");
   
-    const stampa = window.confirm(
+  if (payload.modalita?.trim() === "Sospeso") {
+      const stampa = window.confirm(
       "Vuoi stampare il modulo sospeso da far firmare al cliente?"
     );
   
@@ -1156,7 +1152,6 @@ useEffect(() => {
       });
     }
   }
-   
   if (error) {
     console.error(error);
     alert("Sospeso creato localmente, ma non salvato su Supabase.");
