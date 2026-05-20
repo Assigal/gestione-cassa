@@ -1138,7 +1138,8 @@ useEffect(() => {
       console.error(storicoError);
       alert("Sospeso creato, ma storico origine non salvato: " + storicoError.message);
     }
-     if (payload.modalita === "Sospeso") {
+  }
+    if (payload.modalita === "Sospeso") {
       const stampa = window.confirm(
         "Vuoi stampare il modulo sospeso da far firmare al cliente?"
       );
@@ -1150,7 +1151,6 @@ useEffect(() => {
         });
       }
     }
-  }
    
   if (error) {
     console.error(error);
