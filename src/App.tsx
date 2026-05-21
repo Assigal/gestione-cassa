@@ -411,13 +411,7 @@ export default function GestioneCassa() {
     
         console.log("MODALITA PAGAMENTO:", { data, error });
     
-        const codiciValidi = ["C", "A", "B", "J", "F", "H", "M", "Y", "D", "S", "X", "W"];
-    
-        setModalitaPagamento(
-          (data || []).filter((m) =>
-            codiciValidi.includes(String(m.codice || "").trim().toUpperCase())
-          )
-        );
+        setModalitaPagamento(data || []);
       };
     
       caricaModalitaPagamento();
