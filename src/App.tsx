@@ -408,7 +408,7 @@ export default function GestioneCassa() {
           console.error("Errore caricamento modalità pagamento:", error);
           return;
         }
-    
+        console.log("MODALITA PAGAMENTO:", { data, error });
         setModalitaPagamento(data || []);
       };
     
@@ -2375,7 +2375,9 @@ alert(
               {selectedImportRow && (
                 <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm">
                   <p className="font-medium text-amber-900">Origine Compagnia</p>
-                  <p className="text-amber-800">Modalità indicata: {selectedImportRow.modalitaCompagnia}</p>
+                  <p className="text-amber-800">
+                    Modalità indicata: {getDescrizioneModalita(selectedImportRow.modalitaCompagnia)}
+                  </p>
                   <p className="text-amber-800">La modalità effettiva può essere diversa.</p>
                 </div>
               )}
