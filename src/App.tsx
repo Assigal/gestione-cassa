@@ -1252,6 +1252,7 @@ useEffect(() => {
       });
     }
   }
+  }
   if (primaEraSospeso && oraESospeso) {
     setSospesi((rows) =>
       rows.map((s) =>
