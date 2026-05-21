@@ -921,7 +921,7 @@ useEffect(() => {
       contraente: row.contraente,
       referenteSospesi: row.contraente,
       importo: String(row.importo),
-      modalita: row.modalitaCompagnia,
+      modalita: normalizzaModalitaPagamento(row.modalitaCompagnia),
       sub: row.sub || "100",
       tipo: "Titolo del giorno",
     });
@@ -2037,6 +2037,9 @@ async function handleImportFile(event: React.ChangeEvent<HTMLInputElement>) {
     const idxContraente = headers.indexOf("contraente");
     const idxTotale = headers.indexOf("totale");
     const idxTipoPag = headers.indexOf("tipo pag");
+    const idxCodCassa = headers.findIndex(
+      (h) => h.toLowerCase() === "cod_cassa"
+    );
 
     if ([idxSub, idxRamo, idxPolizza, idxContraente, idxTotale, idxTipoPag].some((i) => i < 0)) {
       throw new Error("Colonne mancanti nel CSV: Sub, Ramo, Polizza, Contraente, Totale, Tipo Pag.");
@@ -2054,7 +2057,11 @@ async function handleImportFile(event: React.ChangeEvent<HTMLInputElement>) {
       const ramo = cols[idxRamo] || "";
       const polizza = cols[idxPolizza] || "";
       const contraente = cols[idxContraente] || "";
-      const modalitaCompagnia = normalizzaModalitaPagamento(cols[idxTipoPag] || "");
+      const codCassa = cols[idxCodCassa] || "";
+      const modalitaCompagnia = normalizzaModalitaPagamento(
+        cols[idxTipoPag] || "",
+        codCassa
+      );
 
       const key = `${sub}|${ramo}|${polizza}|${contraente}|${modalitaCompagnia}`;
       
@@ -2473,6 +2480,9 @@ alert(
                     }
                   >
                     <option value="">TEST MODALITA</option>
+                    <option value="">
+                      DEBUG {modalitaPagamento.length}
+                    </option>
                   
                     {modalitaPagamento.map((m) => (
                       <option key={m.codice} value={m.codice}>
