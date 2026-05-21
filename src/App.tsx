@@ -415,7 +415,7 @@ export default function GestioneCassa() {
             )
           )
         );
-    
+    };
       caricaModalitaPagamento();
     }, []);
     
