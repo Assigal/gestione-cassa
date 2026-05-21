@@ -400,9 +400,8 @@ export default function GestioneCassa() {
   useEffect(() => {
       const caricaModalitaPagamento = async () => {
         const { data, error } = await supabase
-          .from("modalita_pagamento")
-          .select("id, codice, descrizione, alimenta_cassa_fisica, richiede_data_assegno, crea_sospeso, attiva")
-          .order("codice");
+        .from("modalita_pagamento")
+        .select("*");
     
         if (error) {
           console.error("Errore caricamento modalità pagamento:", error);
