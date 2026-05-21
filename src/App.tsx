@@ -22,18 +22,6 @@ import { supabase } from "./supabaseClient";
 
 const GIORNATA_CORRENTE = new Date().toISOString().slice(0, 10);
 
-const modalita = [
-  "Contanti",
-  "Assegno",
-  "Bonifico",
-  "POS",
-  "Finitalia",
-  "App",
-  "Mensilizzazione",
-  "Virtual POS",
-  "Direzione",
-  "Sospeso",
-];
 
 const tipiMovimento = [
   "Titolo del giorno",
@@ -118,7 +106,7 @@ const emptyForm: FormState = {
   referenteSospesi: "",
   importo: "",
   sconto: "0",
-  modalita: "Contanti",
+  modalita: "C",
   dataAssegno: "",
   sub: "100",
   tipo: "Titolo del giorno",
@@ -155,7 +143,7 @@ function isAssegnoPostdatato(
   row: { modalita: string; dataAssegno: string },
   giornata: string
 ) {
-  return row.modalita === "Assegno" && !!row.dataAssegno && row.dataAssegno > giornata;
+  return row.modalita === "A" && !!row.dataAssegno && row.dataAssegno > giornata;
 }
 
 function isVersamentoSubagente(tipo: string) {
@@ -183,31 +171,51 @@ function parseImportoItaliano(value: string) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function normalizzaModalitaPagamento(value: string) {
+function normalizzaModalitaPagamento(
+  value: string,
+  codCassa?: string | null
+) {
   const v = (value || "").trim().toUpperCase();
+  const cassa = (codCassa || "").trim().toUpperCase();
+
+  // Caso speciale IMEL
+  if (!v && cassa === "IMEL") {
+    return "M";
+  }
 
   const map: Record<string, string> = {
-    C: "Contanti",
-    CONTANTI: "Contanti",
-    A: "Assegno",
-    ASSEGNO: "Assegno",
-    B: "Bonifico",
-    BONIFICO: "Bonifico",
-    J: "POS",
-    POS: "POS",
-    F: "Finitalia",
-    FINITALIA: "Finitalia",
-    H: "App",
-    APP: "App",
-    M: "Mensilizzazione",
-    MENSILIZZAZIONE: "Mensilizzazione",
-    Y: "Virtual POS",
-    "VIRTUAL POS": "Virtual POS",
-    D: "Direzione",
-    DIREZIONE: "Direzione",
+    C: "C",
+    CONTANTI: "C",
+
+    A: "A",
+    ASSEGNO: "A",
+
+    B: "B",
+    BONIFICO: "B",
+
+    J: "J",
+    POS: "J",
+
+    F: "F",
+    FINITALIA: "F",
+
+    H: "H",
+    APP: "H",
+
+    M: "M",
+    MENSILIZZAZIONE: "M",
+
+    Y: "Y",
+    "VIRTUAL POS": "Y",
+
+    D: "D",
+    DIREZIONE: "D",
+
+    S: "S",
+    SOSPESO: "S",
   };
 
-  return map[v] || value || "Contanti";
+  return map[v] || v;
 }
 
 function parseCsvLine(line: string, separator = ";") {
@@ -387,7 +395,46 @@ export default function GestioneCassa() {
   
     return () => subscription.unsubscribe();
     }, []);
+    const [modalitaPagamento, setModalitaPagamento] = useState<any[]>([]);
+    useEffect(() => {
+      const caricaModalitaPagamento = async () => {
+        const { data, error } = await supabase
+          .from("modalita_pagamento")
+          .select("id, codice, descrizione, alimenta_cassa_fisica, richiede_data_assegno, crea_sospeso")
+          .eq("attiva", true)
+          .order("codice");
     
+        if (error) {
+          console.error("Errore caricamento modalità pagamento:", error);
+          return;
+        }
+    
+        setModalitaPagamento(data || []);
+      };
+    
+      caricaModalitaPagamento();
+    }, []);
+    
+    const getDescrizioneModalita = (
+      codice: string | null | undefined
+    ) => {
+      const found = modalitaPagamento.find(
+        (m) => m.codice === codice
+      );
+    
+      return found?.descrizione || codice || "-";
+    };
+    
+    const getModalitaByCodice = (
+      codice: string | null | undefined
+    ) => {
+      return (
+        modalitaPagamento.find(
+          (m) => m.codice === codice
+        ) || null
+      );
+    };
+  
     const [giornataCorrente, setGiornataCorrente] = useState(
       localStorage.getItem("gestione-cassa-data-corrente") || GIORNATA_CORRENTE
     );
@@ -402,18 +449,18 @@ export default function GestioneCassa() {
     const [quadMezza, setQuadMezza] = useState({ cassaReale: "" });
     const [quadSera, setQuadSera] = useState({ cassaReale: "" });
     const [quadMezzaBloccata, setQuadMezzaBloccata] = useState<{
-    cassaTeorica: number;
-    cassaReale: number;
-    squadratura: number;
-    dataOra: string;
-} | null>(null);
+      cassaTeorica: number;
+      cassaReale: number;
+      squadratura: number;
+      dataOra: string;
+    } | null>(null);
 
-  const [quadSeraBloccata, setQuadSeraBloccata] = useState<{
-    cassaTeorica: number;
-    cassaReale: number;
-    squadratura: number;
-    dataOra: string;
-  } | null>(null);
+    const [quadSeraBloccata, setQuadSeraBloccata] = useState<{
+      cassaTeorica: number;
+      cassaReale: number;
+      squadratura: number;
+      dataOra: string;
+    } | null>(null);
   const [searchSospesi, setSearchSospesi] = useState("");
   const [form, setForm] = useState<FormState>(emptyForm);
   const [auditLog, setAuditLog] = useState<string[]>([]);
@@ -637,27 +684,27 @@ useEffect(() => {
     }
 
     const movimentiDb: Movimento[] = (data || []).map((row) => ({
-      id: row.id,
-      ramo: row.ramo || "",
-      polizza: row.polizza || "",
-      contraente: row.contraente || "",
-      referenteSospesi: row.referente_sospesi || "",
-      importo: Number(row.importo_lordo || 0),
-      sconto: Number(row.sconto || 0),
-      netto: Number(row.importo_netto || 0),
-      modalita: row.modalita_pagamento || "Contanti",
-      tipo: row.tipo_movimento || "Titolo del giorno",
-      sub: row.codice_subagenzia || "100",
-      dataAssegno: row.data_assegno || "",
-      segno: Number(row.segno || 1),
-      note: row.note || "",
-      createdByEmail: row.created_by_email || "",
-      updatedByEmail: row.updated_by_email || "",
-      updatedAt: row.updated_at || "",
-      dataInizioSubagente: row.data_inizio_subagente || "",
-      dataFineSubagente: row.data_fine_subagente || "",
-      allocazioniRecupero: [],
-    }));
+        id: row.id,
+        ramo: row.ramo || "",
+        polizza: row.polizza || "",
+        contraente: row.contraente || "",
+        referenteSospesi: row.referente_sospesi || "",
+        importo: Number(row.importo_lordo || 0),
+        sconto: Number(row.sconto || 0),
+        netto: Number(row.importo_netto || 0),
+        modalita: row.modalita_pagamento || "C",
+        tipo: row.tipo_movimento || "Titolo del giorno",
+        sub: row.codice_subagenzia || "100",
+        dataAssegno: row.data_assegno || "",
+        segno: Number(row.segno || 1),
+        note: row.note || "",
+        createdByEmail: row.created_by_email || "",
+        updatedByEmail: row.updated_by_email || "",
+        updatedAt: row.updated_at || "",
+        dataInizioSubagente: row.data_inizio_subagente || "",
+        dataFineSubagente: row.data_fine_subagente || "",
+        allocazioniRecupero: [],
+      }));
 
     setMovimenti(movimentiDb);
   }
@@ -784,17 +831,23 @@ useEffect(() => {
 
     const incassiFisici = movimenti
       .filter((m) => {
-        if (m.modalita === "Contanti") return true;
-        if (m.modalita === "Assegno" && !isAssegnoPostdatato(m, giornataCorrente)) return true;
+        if (m.modalita === "C") return true;
+        if (
+          m.modalita === "A" &&
+          !isAssegnoPostdatato(m, giornataCorrente)
+        ) {
+          return true;
+        }
+    
         return false;
       })
       .reduce((sum, m) => sum + m.netto * (m.segno || 1), 0);
-
+    
     const totaleSospesi = movimenti
       .filter(
         (m) =>
-        m.tipo === "Titolo del giorno" &&
-        (m.modalita === "Sospeso" || isAssegnoPostdatato(m, giornataCorrente))
+          m.tipo === "Titolo del giorno" &&
+          (m.modalita === "S" || isAssegnoPostdatato(m, giornataCorrente))
       )
   .reduce((sum, m) => sum + m.importo, 0);
     const totaleRecuperi = movimenti
@@ -886,15 +939,16 @@ useEffect(() => {
       }));
     }
 
-    if (
+   if (
       movimento &&
       movimento.tipo === "Titolo del giorno" &&
-      (movimento.modalita === "Sospeso" || isAssegnoPostdatato(movimento, giornataCorrente))
+      (movimento.modalita === "S" ||
+        isAssegnoPostdatato(movimento, giornataCorrente))
     ) {
       setSospesi((rows) =>
         rows.filter((s) => s.polizza !== movimento.polizza)
-    );
-}
+      );
+    }
     setMovimenti((rows) => rows.filter((row) => row.id !== id));
     if (giornataDbId) {
       const { error } = await supabase
@@ -961,7 +1015,7 @@ useEffect(() => {
       contraente: selected.length === 1 ? selected[0].contraente : referente,
       referenteSospesi: referente,
       importo: String(importo),
-      modalita: "Contanti",
+      modalita: "C",
       sub: "100",
       tipo: "Recupero sospeso",
       note: "Recupero sospeso selezionato",
@@ -1039,14 +1093,24 @@ useEffect(() => {
     const primaEraSospeso =
       movimentoOriginale &&
       movimentoOriginale.tipo === "Titolo del giorno" &&
-      (movimentoOriginale.modalita === "Sospeso" ||
-        isAssegnoPostdatato(movimentoOriginale, giornataCorrente));
-  
+      (
+        movimentoOriginale.modalita === "S" ||
+        isAssegnoPostdatato(
+          movimentoOriginale,
+          giornataCorrente
+        )
+      );
+    
     const oraESospeso =
       payload.tipo === "Titolo del giorno" &&
-      (payload.modalita === "Sospeso" ||
-        (payload.modalita === "Assegno" && payload.dataAssegno > giornataCorrente));
-  
+      (
+        payload.modalita === "S" ||
+        (
+          payload.modalita === "A" &&
+          payload.dataAssegno > giornataCorrente
+        )
+      );
+     
     setMovimenti((rows) =>
       rows.map((row) => (row.id === editingMovement ? { ...row, ...payload } : row))
     );
@@ -1166,10 +1230,11 @@ useEffect(() => {
     console.error(error);
     alert("Sospeso creato localmente, ma non salvato su Supabase.");
   }
-  if (payload.modalita === "Sospeso") {
-    const stampa = window.confirm(
-      "Vuoi stampare il modulo sospeso da far firmare al cliente?"
-    );
+  if (payload.modalita === "S") {
+     const stampa = window.confirm(
+       "Vuoi stampare il modulo sospeso da far firmare al cliente?"
+     );
+  }
   
     if (stampa) {
       stampaModuloSospeso({
@@ -1282,12 +1347,18 @@ useEffect(() => {
     const storicoSospesiDaCollegare: string[] = [];
     const storicoSospesiDaInserire: any[] = [];
 
- if (
-  payload.tipo === "Titolo del giorno" &&
-  !isVersamentoSubagente(payload.tipo) &&
-  (payload.modalita === "Sospeso" ||
-    (payload.modalita === "Assegno" && payload.dataAssegno > giornataCorrente))
-) {
+    if (
+      payload.tipo === "Titolo del giorno" &&
+      !isVersamentoSubagente(payload.tipo) &&
+      (
+        payload.modalita === "S" ||
+        (
+          payload.modalita === "A" &&
+          payload.dataAssegno > giornataCorrente
+        )
+      )
+    ) {
+      
   const tempId = `sosp-${Date.now()}`;
 
   const nuovoSospeso = {
@@ -1357,7 +1428,7 @@ useEffect(() => {
       }
     }
   }
-  if (payload.modalita === "Sospeso") {
+  if (payload.modalita === "S") {
     const stampa = window.confirm(
       "Vuoi stampare il modulo sospeso da far firmare al cliente?"
     );
@@ -1368,10 +1439,13 @@ useEffect(() => {
   }
 }
    if (payload.tipo === "Recupero sospeso" && selectedSospesoIds.length) {
-  const recuperoDiventaNuovoSospeso =
-    payload.modalita === "Sospeso" ||
-    (payload.modalita === "Assegno" && payload.dataAssegno > giornataCorrente);
-
+    const recuperoDiventaNuovoSospeso =
+      payload.modalita === "S" ||
+      (
+        payload.modalita === "A" &&
+        payload.dataAssegno > giornataCorrente
+      );
+     
   const { updatedSospesi, allocazioni } = applyRecuperoToSospesi(
     netto,
     sconto,
@@ -1751,14 +1825,16 @@ async function bloccaQuadraturaSera() {
   
       const incassiFisici = rows
         .filter((m) => {
-          if (m.modalita_pagamento === "Contanti") return true;
+          if (m.modalita_pagamento === "C") return true;
+      
           if (
-            m.modalita_pagamento === "Assegno" &&
+            m.modalita_pagamento === "A" &&
             m.data_assegno &&
             m.data_assegno <= giornata.data_giornata
           ) {
             return true;
           }
+      
           return false;
         })
         .reduce(
@@ -2371,16 +2447,45 @@ alert(
                 )}
 
                 <label className="space-y-1 lg:col-span-3">
-                  <span className="text-xs font-medium text-slate-500">Modalità effettiva</span>
-                  <select className="w-full rounded-2xl border px-3 py-2" value={form.modalita} onChange={(e) => setForm({ ...form, modalita: e.target.value })}>
-                    {modalita.map((m) => <option key={m}>{m}</option>)}
+                  <span className="text-xs font-medium text-slate-500">
+                    Modalità effettiva
+                  </span>
+                
+                  <select
+                    className="w-full rounded-2xl border px-3 py-2"
+                    value={form.modalita}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        modalita: e.target.value,
+                      })
+                    }
+                  >
+                    {modalitaPagamento.map((m) => (
+                      <option key={m.codice} value={m.codice}>
+                        {m.descrizione}
+                      </option>
+                    ))}
                   </select>
                 </label>
-
-                {form.modalita === "Assegno" && (
+                
+                {form.modalita === "A" && (
                   <label className="space-y-1 lg:col-span-2">
-                    <span className="text-xs font-medium text-slate-500">Data assegno</span>
-                    <input type="date" className="w-full rounded-2xl border px-3 py-2" value={form.dataAssegno} onChange={(e) => setForm({ ...form, dataAssegno: e.target.value })} />
+                    <span className="text-xs font-medium text-slate-500">
+                      Data assegno
+                    </span>
+                
+                    <input
+                      type="date"
+                      className="w-full rounded-2xl border px-3 py-2"
+                      value={form.dataAssegno}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          dataAssegno: e.target.value,
+                        })
+                      }
+                    />
                   </label>
                 )}
               </div>
@@ -2458,7 +2563,7 @@ alert(
                   <tbody>
                     {movimenti.map((m) => {
                       const postdatato = isAssegnoPostdatato(m, giornataCorrente);
-                      const warnPayment = m.modalita === "Sospeso" || postdatato;
+                      const warnPayment = m.modalita === "S" || postdatato;
                       return (
                         <tr key={m.id} className="border-t bg-white hover:bg-slate-50">
                           <td className="px-3 py-2"><div className="font-medium">{descrizioneMovimento(m)}</div></td>
@@ -2478,7 +2583,7 @@ alert(
                           <td className="px-3 py-2"><Badge variant="neutral">{m.tipo}</Badge></td>
                           <td className="px-3 py-2">
                             <div className="flex flex-col items-start gap-1">
-                              <Badge variant={warnPayment ? "warn" : m.modalita === "POS" ? "blue" : "ok"}>{m.modalita}</Badge>
+                              <Badge variant={warnPayment ? "warn" : m.modalita === "J" ? "blue" : "ok"}>{m.modalita}</Badge>
                               {postdatato && <span className="text-xs font-medium text-rose-700">Data assegno: {m.dataAssegno}</span>}
                             </div>
                           </td>
