@@ -396,30 +396,34 @@ export default function GestioneCassa() {
     return () => subscription.unsubscribe();
     }, []);
     const [modalitaPagamento, setModalitaPagamento] = useState<any[]>([]);
-    useEffect(() => {
+    
+  useEffect(() => {
       const caricaModalitaPagamento = async () => {
         const { data, error } = await supabase
           .from("modalita_pagamento")
-          .select("id, codice, descrizione, alimenta_cassa_fisica, richiede_data_assegno, crea_sospeso")
+          .select("id, codice, descrizione, alimenta_cassa_fisica, richiede_data_assegno, crea_sospeso, attiva")
           .order("codice");
     
         if (error) {
           console.error("Errore caricamento modalità pagamento:", error);
           return;
         }
+    
         console.log("MODALITA PAGAMENTO:", { data, error });
+    
+        const codiciValidi = ["C", "A", "B", "J", "F", "H", "M", "Y", "D", "S", "X", "W"];
+    
         setModalitaPagamento(
           (data || []).filter((m) =>
-            ["C", "A", "B", "J", "F", "H", "M", "Y", "D", "S", "X", "W"].includes(
-              String(m.codice).toUpperCase()
-            )
+            codiciValidi.includes(String(m.codice || "").trim().toUpperCase())
           )
         );
-    };
+      };
+    
       caricaModalitaPagamento();
     }, []);
     
-    const getDescrizioneModalita = (codice) => {
+    const getDescrizioneModalita = (codice: string | null | undefined) => {
       const normalized = String(codice || "").trim().toUpperCase();
     
       const found = modalitaPagamento.find(
@@ -428,7 +432,6 @@ export default function GestioneCassa() {
     
       return found?.descrizione || codice || "-";
     };
-    
     const getModalitaByCodice = (
       codice: string | null | undefined
     ) => {
