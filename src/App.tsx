@@ -409,18 +409,21 @@ export default function GestioneCassa() {
         }
         console.log("MODALITA PAGAMENTO:", { data, error });
         setModalitaPagamento(
-          (data || []).filter((m) => m.attiva)
+          (data || []).filter((m) =>
+            ["C", "A", "B", "J", "F", "H", "M", "Y", "D", "S", "X", "W"].includes(
+              String(m.codice).toUpperCase()
+            )
+          )
         );
-      };
     
       caricaModalitaPagamento();
     }, []);
     
-    const getDescrizioneModalita = (
-      codice: string | null | undefined
-    ) => {
+    const getDescrizioneModalita = (codice) => {
+      const normalized = String(codice || "").trim().toUpperCase();
+    
       const found = modalitaPagamento.find(
-        (m) => m.codice === codice
+        (m) => String(m.codice || "").trim().toUpperCase() === normalized
       );
     
       return found?.descrizione || codice || "-";
