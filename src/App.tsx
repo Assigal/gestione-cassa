@@ -408,10 +408,8 @@ export default function GestioneCassa() {
           return;
         }
     
-        console.log("MODALITA PAGAMENTO:", { data, error });
-    
         setModalitaPagamento(data || []);
-        console.log("DOPO SET", data?.length);
+        
       };
     
       caricaModalitaPagamento();
@@ -2157,7 +2155,6 @@ alert(
       </div>
     );
   }
-  console.log("RENDER modalitaPagamento", modalitaPagamento.length);
   return (
     <div className="min-h-screen bg-slate-50 p-4 text-slate-900">
       <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-4 xl:grid-cols-[320px_1fr]">
@@ -2684,7 +2681,7 @@ alert(
                         </td>    
                         <td className="px-3 py-2"><div className="font-medium">{numeroPolizzaCompleto(row)}</div></td>
                         <td className="px-3 py-2">{row.contraente}</td>
-                        <td className="px-3 py-2"><Badge>{row.modalitaCompagnia}</Badge></td>
+                        <td className="px-3 py-2"><Badge>{getDescrizioneModalita(row.modalitaCompagnia)}</Badge></td>
                         <td className="px-3 py-2 text-xs text-slate-500">{row.fileOrigine || "demo"}</td>
                         <td className="px-3 py-2 text-right font-medium">{euro(row.importo)}</td>
                         <td className="px-3 py-2 text-right">
