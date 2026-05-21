@@ -2475,12 +2475,11 @@ alert(
                     className="w-full rounded-2xl border px-3 py-2"
                     value={form.modalita}
                     onChange={(e) =>
-                      setForm({
-                        ...form,
-                        modalita: e.target.value,
-                      })
+                      setForm({ ...form, modalita: e.target.value })
                     }
                   >
+                    <option value="">TEST MODALITA</option>
+                  
                     {modalitaPagamento.map((m) => (
                       <option key={m.codice} value={m.codice}>
                         {m.descrizione}
