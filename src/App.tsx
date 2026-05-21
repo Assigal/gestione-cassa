@@ -412,6 +412,7 @@ export default function GestioneCassa() {
         console.log("MODALITA PAGAMENTO:", { data, error });
     
         setModalitaPagamento(data || []);
+        console.log("DOPO SET", data?.length);
       };
     
       caricaModalitaPagamento();
@@ -2157,7 +2158,7 @@ alert(
       </div>
     );
   }
-  
+  console.log("RENDER modalitaPagamento", modalitaPagamento.length);
   return (
     <div className="min-h-screen bg-slate-50 p-4 text-slate-900">
       <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-4 xl:grid-cols-[320px_1fr]">
