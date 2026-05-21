@@ -1428,7 +1428,7 @@ useEffect(() => {
       }
     }
   }
-}
+
   if (payload.modalita === "S") {
     const stampa = window.confirm(
       "Vuoi stampare il modulo sospeso da far firmare al cliente?"
