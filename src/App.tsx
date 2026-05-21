@@ -424,20 +424,24 @@ export default function GestioneCassa() {
     }, []);
     
     const getDescrizioneModalita = (codice: string | null | undefined) => {
-  const map: Record<string, string> = {
-    C: "Contanti",
-    A: "Assegno",
-    B: "Bonifico",
-    J: "POS",
-    F: "Finitalia",
-    H: "App",
-    M: "Mensilizzazione",
-    Y: "Virtual POS",
-    D: "Direzione",
-    S: "Sospeso",
-    W: "Bonifico Multi",
-    X: "Scoperto",
-  };
+      const map: Record<string, string> = {
+        C: "Contanti",
+        A: "Assegno",
+        B: "Bonifico",
+        J: "POS",
+        F: "Finitalia",
+        H: "App",
+        M: "Mensilizzazione",
+        Y: "Virtual POS",
+        D: "Direzione",
+        S: "Sospeso",
+        W: "Bonifico Multi",
+        X: "Scoperto",
+      };
+      const normalized = String(codice || "").trim().toUpperCase();
+
+      return map[normalized] || codice || "-";
+    };
 
     const getModalitaByCodice = (
       codice: string | null | undefined
