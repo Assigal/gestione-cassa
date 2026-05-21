@@ -398,6 +398,7 @@ export default function GestioneCassa() {
     }, []);
     
   useEffect(() => {
+      if (!session) return;
       const caricaModalitaPagamento = async () => {
         const { data, error } = await supabase
         .from("modalita_pagamento")
@@ -413,7 +414,7 @@ export default function GestioneCassa() {
       };
     
       caricaModalitaPagamento();
-    }, []);
+    }, [session]);
     
     const getDescrizioneModalita = (codice: string | null | undefined) => {
       const map: Record<string, string> = {
