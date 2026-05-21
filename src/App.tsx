@@ -2476,11 +2476,7 @@ alert(
                       setForm({ ...form, modalita: e.target.value })
                     }
                   >
-                    <option value="">TEST MODALITA</option>
-                    <option value="">
-                      DEBUG {modalitaPagamento.length}
-                    </option>
-                  
+                   
                     {modalitaPagamento.map((m) => (
                       <option key={m.codice} value={m.codice}>
                         {m.descrizione}
