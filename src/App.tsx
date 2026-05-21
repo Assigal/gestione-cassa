@@ -370,6 +370,7 @@ export default function GestioneCassa() {
   const [authLoading, setAuthLoading] = useState(true);
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [modalitaPagamento, setModalitaPagamento] = useState<any[]>([]);
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data }) => {
       setSession(data.session);
@@ -395,7 +396,6 @@ export default function GestioneCassa() {
   
     return () => subscription.unsubscribe();
     }, []);
-    const [modalitaPagamento, setModalitaPagamento] = useState<any[]>([]);
     
   useEffect(() => {
       const caricaModalitaPagamento = async () => {
@@ -2596,7 +2596,9 @@ alert(
                           <td className="px-3 py-2"><Badge variant="neutral">{m.tipo}</Badge></td>
                           <td className="px-3 py-2">
                             <div className="flex flex-col items-start gap-1">
-                              <Badge variant={warnPayment ? "warn" : m.modalita === "J" ? "blue" : "ok"}>{m.modalita}</Badge>
+                              <Badge variant={warnPayment ? "warn" : m.modalita === "J" ? "blue" : "ok"}>
+                                {getDescrizioneModalita(m.modalita)}
+                              </Badge>
                               {postdatato && <span className="text-xs font-medium text-rose-700">Data assegno: {m.dataAssegno}</span>}
                             </div>
                           </td>
