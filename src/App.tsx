@@ -1234,7 +1234,6 @@ useEffect(() => {
      const stampa = window.confirm(
        "Vuoi stampare il modulo sospeso da far firmare al cliente?"
      );
-  }
   
     if (stampa) {
       stampaModuloSospeso({
@@ -1253,7 +1252,6 @@ useEffect(() => {
       });
     }
   }
- }
   if (primaEraSospeso && oraESospeso) {
     setSospesi((rows) =>
       rows.map((s) =>
