@@ -401,7 +401,6 @@ export default function GestioneCassa() {
         const { data, error } = await supabase
           .from("modalita_pagamento")
           .select("id, codice, descrizione, alimenta_cassa_fisica, richiede_data_assegno, crea_sospeso")
-          .eq("attiva", true)
           .order("codice");
     
         if (error) {
@@ -409,7 +408,9 @@ export default function GestioneCassa() {
           return;
         }
         console.log("MODALITA PAGAMENTO:", { data, error });
-        setModalitaPagamento(data || []);
+        setModalitaPagamento(
+          (data || []).filter((m) => m.attiva)
+        );
       };
     
       caricaModalitaPagamento();
