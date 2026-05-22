@@ -586,6 +586,45 @@ const buildReferentePayload = (
   };
 };
 
+const buildMovimentoPayload = (
+  payload: any,
+  giornataDbId: string | null,
+  session: any
+) => {
+  return {
+    giornata_id: giornataDbId,
+
+    tipo_movimento: payload.tipo,
+    codice_subagenzia: payload.sub,
+
+    ramo: payload.ramo || null,
+    polizza: payload.polizza || null,
+    contraente: payload.contraente || null,
+
+    ...buildReferentePayload(payload),
+
+    modalita_pagamento: payload.modalita,
+    data_assegno: payload.dataAssegno || null,
+
+    importo_lordo: payload.importo,
+    sconto: payload.sconto,
+    importo_netto: payload.netto,
+
+    segno: payload.segno,
+
+    note: payload.note || null,
+
+    created_by: null,
+    created_by_email: session?.user?.email || null,
+
+    data_inizio_subagente:
+      payload.dataInizioSubagente || null,
+
+    data_fine_subagente:
+      payload.dataFineSubagente || null,
+  };
+};
+
 async function caricaProfiloUtente(userId: string) {
   const { data, error } = await supabase
     .from("profiles")
@@ -1681,52 +1720,39 @@ useEffect(() => {
     if (giornataDbId) {
       const { data: movimentoCreato, error } = await supabase
       .from("movimenti_cassa")
-      .insert({
-        giornata_id: giornataDbId,
-        tipo_movimento: payload.tipo,
-        codice_subagenzia: payload.sub,
-        ramo: payload.ramo || null,
-        polizza: payload.polizza || null,
-        contraente: payload.contraente || null,
-        ...buildReferentePayload(payload),
-        modalita_pagamento: payload.modalita,
-        data_assegno: payload.dataAssegno || null,
-        importo_lordo: payload.importo,
-        sconto: payload.sconto,
-        importo_netto: payload.netto,
-        segno: payload.segno,
-        note: payload.note || null,
-        created_by: null,
-        created_by_email: session?.user?.email || null,
-        data_inizio_subagente: payload.dataInizioSubagente || null,
-        data_fine_subagente: payload.dataFineSubagente || null,
-      })
+      .insert(
+        buildMovimentoPayload(
+        payload,
+        giornataDbId,
+        session
+        )
+      )
       .select("id")
       .single();
 
-  if (error) {
-    console.error(error);
-    alert("Movimento salvato localmente, ma non salvato su Supabase: " + error.message);
-  }
-      
-  if (movimentoCreato) {
-     movimentoDaSalvare.id = movimentoCreato.id;
-  }
-      
-  if (movimentoCreato?.id && storicoSospesiDaInserire.length > 0) {
-    const { error: storicoRecuperiError } = await supabase
-      .from("sospesi_movimenti")
-      .insert(
-        storicoSospesiDaInserire.map((row) => ({
-          ...row,
-          movimento_cassa_id: movimentoCreato.id,
-        }))
-      );
-  
-    if (storicoRecuperiError) {
-      console.error(storicoRecuperiError);
-      alert("Movimento salvato, ma storico recuperi/sconti non salvato.");
+    if (error) {
+      console.error(error);
+      alert("Movimento salvato localmente, ma non salvato su Supabase: " + error.message);
     }
+        
+    if (movimentoCreato) {
+       movimentoDaSalvare.id = movimentoCreato.id;
+    }
+        
+    if (movimentoCreato?.id && storicoSospesiDaInserire.length > 0) {
+      const { error: storicoRecuperiError } = await supabase
+        .from("sospesi_movimenti")
+        .insert(
+          storicoSospesiDaInserire.map((row) => ({
+            ...row,
+            movimento_cassa_id: movimentoCreato.id,
+          }))
+        );
+    
+      if (storicoRecuperiError) {
+        console.error(storicoRecuperiError);
+        alert("Movimento salvato, ma storico recuperi/sconti non salvato.");
+      }
   }
      
  if (movimentoCreato?.id && payload.tipo === "Titolo del giorno") {
