@@ -1472,6 +1472,7 @@ useEffect(() => {
       .insert({
         data_sospeso: giornataCorrente,
         referente_sospesi: nuovoSospeso.referenteSospesi,
+        referente_sospesi_id: nuovoSospeso.referenteSospesiId || null,
         contraente: nuovoSospeso.contraente || null,
         ramo: nuovoSospeso.ramo || null,
         polizza: nuovoSospeso.polizza || null,
@@ -1617,6 +1618,7 @@ useEffect(() => {
       const { error } = await supabase.from("sospesi_cassa").insert({
         data_sospeso: giornataCorrente,
         referente_sospesi: nuovoSospeso.referenteSospesi,
+        referente_sospesi_id: nuovoSospeso.referenteSospesiId || null,
         contraente: nuovoSospeso.contraente || null,
         ramo: nuovoSospeso.ramo || null,
         polizza: nuovoSospeso.polizza || null,
