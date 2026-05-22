@@ -1,3 +1,7 @@
+// ======================================================
+// 01 - IMPORTS / DIPENDENZE
+// ======================================================
+
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import {
@@ -19,6 +23,10 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "./supabaseClient";
+
+// ======================================================
+// 02 - COSTANTI / TIPI / INTERFACCE
+// ======================================================
 
 const GIORNATA_CORRENTE = new Date().toISOString().slice(0, 10);
 
@@ -118,6 +126,10 @@ const emptyForm: FormState = {
 const movimentiRegistratiSeed: Movimento[] = [];
 const sospesiSeed: Sospeso[] = [];
 const importCompagniaSeed: ImportRow[] = [];
+
+// ======================================================
+// 03 - FUNZIONI UTILITY
+// ======================================================
 
 function euro(value: number) {
   return new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(value || 0);
@@ -316,6 +328,11 @@ function importaCsvCompagnia(csvText: string, fileName: string): ImportRow[] {
 
   return Array.from(grouped.values());
 }
+
+// ======================================================
+// 04 - COMPONENTI UI RIUTILIZZABILI
+// ======================================================
+
 function Badge({
   children,
   variant = "default",
@@ -364,6 +381,11 @@ function SidebarMetric({
 }
 
 export default function GestioneCassa() {
+  
+  // ======================================================
+  // 05 - STATE / REFS
+  // ======================================================
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [session, setSession] = useState<any>(null);
   const [profiloUtente, setProfiloUtente] = useState<any>(null);
@@ -371,6 +393,11 @@ export default function GestioneCassa() {
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [modalitaPagamento, setModalitaPagamento] = useState<any[]>([]);
+
+  // ======================================================
+  // 06 - AUTENTICAZIONE / SESSIONE UTENTE
+  // ======================================================
+  
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data }) => {
       setSession(data.session);
@@ -396,7 +423,11 @@ export default function GestioneCassa() {
   
     return () => subscription.unsubscribe();
     }, []);
-    
+
+  // ======================================================
+  // 07 - CONFIGURAZIONI DA DATABASE
+  // ======================================================
+  
   useEffect(() => {
       if (!session) return;
       const caricaModalitaPagamento = async () => {
@@ -415,7 +446,11 @@ export default function GestioneCassa() {
     
       caricaModalitaPagamento();
     }, [session]);
-    
+
+  // ======================================================
+  // 08 - MODALITÀ PAGAMENTO / MAPPING
+  // ======================================================
+  
     const getDescrizioneModalita = (codice: string | null | undefined) => {
       const map: Record<string, string> = {
         C: "Contanti",
@@ -445,6 +480,10 @@ export default function GestioneCassa() {
         ) || null
       );
     };
+
+  // ======================================================
+  // 09 - STATE OPERATIVO CASSA
+  // ======================================================
   
     const [giornataCorrente, setGiornataCorrente] = useState(
       localStorage.getItem("gestione-cassa-data-corrente") || GIORNATA_CORRENTE
@@ -472,17 +511,21 @@ export default function GestioneCassa() {
       squadratura: number;
       dataOra: string;
     } | null>(null);
-  const [searchSospesi, setSearchSospesi] = useState("");
-  const [form, setForm] = useState<FormState>(emptyForm);
-  const [auditLog, setAuditLog] = useState<string[]>([]);
-  const [sogliaStampaAbbuono, setSogliaStampaAbbuono] = useState(3);
-  const [giornataChiusa, setGiornataChiusa] = useState(false);
-  const isAdmin = profiloUtente?.ruolo === "admin";
-  const canManageMovimento = (movimento: Movimento) => {
-    if (isAdmin) return true;
-    if (profiloUtente?.ruolo === "supervisor") return true;
-    return movimento.createdByEmail === session?.user?.email;
-  };
+    const [searchSospesi, setSearchSospesi] = useState("");
+    const [form, setForm] = useState<FormState>(emptyForm);
+    const [auditLog, setAuditLog] = useState<string[]>([]);
+    const [sogliaStampaAbbuono, setSogliaStampaAbbuono] = useState(3);
+    const [giornataChiusa, setGiornataChiusa] = useState(false);
+    const isAdmin = profiloUtente?.ruolo === "admin";
+    const canManageMovimento = (movimento: Movimento) => {
+      if (isAdmin) return true;
+      if (profiloUtente?.ruolo === "supervisor") return true;
+        return movimento.createdByEmail === session?.user?.email;
+      };
+
+// ======================================================
+// 10 - LOGICA BUSINESS CASSA
+// ======================================================
 
 async function caricaProfiloUtente(userId: string) {
   const { data, error } = await supabase
@@ -909,6 +952,10 @@ useEffect(() => {
     setForm({ ...form, tipo });
   }
 
+  // ======================================================
+  // 12 - GESTIONE MOVIMENTI CASSA
+  // ======================================================
+  
   function selectImported(row: ImportRow) {
     setSelectedImport(row.id);
     setEditingMovement(null);
@@ -1008,6 +1055,10 @@ useEffect(() => {
     });
   }
 
+  // ======================================================
+  // 13 - GESTIONE SOSPESI / RECUPERI
+  // ======================================================
+  
   function toggleSospeso(id: string) {
     setSelectedSospesoIds((ids) => ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]);
   }
@@ -1997,9 +2048,13 @@ async function bloccaQuadraturaSera() {
     }
   }
   
-  function openImportFileDialog() {
-    fileInputRef.current?.click();
-  }
+// ======================================================
+// 11 - IMPORT CSV COMPAGNIA
+// ======================================================  
+
+function openImportFileDialog() {
+   fileInputRef.current?.click();
+}
 
 async function handleImportFile(event: React.ChangeEvent<HTMLInputElement>) {
   const file = event.target.files?.[0];
@@ -2156,6 +2211,11 @@ alert(
       </div>
     );
   }
+
+  // ======================================================
+  // 14 - RENDER UI PRINCIPALE
+  // ======================================================
+  
   return (
     <div className="min-h-screen bg-slate-50 p-4 text-slate-900">
       <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-4 xl:grid-cols-[320px_1fr]">
