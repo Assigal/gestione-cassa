@@ -568,6 +568,24 @@ export default function GestioneCassa() {
 // 10 - LOGICA BUSINESS CASSA
 // ======================================================
 
+const buildReferentePayload = (
+  payload: {
+    referenteSospesi?: string;
+    referenteSospesiId?: string;
+    contraente?: string;
+  }
+) => {
+  return {
+    referente_sospesi:
+      payload.referenteSospesi ||
+      payload.contraente ||
+      null,
+
+    referente_sospesi_id:
+      payload.referenteSospesiId || null,
+  };
+};
+
 async function caricaProfiloUtente(userId: string) {
   const { data, error } = await supabase
     .from("profiles")
@@ -1231,7 +1249,7 @@ useEffect(() => {
           ramo: payload.ramo || null,
           polizza: payload.polizza || null,
           contraente: payload.contraente || null,
-          referente_sospesi: payload.referenteSospesi || null,
+          ...buildReferentePayload(payload),
           modalita_pagamento: payload.modalita,
           data_assegno: payload.dataAssegno || null,
           importo_lordo: payload.importo,
@@ -1294,8 +1312,7 @@ useEffect(() => {
     .from("sospesi_cassa")
     .insert({
       data_sospeso: giornataCorrente,
-      referente_sospesi: nuovoSospeso.referenteSospesi,
-      referente_sospesi_id: nuovoSospeso.referenteSospesiId || null,
+      ...buildReferentePayload(nuovoSospeso),
       contraente: nuovoSospeso.contraente || null,
       ramo: nuovoSospeso.ramo || null,
       polizza: nuovoSospeso.polizza || null,
@@ -1384,7 +1401,7 @@ useEffect(() => {
       const { error } = await supabase
         .from("sospesi_cassa")
         .update({
-          referente_sospesi: payload.referenteSospesi,
+          ...buildReferentePayload(payload),
           contraente: payload.contraente || null,
           ramo: payload.ramo || null,
           polizza: payload.polizza || null,
@@ -1492,8 +1509,7 @@ useEffect(() => {
       .from("sospesi_cassa")
       .insert({
         data_sospeso: giornataCorrente,
-        referente_sospesi: nuovoSospeso.referenteSospesi,
-        referente_sospesi_id: nuovoSospeso.referenteSospesiId || null,
+        ...buildReferentePayload(nuovoSospeso),
         contraente: nuovoSospeso.contraente || null,
         ramo: nuovoSospeso.ramo || null,
         polizza: nuovoSospeso.polizza || null,
@@ -1639,8 +1655,7 @@ useEffect(() => {
     if (giornataDbId) {
       const { error } = await supabase.from("sospesi_cassa").insert({
         data_sospeso: giornataCorrente,
-        referente_sospesi: nuovoSospeso.referenteSospesi,
-        referente_sospesi_id: nuovoSospeso.referenteSospesiId || null,
+        ...buildReferentePayload(nuovoSospeso),
         contraente: nuovoSospeso.contraente || null,
         ramo: nuovoSospeso.ramo || null,
         polizza: nuovoSospeso.polizza || null,
@@ -1673,8 +1688,7 @@ useEffect(() => {
         ramo: payload.ramo || null,
         polizza: payload.polizza || null,
         contraente: payload.contraente || null,
-        referente_sospesi: payload.referenteSospesi || null,
-        referente_sospesi_id: payload.referenteSospesiId || null,
+        ...buildReferentePayload(payload),
         modalita_pagamento: payload.modalita,
         data_assegno: payload.dataAssegno || null,
         importo_lordo: payload.importo,
