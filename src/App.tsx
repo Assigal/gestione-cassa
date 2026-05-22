@@ -659,6 +659,26 @@ const buildMovimentoUpdatePayload = (
   };
 };
 
+const buildSospesoPayload = (sospeso: any) => {
+  return {
+    data_sospeso: sospeso.dataSospeso || giornataCorrente,
+
+    ...buildReferentePayload(sospeso),
+
+    contraente: sospeso.contraente || null,
+    ramo: sospeso.ramo || null,
+    polizza: sospeso.polizza || null,
+
+    importo_originario: sospeso.importoOriginario,
+    recuperato: sospeso.recuperato,
+    sconto_applicato: sospeso.scontoApplicato,
+    residuo: sospeso.residuo,
+
+    stato: sospeso.stato,
+    note: sospeso.note || null,
+  };
+};
+  
 async function caricaProfiloUtente(userId: string) {
   const { data, error } = await supabase
     .from("profiles")
@@ -1366,19 +1386,7 @@ useEffect(() => {
 
    const { data: sospesoCreato, error } = await supabase
     .from("sospesi_cassa")
-    .insert({
-      data_sospeso: giornataCorrente,
-      ...buildReferentePayload(nuovoSospeso),
-      contraente: nuovoSospeso.contraente || null,
-      ramo: nuovoSospeso.ramo || null,
-      polizza: nuovoSospeso.polizza || null,
-      importo_originario: nuovoSospeso.importoOriginario,
-      recuperato: nuovoSospeso.recuperato,
-      sconto_applicato: nuovoSospeso.scontoApplicato,
-      residuo: nuovoSospeso.residuo,
-      stato: nuovoSospeso.stato,
-      note: nuovoSospeso.note || null,
-    })
+    .insert(buildSospesoPayload(nuovoSospeso))
     .select()
     .single();
   
@@ -1563,19 +1571,7 @@ useEffect(() => {
   if (giornataDbId) {
     const { data: sospesoCreato, error } = await supabase
       .from("sospesi_cassa")
-      .insert({
-        data_sospeso: giornataCorrente,
-        ...buildReferentePayload(nuovoSospeso),
-        contraente: nuovoSospeso.contraente || null,
-        ramo: nuovoSospeso.ramo || null,
-        polizza: nuovoSospeso.polizza || null,
-        importo_originario: nuovoSospeso.importoOriginario,
-        recuperato: nuovoSospeso.recuperato,
-        sconto_applicato: nuovoSospeso.scontoApplicato,
-        residuo: nuovoSospeso.residuo,
-        stato: nuovoSospeso.stato,
-        note: nuovoSospeso.note || null,
-      })
+      .insert(buildSospesoPayload(nuovoSospeso))
       .select()
       .single();
 
@@ -1709,20 +1705,10 @@ useEffect(() => {
     setSospesi((rows) => [nuovoSospeso, ...rows]);
 
     if (giornataDbId) {
-      const { error } = await supabase.from("sospesi_cassa").insert({
-        data_sospeso: giornataCorrente,
-        ...buildReferentePayload(nuovoSospeso),
-        contraente: nuovoSospeso.contraente || null,
-        ramo: nuovoSospeso.ramo || null,
-        polizza: nuovoSospeso.polizza || null,
-        importo_originario: nuovoSospeso.importoOriginario,
-        recuperato: 0,
-        sconto_applicato: 0,
-        residuo: nuovoSospeso.residuo,
-        stato: nuovoSospeso.stato,
-        note: nuovoSospeso.note,
-      });
-
+      const { error } = await supabase
+        .from("sospesi_cassa")
+        .insert(buildSospesoPayload(nuovoSospeso));
+    
       if (error) {
         console.error(error);
         alert("Nuovo sospeso creato localmente, ma non salvato su Supabase.");
