@@ -625,6 +625,40 @@ const buildMovimentoPayload = (
   };
 };
 
+const buildMovimentoUpdatePayload = (
+  payload: any,
+  session: any
+) => {
+  return {
+    tipo_movimento: payload.tipo,
+    codice_subagenzia: payload.sub,
+
+    ramo: payload.ramo || null,
+    polizza: payload.polizza || null,
+    contraente: payload.contraente || null,
+
+    ...buildReferentePayload(payload),
+
+    modalita_pagamento: payload.modalita,
+    data_assegno: payload.dataAssegno || null,
+
+    importo_lordo: payload.importo,
+    sconto: payload.sconto,
+    importo_netto: payload.netto,
+
+    segno: payload.segno,
+
+    note: payload.note || null,
+
+    updated_by: null,
+    updated_by_email: session?.user?.email || null,
+    updated_at: new Date().toISOString(),
+
+    data_inizio_subagente: payload.dataInizioSubagente || null,
+    data_fine_subagente: payload.dataFineSubagente || null,
+  };
+};
+
 async function caricaProfiloUtente(userId: string) {
   const { data, error } = await supabase
     .from("profiles")
@@ -1281,28 +1315,11 @@ useEffect(() => {
 
     if (giornataDbId) {
       const { error } = await supabase
-        .from("movimenti_cassa")
-        .update({
-          tipo_movimento: payload.tipo,
-          codice_subagenzia: payload.sub,
-          ramo: payload.ramo || null,
-          polizza: payload.polizza || null,
-          contraente: payload.contraente || null,
-          ...buildReferentePayload(payload),
-          modalita_pagamento: payload.modalita,
-          data_assegno: payload.dataAssegno || null,
-          importo_lordo: payload.importo,
-          sconto: payload.sconto,
-          importo_netto: payload.netto,
-          segno: payload.segno,
-          note: payload.note || null,
-          updated_by: null,
-          updated_by_email: session?.user?.email || null,
-          updated_at: new Date().toISOString(),
-          data_inizio_subagente: payload.dataInizioSubagente || null,
-          data_fine_subagente: payload.dataFineSubagente || null,
-        })
-        .eq("id", editingMovement);
+      .from("movimenti_cassa")
+      .update(
+        buildMovimentoUpdatePayload(payload, session)
+      )
+      .eq("id", editingMovement);
     
       if (error) {
       console.error(error);
