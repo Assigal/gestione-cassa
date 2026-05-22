@@ -2593,6 +2593,11 @@ alert(
                     />
                   </label>
                 )}
+
+               {(form.modalita === "S" ||
+                (form.modalita === "A" &&
+                  form.dataAssegno &&
+                  form.dataAssegno > giornataCorrente)) && (  
                  <label className="space-y-1 lg:col-span-5">
                       <span className="text-xs font-medium text-slate-500">
                         Referente sospesi
@@ -2621,6 +2626,8 @@ alert(
                         ))}
                       </select>
                     </label>
+                 )}
+
               </div>
 
               <div className="grid grid-cols-1 gap-2 lg:grid-cols-[1fr_260px]">
