@@ -1452,6 +1452,7 @@ useEffect(() => {
   const nuovoSospeso = {
     id: tempId,
     referenteSospesi: payload.referenteSospesi,
+    referenteSospesiId: payload.referenteSospesiId,
     contraente: payload.contraente,
     ramo: payload.ramo,
     polizza: payload.polizza,
@@ -1600,6 +1601,7 @@ useEffect(() => {
     const nuovoSospeso = {
       id: `sosp-${Date.now()}`,
       referenteSospesi: payload.referenteSospesi,
+      referenteSospesiId: payload.referenteSospesiId,
       contraente: payload.contraente,
       ramo: payload.ramo,
       polizza: payload.polizza,
@@ -1652,6 +1654,7 @@ useEffect(() => {
         polizza: payload.polizza || null,
         contraente: payload.contraente || null,
         referente_sospesi: payload.referenteSospesi || null,
+        referente_sospesi_id: payload.referenteSospesiId || null,
         modalita_pagamento: payload.modalita,
         data_assegno: payload.dataAssegno || null,
         importo_lordo: payload.importo,
