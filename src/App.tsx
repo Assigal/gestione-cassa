@@ -393,6 +393,7 @@ export default function GestioneCassa() {
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [modalitaPagamento, setModalitaPagamento] = useState<any[]>([]);
+  const [referentiSospesi, setReferentiSospesi] = useState<any[]>([]);
 
   // ======================================================
   // 06 - AUTENTICAZIONE / SESSIONE UTENTE
@@ -426,6 +427,8 @@ export default function GestioneCassa() {
 
   // ======================================================
   // 07 - CONFIGURAZIONI DA DATABASE
+    // referenti_sospesi
+    // modalita_pagamento
   // ======================================================
   
   useEffect(() => {
@@ -445,6 +448,26 @@ export default function GestioneCassa() {
       };
     
       caricaModalitaPagamento();
+    }, [session]);
+
+  useEffect(() => {   
+    if (!session) return; 
+      const caricaReferentiSospesi = async () => {
+        const { data, error } = await supabase
+          .from("referenti_sospesi")
+          .select("*")
+          .eq("attivo", true)
+          .order("nome");
+    
+        if (error) {
+          console.error("Errore caricamento referenti sospesi:", error);
+          return;
+        }
+    
+        setReferentiSospesi(data || []);
+      };
+    
+      caricaReferentiSospesi();
     }, [session]);
 
   // ======================================================
@@ -2506,9 +2529,29 @@ alert(
                       <input className="w-full rounded-2xl border px-3 py-2" value={form.contraente} onChange={(e) => setForm({ ...form, contraente: e.target.value })} />
                     </label>
 
-                    <label className="space-y-1 lg:col-span-5">
-                      <span className="text-xs font-medium text-slate-500">Referente sospesi</span>
-                      <input className="w-full rounded-2xl border px-3 py-2" value={form.referenteSospesi} onChange={(e) => setForm({ ...form, referenteSospesi: e.target.value })} />
+                   <label className="space-y-1 lg:col-span-5">
+                      <span className="text-xs font-medium text-slate-500">
+                        Referente sospesi
+                      </span>
+                    
+                      <select
+                        className="w-full rounded-2xl border px-3 py-2"
+                        value={form.referenteSospesi || ""}
+                        onChange={(e) =>
+                          setForm({
+                            ...form,
+                            referenteSospesi: e.target.value,
+                          })
+                        }
+                      >
+                        <option value="">Nessun referente</option>
+                    
+                        {referentiSospesi.map((r) => (
+                          <option key={r.id} value={r.nome}>
+                            {r.nome}
+                          </option>
+                        ))}
+                      </select>
                     </label>
                   </>
                 )}
