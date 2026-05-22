@@ -30,7 +30,6 @@ import { supabase } from "./supabaseClient";
 
 const GIORNATA_CORRENTE = new Date().toISOString().slice(0, 10);
 
-
 const tipiMovimento = [
   "Titolo del giorno",
   "Recupero sospeso",
@@ -96,6 +95,7 @@ interface FormState {
   polizza: string;
   contraente: string;
   referenteSospesi: string;
+  referenteSospesi_id: string;
   importo: string;
   sconto: string;
   modalita: string;
@@ -112,6 +112,7 @@ const emptyForm: FormState = {
   polizza: "",
   contraente: "",
   referenteSospesi: "",
+  referenteSospesiId: "",
   importo: "",
   sconto: "0",
   modalita: "C",
@@ -1158,6 +1159,7 @@ useEffect(() => {
       polizza: isVersamentoSubagente(form.tipo) ? "" : form.polizza,
       contraente: isVersamentoSubagente(form.tipo) ? "" : form.contraente,
       referenteSospesi: isVersamentoSubagente(form.tipo) ? "" : (form.referenteSospesi || form.contraente),
+      referenteSospesiId: isVersamentoSubagente(form.tipo) ? "" : form.referenteSospesiId,
       importo,
       sconto,
       netto,
@@ -1253,6 +1255,7 @@ useEffect(() => {
   const nuovoSospeso = {
     id: `sosp-${Date.now()}`,
     referenteSospesi: payload.referenteSospesi,
+    referenteSospesiId: payload.referenteSospesiId,
     contraente: payload.contraente,
     ramo: payload.ramo,
     polizza: payload.polizza,
@@ -1272,6 +1275,7 @@ useEffect(() => {
     .insert({
       data_sospeso: giornataCorrente,
       referente_sospesi: nuovoSospeso.referenteSospesi,
+      referente_sospesi_id: nuovoSospeso.referenteSospesiId || null,
       contraente: nuovoSospeso.contraente || null,
       ramo: nuovoSospeso.ramo || null,
       polizza: nuovoSospeso.polizza || null,
@@ -2536,18 +2540,22 @@ alert(
                     
                       <select
                         className="w-full rounded-2xl border px-3 py-2"
-                        value={form.referenteSospesi || ""}
-                        onChange={(e) =>
+                        value={form.referenteSospesiId || ""}
+                        onChange={(e) => {
+                          const selectedId = e.target.value;
+                          const referente = referentiSospesi.find((r) => r.id === selectedId);
+                        
                           setForm({
                             ...form,
-                            referenteSospesi: e.target.value,
-                          })
-                        }
+                            referenteSospesiId: selectedId,
+                            referenteSospesi: referente?.nome || "",
+                          });
+                        }}
                       >
                         <option value="">Nessun referente</option>
-                    
+
                         {referentiSospesi.map((r) => (
-                          <option key={r.id} value={r.nome}>
+                          <option key={r.id} value={r.id}>
                             {r.nome}
                           </option>
                         ))}
