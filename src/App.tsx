@@ -49,6 +49,7 @@ interface Movimento {
   polizza: string;
   contraente: string;
   referenteSospesi: string;
+  referenteSospesiId: string;
   importo: number;
   sconto: number;
   netto: number;
@@ -66,6 +67,7 @@ interface Movimento {
 interface Sospeso {
   id: string;
   referenteSospesi: string;
+  referenteSospesiId: string;
   contraente: string;
   ramo: string;
   polizza: string;
@@ -474,6 +476,21 @@ export default function GestioneCassa() {
   // ======================================================
   // 08 - MODALITÀ PAGAMENTO / MAPPING
   // ======================================================
+
+    const getReferenteById = (id: string | null | undefined) => {
+      return (
+        referentiSospesi.find((r) => r.id === id) || null
+      );
+    };
+
+    const getNomeReferente = (
+      id: string | null | undefined,
+      fallback?: string | null
+    ) => {
+      const referente = getReferenteById(id);
+    
+      return referente?.nome || fallback || "";
+    };
   
     const getDescrizioneModalita = (codice: string | null | undefined) => {
       const map: Record<string, string> = {
@@ -767,6 +784,7 @@ useEffect(() => {
         polizza: row.polizza || "",
         contraente: row.contraente || "",
         referenteSospesi: row.referente_sospesi || "",
+        referenteSospesiId: row.referente_sospesi_id || "",
         importo: Number(row.importo_lordo || 0),
         sconto: Number(row.sconto || 0),
         netto: Number(row.importo_netto || 0),
@@ -863,6 +881,7 @@ useEffect(() => {
       const sospesiDb: Sospeso[] = (data || []).map((row) => ({
         id: row.id,
         referenteSospesi: row.referente_sospesi || "",
+        referenteSospesiId: row.referente_sospesi_id || "",
         contraente: row.contraente || "",
         ramo: row.ramo || "",
         polizza: row.polizza || "",
@@ -1067,6 +1086,7 @@ useEffect(() => {
       polizza: row.polizza,
       contraente: row.contraente,
       referenteSospesi: row.referenteSospesi || row.contraente,
+      referenteSospesiId: row.referenteSospesiId || "",
       importo: String(row.importo),
       sconto: String(row.sconto || 0),
       modalita: row.modalita,
