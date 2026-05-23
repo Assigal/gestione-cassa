@@ -3,7 +3,6 @@ import { Search, Edit3, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-}
 type TabellaMovimentiProps = {
   movimenti: Movimento[];
   giornataCorrente: string;
