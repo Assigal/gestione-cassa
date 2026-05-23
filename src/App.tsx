@@ -394,6 +394,21 @@ type FormMovimentoProps = {
   setForm: React.Dispatch<React.SetStateAction<FormState>>;
   saveForm: () => void;
   resetForm: () => void;
+  fileInputRef: React.RefObject<HTMLInputElement>;
+  handleImportFile: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  openImportFileDialog: () => void;
+  handleTipoMovimentoChange: (tipo: string) => void;
+  
+  tipiMovimento: string[];
+  modalitaPagamento: any[];
+  referentiSospesi: any[];
+  
+  getDescrizioneModalita: (codice: string | null | undefined) => string;
+  isVersamentoSubagente: (tipo: string) => boolean;
+  euro: (value: number) => string;
+  
+  giornataCorrente: string;
+  selectedSospesoIds: string[];
 };
 
 function FormMovimento({
@@ -405,21 +420,43 @@ function FormMovimento({
   setForm,
   saveForm,
   resetForm,
+  fileInputRef,
+  handleImportFile,
+  openImportFileDialog,
+  handleTipoMovimentoChange,
+  tipiMovimento,
+  modalitaPagamento,
+  referentiSospesi,
+  getDescrizioneModalita,
+  isVersamentoSubagente,
+  euro,
+  giornataCorrente,
+  selectedSospesoIds,
 }: FormMovimentoProps) {
-
- console.log({
-  editingMovement,
-  giornataChiusa,
-  selectedImportRow,
-  form,
-  setForm,
-  saveForm,
-  resetForm,
-});
+  console.log({
+    editingMovement,
+    giornataChiusa,
+    selectedImportRow,
+    form,
+    setForm,
+    saveForm,
+    resetForm,
+    fileInputRef,
+    handleImportFile,
+    openImportFileDialog,
+    handleTipoMovimentoChange,
+    tipiMovimento,
+    modalitaPagamento,
+    referentiSospesi,
+    getDescrizioneModalita,
+    isVersamentoSubagente,
+    euro,
+    giornataCorrente,
+    selectedSospesoIds,
+  });
 
   return <>{children}</>;
 }
-
 export default function GestioneCassa() {
   
   // ======================================================
@@ -2592,6 +2629,18 @@ alert(
   setForm={setForm}
   saveForm={saveForm}
   resetForm={resetForm}
+  fileInputRef={fileInputRef}
+  handleImportFile={handleImportFile}
+  openImportFileDialog={openImportFileDialog}
+  handleTipoMovimentoChange={handleTipoMovimentoChange}
+  tipiMovimento={tipiMovimento}
+  modalitaPagamento={modalitaPagamento}
+  referentiSospesi={referentiSospesi}
+  getDescrizioneModalita={getDescrizioneModalita}
+  isVersamentoSubagente={isVersamentoSubagente}
+  euro={euro}
+  giornataCorrente={giornataCorrente}
+  selectedSospesoIds={selectedSospesoIds}
 >
           <Card className="rounded-2xl shadow-sm">
             <CardContent className="space-y-3 p-4">
