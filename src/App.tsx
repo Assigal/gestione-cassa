@@ -2320,6 +2320,33 @@ alert(
   return (
     <div className="min-h-screen bg-slate-50 p-4 text-slate-900">
       <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-4 xl:grid-cols-[320px_1fr]">
+        <SidebarOperativa
+          giornataCorrente={giornataCorrente}
+          setGiornataCorrente={setGiornataCorrente}
+          session={session}
+          profiloUtente={profiloUtente}
+          giornataChiusa={giornataChiusa}
+          giornataDbId={giornataDbId}
+          isAdmin={isAdmin}
+          logout={logout}
+          chiudiGiornata={chiudiGiornata}
+          riapriGiornata={riapriGiornata}
+          versamento={versamento}
+          aggiornaVersamento={aggiornaVersamento}
+          totals={totals}
+          avanzoPrecedente={avanzoPrecedente}
+          quadMezza={quadMezza}
+          setQuadMezza={setQuadMezza}
+          quadSera={quadSera}
+          setQuadSera={setQuadSera}
+          quadMezzaBloccata={quadMezzaBloccata}
+          quadSeraBloccata={quadSeraBloccata}
+          bloccaQuadraturaMezza={bloccaQuadraturaMezza}
+          bloccaQuadraturaSera={bloccaQuadraturaSera}
+          euro={euro}
+          deltaLabel={deltaLabel}
+          SidebarMetric={SidebarMetric}
+        />
         <aside className="space-y-2 xl:sticky xl:top-4 xl:h-[calc(100vh-48px)] xl:overflow-auto">
           <Card className="rounded-2xl bg-white shadow-sm">
             <CardContent className="space-y-2 p-3">
