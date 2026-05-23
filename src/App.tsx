@@ -11,6 +11,8 @@ import { SospesiRecuperi } from "./components/SospesiRecuperi";
 import { ReportPanel } from "./components/ReportPanel";
 import { LoginPanel } from "./components/LoginPanel";
 import { SidebarOperativa } from "./components/SidebarOperativa";
+import type { Movimento } from "./types";
+
 import {
   Banknote,
   Building2,
