@@ -2888,6 +2888,10 @@ alert(
   editMovement={editMovement}
   deleteMovement={deleteMovement}
   getDescrizioneModalita={getDescrizioneModalita}
+  isAssegnoPostdatato={isAssegnoPostdatato}
+  descrizioneMovimento={descrizioneMovimento}
+  euro={euro}
+  Badge={Badge}
 />
 {/* ======================================================
     FINE UI - TABELLA MOVIMENTI
