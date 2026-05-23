@@ -384,7 +384,6 @@ function SidebarMetric({
 }
 
 type FormMovimentoProps = {
-  children: React.ReactNode;
   editingMovement: number | null;
   setEditingMovement: React.Dispatch<React.SetStateAction<number | null>>;
 
@@ -413,7 +412,6 @@ type FormMovimentoProps = {
 };
 
 function FormMovimento({
-  children,
   editingMovement,
   setEditingMovement,
   giornataChiusa,
