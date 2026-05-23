@@ -61,3 +61,9 @@ interface ImportRow {
   stato: string;
   fileOrigine?: string;
 }
+
+interface AllocazioneRecupero {
+  sospesoId: string;
+  incasso: number;
+  sconto: number;
+}
