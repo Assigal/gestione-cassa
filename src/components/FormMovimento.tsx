@@ -1,4 +1,7 @@
 import React from "react";
+import { ClipboardList, Upload } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 type FormMovimentoProps = {
   editingMovement: number | null;
