@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { FormMovimento } from "./components/FormMovimento";
 import { TabellaMovimenti } from "./components/TabellaMovimenti";
 import { ImportCompagnia } from "./components/ImportCompagnia";
+import { SospesiRecuperi } from "./components/SospesiRecuperi";
 import {
   Banknote,
   Building2,
@@ -402,7 +403,7 @@ type SospesiRecuperiProps = {
   euro: (value: number) => string;
 };
 
-function SospesiRecuperi({
+function SospesiRecuperiOld({
   children,
   sospesiFiltrati,
   selectedSospesoIds,
