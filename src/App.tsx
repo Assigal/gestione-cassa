@@ -2720,6 +2720,7 @@ alert(
       prepareRecuperoSospesi={prepareRecuperoSospesi}
       numeroPolizzaCompleto={numeroPolizzaCompleto}
       euro={euro}
+      Badge={Badge}
     />
          
 {/* ======================================================
