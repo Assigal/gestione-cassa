@@ -77,5 +77,8 @@ export function SidebarOperativa({
   deltaLabel,
   SidebarMetric,
 }: SidebarOperativaProps) {
-  return null;
+  return (
+    <aside className="space-y-2 xl:sticky xl:top-4 xl:h-[calc(100vh-48px)] xl:overflow-auto">
+    </aside>
+  );
 }
