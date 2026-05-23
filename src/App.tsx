@@ -5,6 +5,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { FormMovimento } from "./components/FormMovimento";
+import { TabellaMovimenti } from "./components/TabellaMovimenti";
 import {
   Banknote,
   Building2,
@@ -393,7 +394,7 @@ type TabellaMovimentiProps = {
   getDescrizioneModalita: (codice: string | null | undefined) => string;
 };
 
-function TabellaMovimenti({
+function TabellaMovimentiOld({
   movimenti,
   giornataCorrente,
   giornataChiusa,
