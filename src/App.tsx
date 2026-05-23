@@ -655,6 +655,9 @@ function FormMovimento({
     </>
   );
 }
+function TabellaMovimenti() {
+  return null;
+}
 export default function GestioneCassa() {
   
   // ======================================================
