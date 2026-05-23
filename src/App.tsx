@@ -382,8 +382,8 @@ function SidebarMetric({
     </div>
   );
 }
-function FormMovimento({ titolo }: { titolo: string }) {
-  return <div>{titolo}</div>;
+function FormMovimento({ children }: { children: React.ReactNode }) {
+  return <>{children}</>;
 }
 export default function GestioneCassa() {
   
@@ -2549,7 +2549,7 @@ alert(
 ====================================================== */}
 {/* TODO COMPONENTE: estrarre in FormMovimento.tsx */}
 
-<FormMovimento titolo="TEST COMPONENTE" />
+<FormMovimento>
           <Card className="rounded-2xl shadow-sm">
             <CardContent className="space-y-3 p-4">
               <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
@@ -2765,6 +2765,7 @@ alert(
               </div>
             </CardContent>
           </Card>
+  </FormMovimento>
 {/* ======================================================
     FINE UI - FORM MOVIMENTO
 ====================================================== */}
