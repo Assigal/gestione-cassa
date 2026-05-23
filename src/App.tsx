@@ -2246,7 +2246,6 @@ alert(
   // ======================================================
   // 14 - RENDER UI PRINCIPALE
   // ======================================================
-  
   return (
     <div className="min-h-screen bg-slate-50 p-4 text-slate-900">
       <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-4 xl:grid-cols-[320px_1fr]">
@@ -2277,14 +2276,12 @@ alert(
           deltaLabel={deltaLabel}
           SidebarMetric={SidebarMetric}
         />
-        
         <main className="space-y-6">
           
 {/* ======================================================
     UI - FORM MOVIMENTO
 ====================================================== */}
 {/* TODO COMPONENTE: estrarre in FormMovimento.tsx */}
-
 <FormMovimento
   editingMovement={editingMovement}
   setEditingMovement={setEditingMovement}
@@ -2307,11 +2304,11 @@ alert(
   giornataCorrente={giornataCorrente}
   selectedSospesoIds={selectedSospesoIds}
 >
-         
   </FormMovimento>
 {/* ======================================================
     FINE UI - FORM MOVIMENTO
 ====================================================== */}
+        
 {/* ======================================================
     UI - TABELLA MOVIMENTI
 ====================================================== */}
@@ -2334,7 +2331,6 @@ alert(
 {/* ======================================================
     UI - IMPORT COMPAGNIA
 ====================================================== */}
-
    <ImportCompagnia
       importCompagnia={importCompagnia}
       numeroPolizzaCompleto={numeroPolizzaCompleto}
@@ -2365,7 +2361,6 @@ alert(
       euro={euro}
       Badge={Badge}
     />
-         
 {/* ======================================================
     FINE UI - SOSPESI / RECUPERI
 ====================================================== */}
@@ -2373,7 +2368,6 @@ alert(
 {/* ======================================================
     UI - REPORT
 ====================================================== */}
-          
        <ReportPanel />
 {/* ======================================================
     FINE UI - REPORT
