@@ -50,7 +50,7 @@ export interface FormState {
   dataFineSubagente: string;
 }
 
-interface ImportRow {
+export interface ImportRow {
   id: string;
   sub: string;
   ramo: string;
@@ -62,7 +62,7 @@ interface ImportRow {
   fileOrigine?: string;
 }
 
-interface AllocazioneRecupero {
+export interface AllocazioneRecupero {
   sospesoId: string;
   incasso: number;
   sconto: number;
