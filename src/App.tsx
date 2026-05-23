@@ -52,23 +52,6 @@ interface AllocazioneRecupero {
   sconto: number;
 }
 
-
-interface Sospeso {
-  id: string;
-  referenteSospesi: string;
-  referenteSospesiId: string;
-  contraente: string;
-  ramo: string;
-  polizza: string;
-  importoOriginario: number;
-  recuperato: number;
-  scontoApplicato: number;
-  residuo: number;
-  stato: string;
-  dataSospeso: string;
-  note: string;
-}
-
 interface ImportRow {
   id: string;
   sub: string;
