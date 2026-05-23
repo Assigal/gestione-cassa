@@ -4,6 +4,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { FormMovimento } from "./components/FormMovimento";
 import {
   Banknote,
   Building2,
@@ -411,7 +412,7 @@ type FormMovimentoProps = {
   selectedSospesoIds: string[];
 };
 
-function FormMovimento({
+function FormMovimentoOld({
   editingMovement,
   setEditingMovement,
   giornataChiusa,
