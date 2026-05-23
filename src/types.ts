@@ -18,3 +18,18 @@ export interface Movimento {
   dataFineSubagente: string;
   allocazioniRecupero: AllocazioneRecupero[];
 }
+export interface Sospeso {
+  id: string;
+  referenteSospesi: string;
+  referenteSospesiId: string;
+  contraente: string;
+  ramo: string;
+  polizza: string;
+  importoOriginario: number;
+  recuperato: number;
+  scontoApplicato: number;
+  residuo: number;
+  stato: string;
+  dataSospeso: string;
+  note: string;
+}
