@@ -10,6 +10,7 @@ import { ImportCompagnia } from "./components/ImportCompagnia";
 import { SospesiRecuperi } from "./components/SospesiRecuperi";
 import { ReportPanel } from "./components/ReportPanel";
 import { LoginPanel } from "./components/LoginPanel";
+import { SidebarOperativa } from "./components/SidebarOperativa";
 import {
   Banknote,
   Building2,
