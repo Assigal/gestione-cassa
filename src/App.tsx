@@ -675,7 +675,11 @@ function TabellaMovimenti({
   deleteMovement,
   getDescrizioneModalita,
 }: TabellaMovimentiProps) {
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+    </>
+  );
 }
 
 export default function GestioneCassa() {
