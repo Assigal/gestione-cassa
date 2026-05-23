@@ -655,9 +655,29 @@ function FormMovimento({
     </>
   );
 }
-function TabellaMovimenti() {
-  return null;
+
+type TabellaMovimentiProps = {
+  children: React.ReactNode;
+  movimenti: Movimento[];
+  giornataCorrente: string;
+  giornataChiusa: boolean;
+  editMovement: (m: Movimento) => void;
+  deleteMovement: (id: number) => void;
+  getDescrizioneModalita: (codice: string | null | undefined) => string;
+};
+
+function TabellaMovimenti({
+  children,
+  movimenti,
+  giornataCorrente,
+  giornataChiusa,
+  editMovement,
+  deleteMovement,
+  getDescrizioneModalita,
+}: TabellaMovimentiProps) {
+  return <>{children}</>;
 }
+
 export default function GestioneCassa() {
   
   // ======================================================
@@ -2852,6 +2872,14 @@ alert(
 {/* ======================================================
     UI - TABELLA MOVIMENTI
 ====================================================== */}
+        <TabellaMovimenti
+          movimenti={movimenti}
+          giornataCorrente={giornataCorrente}
+          giornataChiusa={giornataChiusa}
+          editMovement={editMovement}
+          deleteMovement={deleteMovement}
+          getDescrizioneModalita={getDescrizioneModalita}
+        >
           <Card className="rounded-2xl shadow-sm">
             <CardContent className="p-0">
               <div className="flex items-center justify-between border-b p-3">
@@ -2945,6 +2973,7 @@ alert(
               </div>
             </CardContent>
           </Card>
+      </TabellaMovimenti>
 {/* ======================================================
     FINE UI - TABELLA MOVIMENTI
 ====================================================== */}
