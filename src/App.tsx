@@ -883,6 +883,27 @@ useEffect(() => {
       .select("*")
       .eq("giornata_id", giornataDbId)
       .order("created_at", { ascending: false });
+    
+    const { data: recuperiStorico } = await supabase
+      .from("sospesi_movimenti")
+      .select("*")
+      .eq("tipo", "recupero");
+
+    const recuperiByMovimento = new Map<string, AllocazioneRecupero[]>();
+    
+    (recuperiStorico || []).forEach((row) => {
+      if (!row.movimento_cassa_id || !row.sospeso_id) return;
+    
+      const current = recuperiByMovimento.get(row.movimento_cassa_id) || [];
+    
+      current.push({
+        sospesoId: row.sospeso_id,
+        incasso: Number(row.importo || 0),
+        sconto: 0,
+      });
+    
+      recuperiByMovimento.set(row.movimento_cassa_id, current);
+    });
 
     if (error) {
       console.error(error);
@@ -910,7 +931,8 @@ useEffect(() => {
         updatedAt: row.updated_at || "",
         dataInizioSubagente: row.data_inizio_subagente || "",
         dataFineSubagente: row.data_fine_subagente || "",
-        allocazioniRecupero: [],
+        allocazioniRecupero:
+          recuperiByMovimento.get(String(row.id)) || [],
       }));
 
     setMovimenti(movimentiDb);
