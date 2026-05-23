@@ -389,6 +389,11 @@ type FormMovimentoProps = {
 
   giornataChiusa: boolean;
   selectedImportRow: any;
+
+  form: FormState;
+  setForm: React.Dispatch<React.SetStateAction<FormState>>;
+  saveForm: () => void;
+  resetForm: () => void;
 };
 
 function FormMovimento({
@@ -396,13 +401,21 @@ function FormMovimento({
   editingMovement,
   giornataChiusa,
   selectedImportRow,
+  form,
+  setForm,
+  saveForm,
+  resetForm,
 }: FormMovimentoProps) {
 
-  console.log({
-    editingMovement,
-    giornataChiusa,
-    selectedImportRow,
-  });
+ console.log({
+  editingMovement,
+  giornataChiusa,
+  selectedImportRow,
+  form,
+  setForm,
+  saveForm,
+  resetForm,
+});
 
   return <>{children}</>;
 }
@@ -2575,6 +2588,10 @@ alert(
   editingMovement={editingMovement}
   giornataChiusa={giornataChiusa}
   selectedImportRow={selectedImportRow}
+  form={form}
+  setForm={setForm}
+  saveForm={saveForm}
+  resetForm={resetForm}
 >
           <Card className="rounded-2xl shadow-sm">
             <CardContent className="space-y-3 p-4">
