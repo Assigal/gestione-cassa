@@ -11,8 +11,7 @@ import { SospesiRecuperi } from "./components/SospesiRecuperi";
 import { ReportPanel } from "./components/ReportPanel";
 import { LoginPanel } from "./components/LoginPanel";
 import { SidebarOperativa } from "./components/SidebarOperativa";
-import type { Movimento, Sospeso, FormState, ImportRow } from "./types";
-
+import type { Movimento, Sospeso, FormState, ImportRow, AllocazioneRecupero } from "./types";
 
 import {
   Banknote,
@@ -46,12 +45,6 @@ const tipiMovimento = [
   "Versamento subagente",
   "Varie",
 ];
-
-interface AllocazioneRecupero {
-  sospesoId: string;
-  incasso: number;
-  sconto: number;
-}
 
 const emptyForm: FormState = {
   ramo: "",
