@@ -28,7 +28,7 @@ type FormMovimentoProps = {
   selectedSospesoIds: string[];
 };
 
-function FormMovimento({
+export function FormMovimento({
   editingMovement,
   setEditingMovement,
   giornataChiusa,
