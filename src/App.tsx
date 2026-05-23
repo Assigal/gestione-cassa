@@ -774,6 +774,7 @@ function TabellaMovimenti({
 
 type ImportCompagniaProps = {
   importCompagnia: ImportCompagniaRow[];
+  selectedImport: string | null;
   giornataChiusa: boolean;
 
   openImportFileDialog: () => void;
@@ -785,6 +786,7 @@ type ImportCompagniaProps = {
 
 function ImportCompagnia({
   importCompagnia,
+  selectedImport,
   giornataChiusa,
   openImportFileDialog,
   selectImported,
@@ -3077,6 +3079,7 @@ alert(
 
    <ImportCompagnia
       importCompagnia={importCompagnia}
+      selectedImport={selectedImport}
       giornataChiusa={giornataChiusa}
       openImportFileDialog={openImportFileDialog}
       selectImported={selectImported}
