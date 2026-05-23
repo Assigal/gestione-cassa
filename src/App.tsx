@@ -657,7 +657,6 @@ function FormMovimento({
 }
 
 type TabellaMovimentiProps = {
-  children: React.ReactNode;
   movimenti: Movimento[];
   giornataCorrente: string;
   giornataChiusa: boolean;
@@ -667,7 +666,6 @@ type TabellaMovimentiProps = {
 };
 
 function TabellaMovimenti({
-  children,
   movimenti,
   giornataCorrente,
   giornataChiusa,
