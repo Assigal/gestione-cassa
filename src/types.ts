@@ -33,3 +33,20 @@ export interface Sospeso {
   dataSospeso: string;
   note: string;
 }
+export interface FormState {
+  ramo: string;
+  polizza: string;
+  contraente: string;
+  referenteSospesi: string;
+  referenteSospesi_id: string;
+  importo: string;
+  sconto: string;
+  modalita: string;
+  dataAssegno: string;
+  sub: string;
+  tipo: string;
+  note: string;
+  dataInizioSubagente: string;
+  dataFineSubagente: string;
+}
+
