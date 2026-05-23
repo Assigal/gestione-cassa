@@ -2788,6 +2788,9 @@ alert(
 
    <ImportCompagnia
       importCompagnia={importCompagnia}
+      numeroPolizzaCompleto={numeroPolizzaCompleto}
+      euro={euro}
+      Badge={Badge}
       selectedImport={selectedImport}
       giornataChiusa={giornataChiusa}
       openImportFileDialog={openImportFileDialog}
