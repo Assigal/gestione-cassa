@@ -9,6 +9,7 @@ type SospesiRecuperiProps = {
   sospesiFiltrati: Sospeso[];
   selectedSospesoIds: string[];
   searchSospesi: string;
+  Badge: any;
 
   setSearchSospesi: React.Dispatch<React.SetStateAction<string>>;
 
@@ -24,6 +25,7 @@ export function SospesiRecuperi({
   sospesiFiltrati,
   selectedSospesoIds,
   searchSospesi,
+  Badge,
   setSearchSospesi,
   toggleSospeso,
   prepareRecuperoSospesi,
