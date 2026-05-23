@@ -433,30 +433,9 @@ function FormMovimento({
   giornataCorrente,
   selectedSospesoIds,
 }: FormMovimentoProps) {
-  console.log({
-    editingMovement,
-    setEditingMovement,
-    giornataChiusa,
-    selectedImportRow,
-    form,
-    setForm,
-    saveForm,
-    resetForm,
-    fileInputRef,
-    handleImportFile,
-    openImportFileDialog,
-    handleTipoMovimentoChange,
-    tipiMovimento,
-    modalitaPagamento,
-    referentiSospesi,
-    getDescrizioneModalita,
-    isVersamentoSubagente,
-    euro,
-    giornataCorrente,
-    selectedSospesoIds,
-  });
-
+ 
   return (
+    
     <>
        <Card className="rounded-2xl shadow-sm">
             <CardContent className="space-y-3 p-4">
