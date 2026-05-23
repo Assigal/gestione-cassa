@@ -50,3 +50,14 @@ export interface FormState {
   dataFineSubagente: string;
 }
 
+interface ImportRow {
+  id: string;
+  sub: string;
+  ramo: string;
+  polizza: string;
+  contraente: string;
+  importo: number;
+  modalitaCompagnia: string;
+  stato: string;
+  fileOrigine?: string;
+}
