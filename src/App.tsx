@@ -1245,6 +1245,9 @@ useEffect(() => {
     if (!selected.length) return;
     const referente = selected[0].referenteSospesi;
     const importo = selected.reduce((sum, s) => sum + s.residuo, 0);
+    const noteRecupero = selected
+      .map((s) => `Polizza ${numeroPolizzaCompleto(s)}`)
+      .join(", ");
     setSelectedImport(null);
     setEditingMovement(null);
     setForm({
@@ -1257,8 +1260,7 @@ useEffect(() => {
       modalita: "C",
       sub: "100",
       tipo: "Recupero sospeso",
-      note: "Recupero sospeso selezionato",
-    });
+      note: noteRecupero,    });
   }
 
   function applyRecuperoToSospesi(importoIncassato: number, scontoApplicato: number, note: string) {
