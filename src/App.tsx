@@ -2706,7 +2706,7 @@ alert(
                   </div>
                   {form.tipo === "Recupero sospeso" && selectedSospesoIds.length > 0 && (
                     <p className="mt-2 rounded-xl bg-white p-2 text-xs text-slate-600">
-                      Riduzione residuo prevista: {euro(Number(form.importo || 0) + Number(form.sconto || 0))}
+                      Riduzione residuo prevista: {euro(Number(form.importo || 0) - Number(form.sconto || 0))}
                     </p>
                   )}
                   <Button
