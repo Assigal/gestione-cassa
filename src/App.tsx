@@ -386,16 +386,27 @@ function SidebarMetric({
 type FormMovimentoProps = {
   children: React.ReactNode;
   editingMovement: number | null;
+
+  giornataChiusa: boolean;
+  selectedImportRow: any;
 };
 
 function FormMovimento({
   children,
   editingMovement,
+  giornataChiusa,
+  selectedImportRow,
 }: FormMovimentoProps) {
-  console.log(editingMovement);
+
+  console.log({
+    editingMovement,
+    giornataChiusa,
+    selectedImportRow,
+  });
 
   return <>{children}</>;
 }
+
 export default function GestioneCassa() {
   
   // ======================================================
@@ -2560,7 +2571,11 @@ alert(
 ====================================================== */}
 {/* TODO COMPONENTE: estrarre in FormMovimento.tsx */}
 
-<FormMovimento editingMovement={editingMovement}>
+<FormMovimento
+  editingMovement={editingMovement}
+  giornataChiusa={giornataChiusa}
+  selectedImportRow={selectedImportRow}
+>
           <Card className="rounded-2xl shadow-sm">
             <CardContent className="space-y-3 p-4">
               <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
