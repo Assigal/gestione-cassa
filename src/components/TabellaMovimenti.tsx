@@ -10,6 +10,10 @@ type TabellaMovimentiProps = {
   editMovement: (m: Movimento) => void;
   deleteMovement: (id: number) => void;
   getDescrizioneModalita: (codice: string | null | undefined) => string;
+  isAssegnoPostdatato: (m: any, giornata: string) => boolean;
+  descrizioneMovimento: (m: any) => string;
+  euro: (value: number) => string;
+  Badge: any;
 };
 
 export function TabellaMovimenti({
@@ -19,6 +23,10 @@ export function TabellaMovimenti({
   editMovement,
   deleteMovement,
   getDescrizioneModalita,
+  isAssegnoPostdatato,
+  descrizioneMovimento,
+  euro,
+  Badge,
 }: TabellaMovimentiProps) {
   return (
     <>
