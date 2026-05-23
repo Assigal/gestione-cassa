@@ -9,6 +9,7 @@ import { TabellaMovimenti } from "./components/TabellaMovimenti";
 import { ImportCompagnia } from "./components/ImportCompagnia";
 import { SospesiRecuperi } from "./components/SospesiRecuperi";
 import { ReportPanel } from "./components/ReportPanel";
+import { LoginPanel } from "./components/LoginPanel";
 import {
   Banknote,
   Building2,
