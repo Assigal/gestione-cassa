@@ -11,7 +11,8 @@ import { SospesiRecuperi } from "./components/SospesiRecuperi";
 import { ReportPanel } from "./components/ReportPanel";
 import { LoginPanel } from "./components/LoginPanel";
 import { SidebarOperativa } from "./components/SidebarOperativa";
-import type { Movimento } from "./types";
+import type { Movimento, Sospeso } from "./types";
+
 
 import {
   Banknote,
@@ -62,23 +63,6 @@ interface ImportRow {
   modalitaCompagnia: string;
   stato: string;
   fileOrigine?: string;
-}
-
-interface FormState {
-  ramo: string;
-  polizza: string;
-  contraente: string;
-  referenteSospesi: string;
-  referenteSospesi_id: string;
-  importo: string;
-  sconto: string;
-  modalita: string;
-  dataAssegno: string;
-  sub: string;
-  tipo: string;
-  note: string;
-  dataInizioSubagente: string;
-  dataFineSubagente: string;
 }
 
 const emptyForm: FormState = {
