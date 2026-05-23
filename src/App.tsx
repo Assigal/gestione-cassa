@@ -382,7 +382,9 @@ function SidebarMetric({
     </div>
   );
 }
-
+function FormMovimento({ titolo }: { titolo: string }) {
+  return <div>{titolo}</div>;
+}
 export default function GestioneCassa() {
   
   // ======================================================
@@ -2541,6 +2543,13 @@ alert(
         </aside>
 
         <main className="space-y-6">
+          
+{/* ======================================================
+    UI - FORM MOVIMENTO
+====================================================== */}
+{/* TODO COMPONENTE: estrarre in FormMovimento.tsx */}
+
+<FormMovimento titolo="TEST COMPONENTE" />
           <Card className="rounded-2xl shadow-sm">
             <CardContent className="space-y-3 p-4">
               <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
@@ -2756,7 +2765,12 @@ alert(
               </div>
             </CardContent>
           </Card>
-
+{/* ======================================================
+    FINE UI - FORM MOVIMENTO
+====================================================== */}
+{/* ======================================================
+    UI - TABELLA MOVIMENTI
+====================================================== */}
           <Card className="rounded-2xl shadow-sm">
             <CardContent className="p-0">
               <div className="flex items-center justify-between border-b p-3">
@@ -2788,6 +2802,7 @@ alert(
                     </tr>
                   </thead>
                   <tbody>
+
                     {movimenti.map((m) => {
                       const postdatato = isAssegnoPostdatato(m, giornataCorrente);
                       const warnPayment = m.modalita === "S" || postdatato;
@@ -2849,6 +2864,13 @@ alert(
               </div>
             </CardContent>
           </Card>
+{/* ======================================================
+    FINE UI - TABELLA MOVIMENTI
+====================================================== */}
+  
+{/* ======================================================
+    UI - IMPORT COMPAGNIA
+====================================================== */}
 
           <Card className="rounded-2xl border-amber-200 bg-amber-50/40 shadow-sm">
             <CardContent className="p-0">
@@ -2919,7 +2941,13 @@ alert(
               </div>
             </CardContent>
           </Card>
+{/* ======================================================
+    FINE UI - IMPORT COMPAGNIA
+====================================================== */}
 
+{/* ======================================================
+    UI - SOSPESI / RECUPERI
+====================================================== */}
           <Card className="rounded-2xl border-violet-200 bg-violet-50/40 shadow-sm">
             <CardContent className="p-0">
               <div className="flex items-center justify-between border-b border-violet-200 p-3">
@@ -2978,7 +3006,15 @@ alert(
               </div>
             </CardContent>
           </Card>
-           <Card className="rounded-2xl shadow-sm">
+{/* ======================================================
+    FINE UI - SOSPESI / RECUPERI
+====================================================== */}
+
+{/* ======================================================
+    UI - REPORT
+====================================================== */}
+          
+        <Card className="rounded-2xl shadow-sm">
               <CardContent className="space-y-4 p-4">
                 <div>
                   <h2 className="text-lg font-semibold">Report</h2>
@@ -3018,6 +3054,9 @@ alert(
                 </div>
               </CardContent>
             </Card>
+{/* ======================================================
+    FINE UI - REPORT
+====================================================== */}
         </main>
       </div>
     </div>
