@@ -3,6 +3,7 @@
 // ======================================================
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+
 import { FormMovimento } from "./components/FormMovimento";
 import { TabellaMovimenti } from "./components/TabellaMovimenti";
 import { ImportCompagnia } from "./components/ImportCompagnia";
@@ -10,23 +11,15 @@ import { SospesiRecuperi } from "./components/SospesiRecuperi";
 import { ReportPanel } from "./components/ReportPanel";
 import { LoginPanel } from "./components/LoginPanel";
 import { SidebarOperativa } from "./components/SidebarOperativa";
+import { SidebarMetric } from "./components/SidebarMetric";
+
 import type { Movimento, Sospeso, FormState, ImportRow, AllocazioneRecupero } from "./types";
 import { tipiMovimento } from "./constants";
 import { euro, deltaLabel } from "./formatters";
 import { emptyForm } from "./formDefaults";
 import { numeroPolizzaCompleto, descrizioneMovimento, isAssegnoPostdatato, isVersamentoSubagente,} from "./utils";
 import { normalizzaIntestazione, parseImportoItaliano, normalizzaModalitaPagamento, parseCsvLine, importaCsvCompagnia,} from "./importUtils";
-import { SidebarMetric } from "./components/SidebarMetric";
 
-import {
-  Banknote,
-  Building2,
-  CheckCircle2,
-  Wallet,
-  AlertTriangle,
-  Landmark,
-  RotateCcw,
-} from "lucide-";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "./supabaseClient";
