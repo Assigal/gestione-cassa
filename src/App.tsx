@@ -3,7 +3,6 @@
 // ======================================================
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { motion } from "framer-motion";
 import { FormMovimento } from "./components/FormMovimento";
 import { TabellaMovimenti } from "./components/TabellaMovimenti";
 import { ImportCompagnia } from "./components/ImportCompagnia";
@@ -22,18 +21,11 @@ import {
   Banknote,
   Building2,
   CheckCircle2,
-  ClipboardList,
-  Edit3,
-  Trash2,
-  Search,
-  Upload,
   Wallet,
   AlertTriangle,
-  ArrowRightCircle,
   Landmark,
-  Users,
   RotateCcw,
-} from "lucide-react";
+} from "lucide-";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "./supabaseClient";
@@ -61,7 +53,7 @@ function Badge({
   children,
   variant = "default",
 }: {
-  children: React.ReactNode;
+  children: .Node;
   variant?: "default" | "ok" | "warn" | "blue" | "neutral" | "purple";
 }) {
   const styles: Record<string, string> = {
@@ -1896,7 +1888,7 @@ function openImportFileDialog() {
    fileInputRef.current?.click();
 }
 
-async function handleImportFile(event: React.ChangeEvent<HTMLInputElement>) {
+async function handleImportFile(event: .ChangeEvent<HTMLInputElement>) {
   const file = event.target.files?.[0];
   if (!file) return;
 
