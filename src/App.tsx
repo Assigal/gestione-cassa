@@ -16,6 +16,7 @@ import { euro, deltaLabel } from "./formatters";
 import { emptyForm } from "./formDefaults";
 import { numeroPolizzaCompleto, descrizioneMovimento, isAssegnoPostdatato, isVersamentoSubagente,} from "./utils";
 import { normalizzaIntestazione, parseImportoItaliano, normalizzaModalitaPagamento, parseCsvLine, importaCsvCompagnia,} from "./importUtils";
+import { SidebarMetric } from "./components/SidebarMetric";
 
 import {
   Banknote,
@@ -53,7 +54,7 @@ function Badge({
   children,
   variant = "default",
 }: {
-  children: .Node;
+  children: React.ReactNode;
   variant?: "default" | "ok" | "warn" | "blue" | "neutral" | "purple";
 }) {
   const styles: Record<string, string> = {
@@ -65,35 +66,6 @@ function Badge({
     purple: "bg-violet-100 text-violet-700",
   };
   return <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${styles[variant]}`}>{children}</span>;
-}
-
-function SidebarMetric({
-  icon: Icon,
-  label,
-  value,
-  note,
-  highlight = false,
-}: {
-  icon: React.ElementType;
-  label: string;
-  value: string;
-  note?: string;
-  highlight?: boolean;
-}) {
-  return (
-    <div className={`rounded-2xl border p-4 ${highlight ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-white"}`}>
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className={`text-xs font-medium uppercase tracking-wide ${highlight ? "text-slate-300" : "text-slate-500"}`}>{label}</p>
-          <p className={`mt-1 font-semibold tracking-tight ${highlight ? "text-2xl" : "text-xl"}`}>{value}</p>
-          {note && <p className={`mt-1 text-xs ${highlight ? "text-slate-300" : "text-slate-500"}`}>{note}</p>}
-        </div>
-        <div className={`rounded-2xl p-2 ${highlight ? "bg-white/10" : "bg-slate-100"}`}>
-          <Icon className={`h-4 w-4 ${highlight ? "text-white" : "text-slate-700"}`} />
-        </div>
-      </div>
-    </div>
-  );
 }
 
 export default function GestioneCassa() {
