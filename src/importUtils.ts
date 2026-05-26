@@ -1,11 +1,11 @@
 import type { ImportRow } from "./types";
 
 
-function normalizzaIntestazione(value: string) {
+export function normalizzaIntestazione(value: string) {
   return value.trim().toLowerCase().replace(/\./g, "").replace(/\s+/g, " ");
 }
 
-function parseImportoItaliano(value: string) {
+export function parseImportoItaliano(value: string) {
   if (!value) return 0;
   const cleaned = String(value)
     .replace(/€/g, "")
@@ -16,7 +16,7 @@ function parseImportoItaliano(value: string) {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
-function normalizzaModalitaPagamento(
+export function normalizzaModalitaPagamento(
   value: string,
   codCassa?: string | null
 ) {
@@ -63,7 +63,7 @@ function normalizzaModalitaPagamento(
   return map[v] || v;
 }
 
-function parseCsvLine(line: string, separator = ";") {
+export function parseCsvLine(line: string, separator = ";") {
   const result: string[] = [];
   let current = "";
   let inQuotes = false;
@@ -96,7 +96,7 @@ function parseCsvLine(line: string, separator = ";") {
   return result;
 }
 
-function importaCsvCompagnia(csvText: string, fileName: string): ImportRow[] {
+export function importaCsvCompagnia(csvText: string, fileName: string): ImportRow[] {
   const lines = csvText
     .replace(/^\uFEFF/, "")
     .split(/\r?\n/)
