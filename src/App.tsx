@@ -14,6 +14,7 @@ import { SidebarOperativa } from "./components/SidebarOperativa";
 import type { Movimento, Sospeso, FormState, ImportRow, AllocazioneRecupero } from "./types";
 import { tipiMovimento } from "./constants";
 import { euro, deltaLabel } from "./formatters";
+import { emptyForm } from "./formDefaults";
 
 import {
   Banknote,
@@ -40,23 +41,6 @@ import { supabase } from "./supabaseClient";
 // ======================================================
 
 const GIORNATA_CORRENTE = new Date().toISOString().slice(0, 10);
-
-const emptyForm: FormState = {
-  ramo: "",
-  polizza: "",
-  contraente: "",
-  referenteSospesi: "",
-  referenteSospesiId: "",
-  importo: "",
-  sconto: "0",
-  modalita: "C",
-  dataAssegno: "",
-  sub: "100",
-  tipo: "Titolo del giorno",
-  note: "",
-  dataInizioSubagente: "",
-  dataFineSubagente: "",
-};
 
 const movimentiRegistratiSeed: Movimento[] = [];
 const sospesiSeed: Sospeso[] = [];
