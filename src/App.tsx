@@ -16,7 +16,7 @@ import { euro, deltaLabel } from "./formatters";
 import { emptyForm } from "./formDefaults";
 import { numeroPolizzaCompleto, descrizioneMovimento, isAssegnoPostdatato, isVersamentoSubagente,} from "./utils";
 import { normalizzaIntestazione, parseImportoItaliano, normalizzaModalitaPagamento, parseCsvLine, importaCsvCompagnia,} from "./importUtils";
-import { SideBarMetric } from "./components/SideBarMetric";
+import { SidebarMetric } from "./components/SidebarMetric";
 
 import {
   Banknote,
@@ -2022,7 +2022,7 @@ alert(
           bloccaQuadraturaSera={bloccaQuadraturaSera}
           euro={euro}
           deltaLabel={deltaLabel}
-          SideBarMetric={SideBarMetric}
+          SidebarMetric={SidebarMetric}
         />
         <main className="space-y-6">
           
