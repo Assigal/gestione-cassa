@@ -13,6 +13,7 @@ import { LoginPanel } from "./components/LoginPanel";
 import { SidebarOperativa } from "./components/SidebarOperativa";
 import type { Movimento, Sospeso, FormState, ImportRow, AllocazioneRecupero } from "./types";
 import { tipiMovimento } from "./constants";
+import { euro, deltaLabel } from "./formatters";
 
 import {
   Banknote,
@@ -65,10 +66,6 @@ const importCompagniaSeed: ImportRow[] = [];
 // 03 - FUNZIONI UTILITY
 // ======================================================
 
-function euro(value: number) {
-  return new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(value || 0);
-}
-
 function numeroPolizzaCompleto(row: { ramo?: string; polizza?: string }) {
   if (!row.ramo && !row.polizza) return "-";
   if (!row.ramo) return row.polizza || "-";
@@ -94,12 +91,6 @@ function isAssegnoPostdatato(
 
 function isVersamentoSubagente(tipo: string) {
   return tipo === "Versamento subagente";
-}
-
-function deltaLabel(value: number) {
- const n = Number(value || 0);
-  if (n === 0) return "Quadrato";
-  return n > 0 ? `Eccedenza ${euro(n)}` : `Mancanza ${euro(Math.abs(n))}`;
 }
 
 function normalizzaIntestazione(value: string) {
