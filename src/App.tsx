@@ -35,11 +35,6 @@ const sospesiSeed: Sospeso[] = [];
 const importCompagniaSeed: ImportRow[] = [];
 
 // ======================================================
-// 03 - FUNZIONI UTILITY
-// ======================================================
-
-
-// ======================================================
 // 04 - COMPONENTI UI RIUTILIZZABILI
 // ======================================================
 
@@ -2022,7 +2017,6 @@ alert(
 {/* ======================================================
     UI - FORM MOVIMENTO
 ====================================================== */}
-{/* TODO COMPONENTE: estrarre in FormMovimento.tsx */}
 <FormMovimento
   editingMovement={editingMovement}
   setEditingMovement={setEditingMovement}
@@ -2046,9 +2040,6 @@ alert(
   selectedSospesoIds={selectedSospesoIds}
 >
   </FormMovimento>
-{/* ======================================================
-    FINE UI - FORM MOVIMENTO
-====================================================== */}
         
 {/* ======================================================
     UI - TABELLA MOVIMENTI
@@ -2065,9 +2056,6 @@ alert(
   euro={euro}
   Badge={Badge}
 />
-{/* ======================================================
-    FINE UI - TABELLA MOVIMENTI
-====================================================== */}
   
 {/* ======================================================
     UI - IMPORT COMPAGNIA
@@ -2084,9 +2072,6 @@ alert(
       deleteImportedMovement={deleteImportedMovement}
       getDescrizioneModalita={getDescrizioneModalita}
     />
-{/* ======================================================
-    FINE UI - IMPORT COMPAGNIA
-====================================================== */}
 
 {/* ======================================================
     UI - SOSPESI / RECUPERI
@@ -2102,9 +2087,6 @@ alert(
       euro={euro}
       Badge={Badge}
     />
-{/* ======================================================
-    FINE UI - SOSPESI / RECUPERI
-====================================================== */}
 
 {/* ======================================================
     UI - REPORT
