@@ -1860,7 +1860,7 @@ function openImportFileDialog() {
    fileInputRef.current?.click();
 }
 
-async function handleImportFile(event: .ChangeEvent<HTMLInputElement>) {
+async function handleImportFile(event: React.ChangeEvent<HTMLInputElement>) {
   const file = event.target.files?.[0];
   if (!file) return;
 
