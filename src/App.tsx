@@ -15,6 +15,7 @@ import type { Movimento, Sospeso, FormState, ImportRow, AllocazioneRecupero } fr
 import { tipiMovimento } from "./constants";
 import { euro, deltaLabel } from "./formatters";
 import { emptyForm } from "./formDefaults";
+import { numeroPolizzaCompleto, descrizioneMovimento, isAssegnoPostdatato, isVersamentoSubagente,} from "./utils";
 
 import {
   Banknote,
@@ -49,33 +50,6 @@ const importCompagniaSeed: ImportRow[] = [];
 // ======================================================
 // 03 - FUNZIONI UTILITY
 // ======================================================
-
-function numeroPolizzaCompleto(row: { ramo?: string; polizza?: string }) {
-  if (!row.ramo && !row.polizza) return "-";
-  if (!row.ramo) return row.polizza || "-";
-  if (!row.polizza) return row.ramo;
-  return `${row.ramo}/${row.polizza}`;
-}
-
-function descrizioneMovimento(row: Movimento) {
-  if (row.tipo === "Versamento subagente") {
-    return row.dataInizioSubagente && row.dataFineSubagente
-      ? `Periodo ${row.dataInizioSubagente} → ${row.dataFineSubagente}`
-      : "Versamento subagente";
-  }
-  return numeroPolizzaCompleto(row);
-}
-
-function isAssegnoPostdatato(
-  row: { modalita: string; dataAssegno: string },
-  giornata: string
-) {
-  return row.modalita === "A" && !!row.dataAssegno && row.dataAssegno > giornata;
-}
-
-function isVersamentoSubagente(tipo: string) {
-  return tipo === "Versamento subagente";
-}
 
 function normalizzaIntestazione(value: string) {
   return value.trim().toLowerCase().replace(/\./g, "").replace(/\s+/g, " ");
