@@ -12,6 +12,7 @@ import { ReportPanel } from "./components/ReportPanel";
 import { LoginPanel } from "./components/LoginPanel";
 import { SidebarOperativa } from "./components/SidebarOperativa";
 import type { Movimento, Sospeso, FormState, ImportRow, AllocazioneRecupero } from "./types";
+import { tipiMovimento } from "./constants";
 
 import {
   Banknote,
@@ -38,13 +39,6 @@ import { supabase } from "./supabaseClient";
 // ======================================================
 
 const GIORNATA_CORRENTE = new Date().toISOString().slice(0, 10);
-
-const tipiMovimento = [
-  "Titolo del giorno",
-  "Recupero sospeso",
-  "Versamento subagente",
-  "Varie",
-];
 
 const emptyForm: FormState = {
   ramo: "",
