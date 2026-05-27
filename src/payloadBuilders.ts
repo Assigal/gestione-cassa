@@ -21,7 +21,7 @@ export function buildMovimentoPayload(
   payload: any,
   giornataDbId: string | null,
   session: any
-) => {
+){
   return {
     giornata_id: giornataDbId,
 
@@ -59,7 +59,7 @@ export function buildMovimentoPayload(
 export function buildMovimentoUpdatePayload(
   payload: any,
   session: any
-) => {
+){
   return {
     tipo_movimento: payload.tipo,
     codice_subagenzia: payload.sub,
@@ -93,7 +93,7 @@ export function buildMovimentoUpdatePayload(
 export function buildSospesoPayload(
   sospeso: any,
   giornataCorrente: string
-) {
+){
   return {
     data_sospeso: sospeso.dataSospeso || giornataCorrente,
 
