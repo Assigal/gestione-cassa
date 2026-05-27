@@ -18,7 +18,7 @@ import type { Movimento, Sospeso, FormState, ImportRow, AllocazioneRecupero } fr
 import { tipiMovimento } from "./constants";
 import { euro, deltaLabel } from "./formatters";
 import { emptyForm } from "./formDefaults";
-import { numeroPolizzaCompleto, descrizioneMovimento, isAssegnoPostdatato, isVersamentoSubagente,} from "./utils";
+import { numeroPolizzaCompleto, descrizioneMovimento, isAssegnoPostdatato, isVersamentoSubagente, getDescrizioneModalita} from "./utils";
 import { normalizzaIntestazione, parseImportoItaliano, normalizzaModalitaPagamento, parseCsvLine, importaCsvCompagnia,} from "./importUtils";
 
 import { Card, CardContent } from "@/components/ui/card";
@@ -148,27 +148,7 @@ export default function GestioneCassa() {
       return referente?.nome || fallback || "";
     };
   
-    const getDescrizioneModalita = (codice: string | null | undefined) => {
-      const map: Record<string, string> = {
-        C: "Contanti",
-        A: "Assegno",
-        B: "Bonifico",
-        J: "POS",
-        F: "Finitalia",
-        H: "App",
-        M: "Mensilizzazione",
-        Y: "Virtual POS",
-        D: "Direzione",
-        S: "Sospeso",
-        W: "Bonifico Multi",
-        X: "Scoperto",
-      };
-      const normalized = String(codice || "").trim().toUpperCase();
-
-      return map[normalized] || codice || "-";
-    };
-
-    const getModalitaByCodice = (
+   const getModalitaByCodice = (
       codice: string | null | undefined
     ) => {
       return (
