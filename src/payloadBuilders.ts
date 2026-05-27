@@ -5,7 +5,7 @@ export function buildReferentePayload(
     referenteSospesiId?: string;
     contraente?: string;
   }
-) => {
+){
   return {
     referente_sospesi:
       payload.referenteSospesi ||
@@ -15,7 +15,7 @@ export function buildReferentePayload(
     referente_sospesi_id:
       payload.referenteSospesiId || null,
   };
-};
+}
 
 export function buildMovimentoPayload(
   payload: any,
@@ -54,7 +54,7 @@ export function buildMovimentoPayload(
     data_fine_subagente:
       payload.dataFineSubagente || null,
   };
-};
+}
 
 export function buildMovimentoUpdatePayload(
   payload: any,
@@ -88,7 +88,7 @@ export function buildMovimentoUpdatePayload(
     data_inizio_subagente: payload.dataInizioSubagente || null,
     data_fine_subagente: payload.dataFineSubagente || null,
   };
-};
+}
 
 export function buildSospesoPayload(
   sospeso: any,
@@ -111,5 +111,5 @@ export function buildSospesoPayload(
     stato: sospeso.stato,
     note: sospeso.note || null,
   };
-};
+}
   
