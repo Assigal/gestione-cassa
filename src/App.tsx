@@ -19,10 +19,8 @@ import { tipiMovimento } from "./constants";
 import { euro, deltaLabel } from "./formatters";
 import { emptyForm } from "./formDefaults";
 import { numeroPolizzaCompleto, descrizioneMovimento, isAssegnoPostdatato, isVersamentoSubagente, getDescrizioneModalita} from "./utils";
-import { normalizzaIntestazione, parseImportoItaliano, normalizzaModalitaPagamento, parseCsvLine, importaCsvCompagnia,} from "./importUtils";
+import { normalizzaModalitaPagamento} from "./importUtils";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { supabase } from "./supabaseClient";
 
 // ======================================================
@@ -2001,8 +1999,7 @@ alert(
   euro={euro}
   giornataCorrente={giornataCorrente}
   selectedSospesoIds={selectedSospesoIds}
->
-  </FormMovimento>
+/>
         
 {/* ======================================================
     UI - TABELLA MOVIMENTI
