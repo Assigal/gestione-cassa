@@ -20,6 +20,7 @@ import { euro, deltaLabel } from "./formatters";
 import { emptyForm } from "./formDefaults";
 import { numeroPolizzaCompleto, descrizioneMovimento, isAssegnoPostdatato, isVersamentoSubagente, getDescrizioneModalita} from "./utils";
 import { normalizzaModalitaPagamento} from "./importUtils";
+import {buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePayload, buildSospesoPayload,} from "./payloadBuilders";
 
 import { supabase } from "./supabaseClient";
 
@@ -933,7 +934,7 @@ useEffect(() => {
 
    const { data: sospesoCreato, error } = await supabase
     .from("sospesi_cassa")
-    .insert(buildSospesoPayload(nuovoSospeso))
+    .insert(buildSospesoPayload(nuovoSospeso, giornataCorrente))
     .select()
     .single();
   
@@ -1118,7 +1119,7 @@ useEffect(() => {
   if (giornataDbId) {
     const { data: sospesoCreato, error } = await supabase
       .from("sospesi_cassa")
-      .insert(buildSospesoPayload(nuovoSospeso))
+      .insert(buildSospesoPayload(nuovoSospeso, giornataCorrente))
       .select()
       .single();
 
@@ -1254,7 +1255,7 @@ useEffect(() => {
     if (giornataDbId) {
       const { error } = await supabase
         .from("sospesi_cassa")
-        .insert(buildSospesoPayload(nuovoSospeso));
+        .insert(buildSospesoPayload(nuovoSospeso, giornataCorrente));
     
       if (error) {
         console.error(error);
