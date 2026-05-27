@@ -12,6 +12,7 @@ import { ReportPanel } from "./components/ReportPanel";
 import { LoginPanel } from "./components/LoginPanel";
 import { SidebarOperativa } from "./components/SidebarOperativa";
 import { SidebarMetric } from "./components/SidebarMetric";
+import { Badge } from "./components/Badge";
 
 import type { Movimento, Sospeso, FormState, ImportRow, AllocazioneRecupero } from "./types";
 import { tipiMovimento } from "./constants";
@@ -37,24 +38,6 @@ const importCompagniaSeed: ImportRow[] = [];
 // ======================================================
 // 04 - COMPONENTI UI RIUTILIZZABILI
 // ======================================================
-
-function Badge({
-  children,
-  variant = "default",
-}: {
-  children: React.ReactNode;
-  variant?: "default" | "ok" | "warn" | "blue" | "neutral" | "purple";
-}) {
-  const styles: Record<string, string> = {
-    default: "bg-slate-100 text-slate-700",
-    ok: "bg-emerald-100 text-emerald-700",
-    warn: "bg-rose-100 text-rose-700",
-    blue: "bg-blue-100 text-blue-700",
-    neutral: "bg-slate-200 text-slate-700",
-    purple: "bg-violet-100 text-violet-700",
-  };
-  return <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${styles[variant]}`}>{children}</span>;
-}
 
 export default function GestioneCassa() {
   
