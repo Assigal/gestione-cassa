@@ -26,3 +26,18 @@ export async function aggiornaVersamentoDb(
     })
     .eq("id", giornataDbId);
 }
+
+export async function riapriGiornataDb(
+  giornataDbId: string,
+  motivo: string
+) {
+  return await supabase
+    .from("giornate_cassa")
+    .update({
+      stato: "riaperta",
+      riaperta_il: new Date().toISOString(),
+      motivo_riapertura: motivo,
+      ricalcolo_richiesto: true,
+    })
+    .eq("id", giornataDbId);
+}
