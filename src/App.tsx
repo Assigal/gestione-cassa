@@ -20,6 +20,7 @@ import { euro, deltaLabel } from "./formatters";
 import { emptyForm } from "./formDefaults";
 import { numeroPolizzaCompleto, descrizioneMovimento, isAssegnoPostdatato, isVersamentoSubagente, getDescrizioneModalita} from "./utils";
 import { normalizzaModalitaPagamento} from "./importUtils";
+import { stampaModuloSospeso } from "./printUtils";
 import {buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePayload, buildSospesoPayload,} from "./payloadBuilders";
 
 import { supabase } from "./supabaseClient";
@@ -1161,7 +1162,7 @@ useEffect(() => {
     );
 
     if (stampa) {
-      stampaModuloSospeso(nuovoSospeso);
+      stampaModuloSospeso(nuovoSospeso, euro);
     }
   }
 }
