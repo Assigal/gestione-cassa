@@ -23,7 +23,7 @@ import { normalizzaModalitaPagamento } from "./importUtils";
 import { stampaModuloSospeso, stampaModuloAbbuono } from "./printUtils";
 import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePayload, buildSospesoPayload } from "./payloadBuilders";
 
-import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb } from "./services/giornateService";
+import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
 
 import { supabase } from "./supabaseClient";
 
@@ -1422,7 +1422,7 @@ async function bloccaQuadraturaSera() {
   addAuditLog(`Bloccata quadratura fine giornata - cassa reale ${euro(cassaReale)}`);
 }
   
-  async function chiudiGiornata() {
+async function chiudiGiornata() {
   if (!quadSeraBloccata) {
     alert("Prima di chiudere la giornata devi bloccare la quadratura di fine giornata.");
     return;
@@ -1450,6 +1450,7 @@ async function bloccaQuadraturaSera() {
     }
     await ricalcolaAvanziDa(giornataCorrente);
   }
+  
   async function riapriGiornata() {
       if (!isAdmin) {
         alert("Solo un amministratore può riaprire una giornata chiusa.");
@@ -1484,79 +1485,12 @@ async function bloccaQuadraturaSera() {
         }
       }
     }
-   async function ricalcolaAvanziDa(dataRiferimento: string) {
-    const { data: giornate, error } = await supabase
-      .from("giornate_cassa")
-      .select("*")
-      .gte("data_giornata", dataRiferimento)
-      .order("data_giornata", { ascending: true });
   
-    if (error || !giornate) {
+  async function ricalcolaAvanziDa(dataRiferimento: string) {
+    const { error } = await ricalcolaAvanziDaDb(dataRiferimento);
+  
+    if (error) {
       console.error(error);
-      return;
-    }
-  
-    let cassaFinalePrecedente: number | null = null;
-  
-    for (let i = 0; i < giornate.length; i++) {
-      const giornata = giornate[i];
-  
-      let avanzo = 0;
-  
-      if (cassaFinalePrecedente !== null) {
-        avanzo = cassaFinalePrecedente;
-      } else {
-        const { data: precedente } = await supabase
-          .from("giornate_cassa")
-          .select("cassa_finale_teorica")
-          .lt("data_giornata", giornata.data_giornata)
-          .eq("stato", "chiusa")
-          .order("data_giornata", { ascending: false })
-          .limit(1)
-          .maybeSingle();
-  
-        avanzo = Number(precedente?.cassa_finale_teorica || 0);
-      }
-  
-      const { data: movimenti } = await supabase
-        .from("movimenti_cassa")
-        .select("*")
-        .eq("giornata_id", giornata.id);
-  
-      const rows = movimenti || [];
-  
-      const incassiFisici = rows
-        .filter((m) => {
-          if (m.modalita_pagamento === "C") return true;
-      
-          if (
-            m.modalita_pagamento === "A" &&
-            m.data_assegno &&
-            m.data_assegno <= giornata.data_giornata
-          ) {
-            return true;
-          }
-      
-          return false;
-        })
-        .reduce(
-          (sum, m) => sum + Number(m.importo_netto || 0) * Number(m.segno || 1),
-          0
-        );
-  
-      const versamento = Number(giornata.versamento || 0);
-      const nuovaCassaFinale = avanzo + incassiFisici - versamento;
-  
-      await supabase
-        .from("giornate_cassa")
-        .update({
-          avanzo_precedente: avanzo,
-          cassa_finale_teorica: nuovaCassaFinale,
-          ricalcolo_richiesto: false,
-        })
-        .eq("id", giornata.id);
-  
-      cassaFinalePrecedente = nuovaCassaFinale;
     }
   }
   
@@ -1574,8 +1508,6 @@ async function bloccaQuadraturaSera() {
       console.error(error);
     }
   }
-
- 
  
 // ======================================================
 // 11 - IMPORT CSV COMPAGNIA
