@@ -1047,6 +1047,8 @@ useEffect(() => {
           createdByEmail: session?.user?.email || "",
         },
         motivazione
+        giornataCorrente,
+        euro
       );
     }
   }
@@ -1339,6 +1341,8 @@ useEffect(() => {
             createdByEmail: session?.user?.email || "",
           },
           motivazione
+          giornataCorrente,
+          euro
         );
       }
     }
