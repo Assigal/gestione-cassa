@@ -24,7 +24,7 @@ import { stampaModuloSospeso, stampaModuloAbbuono } from "./printUtils";
 import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePayload, buildSospesoPayload } from "./payloadBuilders";
 
 import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
-import { eliminaMovimentoDb } from "./services/movimentiService";
+import { eliminaMovimentoDb, salvaMovimentoDb } from "./services/movimentiService";
 
 import { supabase } from "./supabaseClient";
 
@@ -1273,17 +1273,13 @@ useEffect(() => {
 }
     setMovimenti((rows) => [movimentoDaSalvare, ...rows]);
     if (giornataDbId) {
-      const { data: movimentoCreato, error } = await supabase
-      .from("movimenti_cassa")
-      .insert(
+      const { data: movimentoCreato, error } = await salvaMovimentoDb(
         buildMovimentoPayload(
-        payload,
-        giornataDbId,
-        session
+          payload,
+          giornataDbId,
+          session
         )
-      )
-      .select("id")
-      .single();
+      );
 
     if (error) {
       console.error(error);
