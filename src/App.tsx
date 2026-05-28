@@ -402,7 +402,7 @@ useEffect(() => {
   giornataChiusa
 ]);
   
- useEffect(() => {
+useEffect(() => {
   async function caricaMovimentiDaSupabase() {
     if (!giornataDbId) return;
 
@@ -410,10 +410,8 @@ useEffect(() => {
     giornataDbId
   );
     
-    const { data: recuperiStorico } = await supabase
-      .from("sospesi_movimenti")
-      .select("*")
-      .eq("tipo", "recupero");
+  const { data: recuperiStorico } =
+    await caricaRecuperiStoricoDb();;
 
     const recuperiByMovimento = new Map<string, AllocazioneRecupero[]>();
     
