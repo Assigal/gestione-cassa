@@ -23,7 +23,7 @@ import { normalizzaModalitaPagamento } from "./importUtils";
 import { stampaModuloSospeso, stampaModuloAbbuono } from "./printUtils";
 import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePayload, buildSospesoPayload } from "./payloadBuilders";
 
-import { chiudiGiornataDb, aggiornaVersamentoDb, } from "./services/giornateService";
+import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb } from "./services/giornateService";
 
 import { supabase } from "./supabaseClient";
 
@@ -1473,15 +1473,10 @@ async function bloccaQuadraturaSera() {
       addAuditLog(`Riaperta giornata ${giornataCorrente} - motivo: ${motivo}`);
     
       if (giornataDbId) {
-        const { error } = await supabase
-          .from("giornate_cassa")
-          .update({
-            stato: "riaperta",
-            riaperta_il: new Date().toISOString(),
-            motivo_riapertura: motivo,
-            ricalcolo_richiesto: true,
-          })
-          .eq("id", giornataDbId);
+        const { error } = await riapriGiornataDb(
+          giornataDbId,
+          motivo
+        );
     
         if (error) {
           console.error(error);
@@ -1570,11 +1565,10 @@ async function bloccaQuadraturaSera() {
   
     if (!giornataDbId) return;
   
-    const { error } = await supabase
-      const { error } = await aggiornaVersamentoDb(
-        giornataDbId,
-        value
-      )
+    const { error } = await aggiornaVersamentoDb(
+      giornataDbId,
+      value
+    )
   
     if (error) {
       console.error(error);
