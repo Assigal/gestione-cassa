@@ -21,9 +21,9 @@ import { emptyForm } from "./formDefaults";
 import { numeroPolizzaCompleto, descrizioneMovimento, isAssegnoPostdatato, isVersamentoSubagente, getDescrizioneModalita } from "./utils";
 import { normalizzaModalitaPagamento } from "./importUtils";
 import { stampaModuloSospeso, stampaModuloAbbuono } from "./printUtils";
-import {buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePayload, buildSospesoPayload,} from "./payloadBuilders";
+import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePayload, buildSospesoPayload } from "./payloadBuilders";
 
-import { chiudiGiornataDb } from "./services/giornateService";
+import { chiudiGiornataDb, aggiornaVersamentoDb, } from "./services/giornateService";
 
 import { supabase } from "./supabaseClient";
 
@@ -1571,11 +1571,10 @@ async function bloccaQuadraturaSera() {
     if (!giornataDbId) return;
   
     const { error } = await supabase
-      .from("giornate_cassa")
-      .update({
-        versamento: Number(value || 0),
-      })
-      .eq("id", giornataDbId);
+      const { error } = await aggiornaVersamentoDb(
+        giornataDbId,
+        value
+      )
   
     if (error) {
       console.error(error);
