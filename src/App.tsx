@@ -43,9 +43,9 @@ const importCompagniaSeed: ImportRow[] = [];
 
 export default function GestioneCassa() {
   
-  // ======================================================
-  // 05 - STATE / REFS
-  // ======================================================
+// ======================================================
+// 05 - STATE / REFS
+// ======================================================
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [session, setSession] = useState<any>(null);
@@ -56,9 +56,9 @@ export default function GestioneCassa() {
   const [modalitaPagamento, setModalitaPagamento] = useState<any[]>([]);
   const [referentiSospesi, setReferentiSospesi] = useState<any[]>([]);
 
-  // ======================================================
-  // 06 - AUTENTICAZIONE / SESSIONE UTENTE
-  // ======================================================
+// ======================================================
+// 06 - AUTENTICAZIONE / SESSIONE UTENTE
+// ======================================================
   
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data }) => {
@@ -86,11 +86,11 @@ export default function GestioneCassa() {
     return () => subscription.unsubscribe();
     }, []);
 
-  // ======================================================
-  // 07 - CONFIGURAZIONI DA DATABASE
-    // referenti_sospesi
-    // modalita_pagamento
-  // ======================================================
+// ======================================================
+// 07 - CONFIGURAZIONI DA DATABASE
+  // referenti_sospesi
+  // modalita_pagamento
+// ======================================================
   
   useEffect(() => {
       if (!session) return;
@@ -218,9 +218,9 @@ async function caricaProfiloUtente(userId: string) {
     alert("Profilo utente non trovato.");
     return;
   }
-
   setProfiloUtente(data);
 }
+
 async function login() {
   const { error } = await supabase.auth.signInWithPassword({
     email: loginEmail,
@@ -655,9 +655,9 @@ useEffect(() => {
     setForm({ ...form, tipo });
   }
 
-  // ======================================================
-  // 12 - GESTIONE MOVIMENTI CASSA
-  // ======================================================
+// ======================================================
+// 12 - GESTIONE MOVIMENTI CASSA
+// ======================================================
   
   function selectImported(row: ImportRow) {
     setSelectedImport(row.id);
@@ -700,7 +700,7 @@ useEffect(() => {
       }));
     }
 
-   if (
+    if (
       movimento &&
       movimento.tipo === "Titolo del giorno" &&
       (movimento.modalita === "S" ||
@@ -759,9 +759,9 @@ useEffect(() => {
     });
   }
 
-  // ======================================================
-  // 13 - GESTIONE SOSPESI / RECUPERI
-  // ======================================================
+// ======================================================
+// 13 - GESTIONE SOSPESI / RECUPERI
+// ======================================================
   
   function toggleSospeso(id: string) {
     setSelectedSospesoIds((ids) => ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]);
@@ -1648,9 +1648,9 @@ alert(
   );
 }
 
-  // ======================================================
-  // 14 - RENDER UI PRINCIPALE
-  // ======================================================
+// ======================================================
+// 14 - RENDER UI PRINCIPALE
+// ======================================================
   return (
     <div className="min-h-screen bg-slate-50 p-4 text-slate-900">
       <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-4 xl:grid-cols-[320px_1fr]">
