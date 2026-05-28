@@ -23,6 +23,8 @@ import { normalizzaModalitaPagamento } from "./importUtils";
 import { stampaModuloSospeso, stampaModuloAbbuono } from "./printUtils";
 import {buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePayload, buildSospesoPayload,} from "./payloadBuilders";
 
+import { chiudiGiornataDb } from "./services/giornateService";
+
 import { supabase } from "./supabaseClient";
 
 // ======================================================
@@ -1436,15 +1438,10 @@ async function bloccaQuadraturaSera() {
     addAuditLog(`Chiusa giornata ${giornataCorrente} - cassa finale ${euro(totals.cassa)}`);
     
     if (giornataDbId) {
-      const { error } = await supabase
-        .from("giornate_cassa")
-        .update({
-          stato: "chiusa",
-          cassa_finale_teorica: totals.cassa,
-          versamento: totals.versamento,
-          chiusa_il: new Date().toISOString(),
-        })
-        .eq("id", giornataDbId);
+      const { error } = await chiudiGiornataDb(
+        giornataDbId,
+        totals
+      );
     
       if (error) {
         console.error(error);
