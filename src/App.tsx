@@ -24,6 +24,7 @@ import { stampaModuloSospeso, stampaModuloAbbuono } from "./printUtils";
 import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePayload, buildSospesoPayload } from "./payloadBuilders";
 
 import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
+import { eliminaMovimentoDb } from "./services/movimentiService";
 
 import { supabase } from "./supabaseClient";
 
@@ -711,11 +712,9 @@ useEffect(() => {
       );
     }
     setMovimenti((rows) => rows.filter((row) => row.id !== id));
+    
     if (giornataDbId) {
-      const { error } = await supabase
-        .from("movimenti_cassa")
-        .delete()
-        .eq("id", id);
+      const { error } = await eliminaMovimentoDb(id);
     
       if (error) {
         console.error(error);
