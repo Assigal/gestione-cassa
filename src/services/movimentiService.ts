@@ -24,3 +24,11 @@ export async function aggiornaMovimentoDb(
     .update(payloadDb)
     .eq("id", id);
 }
+
+export async function caricaMovimentiDb(giornataDbId: string) {
+  return await supabase
+    .from("movimenti_cassa")
+    .select("*")
+    .eq("giornata_id", giornataDbId)
+    .order("created_at", { ascending: false });
+}
