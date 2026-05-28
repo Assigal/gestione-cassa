@@ -1,3 +1,5 @@
+import type { Sospeso } from "./types";
+
 export function stampaModuloSospeso(sospeso: Sospeso) {
     const scadenza = window.prompt(
       "Entro quale data il cliente si impegna a chiudere il sospeso? Formato: gg/mm/aaaa"
