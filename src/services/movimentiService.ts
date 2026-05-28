@@ -32,3 +32,10 @@ export async function caricaMovimentiDb(giornataDbId: string) {
     .eq("giornata_id", giornataDbId)
     .order("created_at", { ascending: false });
 }
+
+export async function caricaRecuperiStoricoDb() {
+  return await supabase
+    .from("sospesi_movimenti")
+    .select("*")
+    .eq("tipo", "recupero");
+}
