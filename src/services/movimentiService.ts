@@ -14,3 +14,13 @@ export async function salvaMovimentoDb(payloadDb: any) {
     .select("id")
     .single();
 }
+
+export async function aggiornaMovimentoDb(
+  id: number,
+  payloadDb: any
+) {
+  return await supabase
+    .from("movimenti_cassa")
+    .update(payloadDb)
+    .eq("id", id);
+}
