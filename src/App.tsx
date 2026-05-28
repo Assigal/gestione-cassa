@@ -1046,7 +1046,7 @@ useEffect(() => {
           ...payload,
           createdByEmail: session?.user?.email || "",
         },
-        motivazione
+        motivazione,
         giornataCorrente,
         euro
       );
@@ -1340,7 +1340,7 @@ useEffect(() => {
             ...movimentoDaSalvare,
             createdByEmail: session?.user?.email || "",
           },
-          motivazione
+          motivazione,
           giornataCorrente,
           euro
         );
