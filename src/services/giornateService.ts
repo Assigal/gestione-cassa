@@ -14,3 +14,15 @@ export async function chiudiGiornataDb(
     })
     .eq("id", giornataDbId);
 }
+
+export async function aggiornaVersamentoDb(
+  giornataDbId: string,
+  value: string
+) {
+  return await supabase
+    .from("giornate_cassa")
+    .update({
+      versamento: Number(value || 0),
+    })
+    .eq("id", giornataDbId);
+}
