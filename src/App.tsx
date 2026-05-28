@@ -24,7 +24,7 @@ import { stampaModuloSospeso, stampaModuloAbbuono } from "./printUtils";
 import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePayload, buildSospesoPayload } from "./payloadBuilders";
 
 import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
-import { eliminaMovimentoDb, salvaMovimentoDb } from "./services/movimentiService";
+import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb } from "./services/movimentiService";
 
 import { supabase } from "./supabaseClient";
 
@@ -884,18 +884,16 @@ useEffect(() => {
     );
 
     if (giornataDbId) {
-      const { error } = await supabase
-      .from("movimenti_cassa")
-      .update(
+      const { error } = await aggiornaMovimentoDb(
+        editingMovement,
         buildMovimentoUpdatePayload(payload, session)
-      )
-      .eq("id", editingMovement);
-    
-      if (error) {
-      console.error(error);
-      alert("Movimento modificato localmente, ma non aggiornato su Supabase.");
+      );
+      
+        if (error) {
+        console.error(error);
+        alert("Movimento modificato localmente, ma non aggiornato su Supabase.");
+      }
     }
-  }
 
  if (primaEraSospeso && !oraESospeso) {
     setSospesi((rows) =>
