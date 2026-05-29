@@ -24,7 +24,7 @@ import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePaylo
 
 import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
 import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb } from "./services/movimentiService";
-import { caricaSospesiDb } from "./services/sospesiService";
+import { caricaSospesiDb, creaSospesoDb } from "./services/sospesiService";
 
 import { supabase } from "./supabaseClient";
 
@@ -925,11 +925,13 @@ useEffect(() => {
 
   setSospesi((rows) => [nuovoSospeso, ...rows]);
 
-   const { data: sospesoCreato, error } = await supabase
-    .from("sospesi_cassa")
-    .insert(buildSospesoPayload(nuovoSospeso, giornataCorrente))
-    .select()
-    .single();
+   const { data: sospesoCreato, error } =
+      await creaSospesoDb(
+        buildSospesoPayload(
+          nuovoSospeso,
+          giornataCorrente
+        )
+      );
   
  if (sospesoCreato) {
     const { data: storicoCreato, error: storicoError } = await supabase
@@ -1112,11 +1114,10 @@ useEffect(() => {
   setSospesi((rows) => [nuovoSospeso, ...rows]);
 
   if (giornataDbId) {
-    const { data: sospesoCreato, error } = await supabase
-      .from("sospesi_cassa")
-      .insert(buildSospesoPayload(nuovoSospeso, giornataCorrente))
-      .select()
-      .single();
+    const { data: sospesoCreato, error } =
+      await creaSospesoDb(
+        buildSospesoPayload(nuovoSospeso)
+      );
 
     if (error) {
       console.error(error);
@@ -1248,9 +1249,9 @@ useEffect(() => {
     setSospesi((rows) => [nuovoSospeso, ...rows]);
 
     if (giornataDbId) {
-      const { error } = await supabase
-        .from("sospesi_cassa")
-        .insert(buildSospesoPayload(nuovoSospeso, giornataCorrente));
+      const { error } = await creaSospesoDb(
+        buildSospesoPayload(nuovoSospeso)
+      );
     
       if (error) {
         console.error(error);
