@@ -24,6 +24,7 @@ import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePaylo
 
 import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
 import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb } from "./services/movimentiService";
+import { caricaSospesiDb } from "./services/sospesiService";
 
 import { supabase } from "./supabaseClient";
 
@@ -523,10 +524,7 @@ useEffect(() => {
   
   useEffect(() => {
     async function caricaSospesiDaSupabase() {
-      const { data, error } = await supabase
-        .from("sospesi_cassa")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const { data, error } = await caricaSospesiDb();
   
       if (error) {
         console.error(error);
