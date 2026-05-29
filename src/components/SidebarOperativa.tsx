@@ -11,6 +11,7 @@ import {
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { SidebarMetric } from "./SidebarMetric";
 
 type SidebarOperativaProps = {
   giornataCorrente: string;
@@ -47,7 +48,6 @@ type SidebarOperativaProps = {
   euro: (value: number) => string;
   deltaLabel: (value: number) => string;
 
-  SidebarMetric: any;
 };
 
 export function SidebarOperativa({
@@ -75,7 +75,6 @@ export function SidebarOperativa({
   bloccaQuadraturaSera,
   euro,
   deltaLabel,
-  SidebarMetric,
 }: SidebarOperativaProps) {
   return (
 <aside className="space-y-2 xl:sticky xl:top-4 xl:h-[calc(100vh-48px)] xl:overflow-auto">
