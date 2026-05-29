@@ -14,3 +14,13 @@ export async function creaSospesoDb(payloadDb: any) {
     .select()
     .single();
 }
+
+export async function aggiornaSospesoDb(
+  id: string,
+  payloadDb: any
+) {
+  return await supabase
+    .from("sospesi_cassa")
+    .update(payloadDb)
+    .eq("id", id);
+}
