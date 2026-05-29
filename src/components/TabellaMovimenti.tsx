@@ -2,6 +2,7 @@ import React from "react";
 import { Search, Edit3, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "./Badge";
 
 type TabellaMovimentiProps = {
   movimenti: Movimento[];
@@ -13,7 +14,6 @@ type TabellaMovimentiProps = {
   isAssegnoPostdatato: (m: any, giornata: string) => boolean;
   descrizioneMovimento: (m: any) => string;
   euro: (value: number) => string;
-  Badge: any;
 };
 
 export function TabellaMovimenti({
@@ -26,7 +26,6 @@ export function TabellaMovimenti({
   isAssegnoPostdatato,
   descrizioneMovimento,
   euro,
-  Badge,
 }: TabellaMovimentiProps) {
   return (
     <>
