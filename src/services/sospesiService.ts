@@ -6,3 +6,11 @@ export async function caricaSospesiDb() {
     .select("*")
     .order("created_at", { ascending: false });
 }
+
+export async function creaSospesoDb(payloadDb: any) {
+  return await supabase
+    .from("sospesi_cassa")
+    .insert(payloadDb)
+    .select()
+    .single();
+}
