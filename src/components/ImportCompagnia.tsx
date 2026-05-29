@@ -2,13 +2,13 @@ import React from "react";
 import { Upload, ArrowRightCircle, Trash2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "./Badge";
 
 type ImportCompagniaProps = {
   importCompagnia: ImportCompagniaRow[];
   
   numeroPolizzaCompleto: (row: any) => string;
   euro: (value: number) => string;
-  Badge: any;
   
   selectedImport: string | null;
   giornataChiusa: boolean;
@@ -24,7 +24,6 @@ export function ImportCompagnia({
   importCompagnia,
   numeroPolizzaCompleto,
   euro,
-  Badge,
   selectedImport,
   giornataChiusa,
   openImportFileDialog,
