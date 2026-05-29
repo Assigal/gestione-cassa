@@ -2,6 +2,7 @@ import React from "react";
 import { RotateCcw, Users } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "./Badge";
 
 type SospesiRecuperiProps = {
   children: React.ReactNode;
@@ -9,8 +10,7 @@ type SospesiRecuperiProps = {
   sospesiFiltrati: Sospeso[];
   selectedSospesoIds: string[];
   searchSospesi: string;
-  Badge: any;
-
+ 
   setSearchSospesi: React.Dispatch<React.SetStateAction<string>>;
 
   toggleSospeso: (id: string) => void;
@@ -25,7 +25,6 @@ export function SospesiRecuperi({
   sospesiFiltrati,
   selectedSospesoIds,
   searchSospesi,
-  Badge,
   setSearchSospesi,
   toggleSospeso,
   prepareRecuperoSospesi,
