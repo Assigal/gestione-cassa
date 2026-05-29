@@ -24,7 +24,7 @@ import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePaylo
 
 import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
 import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb } from "./services/movimentiService";
-import { caricaSospesiDb, creaSospesoDb } from "./services/sospesiService";
+import { caricaSospesiDb, creaSospesoDb, aggiornaSospesoDb } from "./services/sospesiService";
 
 import { supabase } from "./supabaseClient";
 
@@ -1184,16 +1184,16 @@ useEffect(() => {
       const allocazione = allocazioni.find((a) => a.sospesoId === sospesoId);
 
       if (sospesoAggiornato) {
-        const { error } = await supabase
-          .from("sospesi_cassa")
-          .update({
+        const { error } = await aggiornaSospesoDb(
+          sospesoId,
+          {
             recuperato: sospesoAggiornato.recuperato,
             sconto_applicato: sospesoAggiornato.scontoApplicato,
             residuo: sospesoAggiornato.residuo,
             stato: sospesoAggiornato.stato,
             note: sospesoAggiornato.note || null,
-          })
-          .eq("id", sospesoId);
+          }
+        );
 
         if (error) {
           console.error(error);
