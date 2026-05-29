@@ -11,7 +11,6 @@ import { SospesiRecuperi } from "./components/SospesiRecuperi";
 import { ReportPanel } from "./components/ReportPanel";
 import { LoginPanel } from "./components/LoginPanel";
 import { SidebarOperativa } from "./components/SidebarOperativa";
-import { SidebarMetric } from "./components/SidebarMetric";
 import { Badge } from "./components/Badge";
 
 import type { Movimento, Sospeso, FormState, ImportRow, AllocazioneRecupero } from "./types";
@@ -1668,7 +1667,6 @@ alert(
           bloccaQuadraturaSera={bloccaQuadraturaSera}
           euro={euro}
           deltaLabel={deltaLabel}
-          SidebarMetric={SidebarMetric}
         />
         <main className="space-y-6">
           
