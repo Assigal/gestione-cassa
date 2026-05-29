@@ -1709,7 +1709,6 @@ alert(
   isAssegnoPostdatato={isAssegnoPostdatato}
   descrizioneMovimento={descrizioneMovimento}
   euro={euro}
-  Badge={Badge}
 />
   
 {/* ======================================================
