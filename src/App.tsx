@@ -1397,7 +1397,7 @@ async function bloccaQuadraturaSera() {
     dataOra: new Date().toLocaleString("it-IT"),
   });
   if (giornataDbId) {
-    const { error } = await supabase.from("quadrature_cassa").insert({
+    const { error } = await salvaQuadraturaDb({
       giornata_id: giornataDbId,
       tipo: "fine_giornata",
       cassa_teorica: totals.cassa,
