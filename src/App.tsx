@@ -25,7 +25,7 @@ import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePaylo
 import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
 import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb } from "./services/movimentiService";
 import { caricaSospesiDb, creaSospesoDb, aggiornaSospesoDb, eliminaSospesoDb, creaStoricoSospesoDb, creaStoricoSospesiBulkDb, collegaStoricoOrigineAMovimentoDb } from "./services/sospesiService";
-import { caricaQuadratureDb } from "./services/quadratureService";
+import { caricaQuadratureDb, salvaQuadraturaDb } from "./services/quadratureService";
 
 import { supabase } from "./supabaseClient";
 
@@ -1365,7 +1365,7 @@ if (movimentoCreato?.id && payload.tipo === "Titolo del giorno") {
     dataOra: new Date().toLocaleString("it-IT"),
   });
    if (giornataDbId) {
-      const { error } = await supabase.from("quadrature_cassa").insert({
+      const { error } = await salvaQuadraturaDb({
         giornata_id: giornataDbId,
         tipo: "mezza_giornata",
         cassa_teorica: totals.cassa,
