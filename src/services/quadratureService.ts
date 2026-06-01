@@ -7,3 +7,9 @@ export async function caricaQuadratureDb(giornataDbId: string) {
     .eq("giornata_id", giornataDbId)
     .order("bloccata_il", { ascending: false });
 }
+
+export async function salvaQuadraturaDb(payloadDb: any) {
+  return await supabase
+    .from("quadrature_cassa")
+    .insert(payloadDb);
+}
