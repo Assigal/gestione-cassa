@@ -24,7 +24,7 @@ import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePaylo
 
 import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
 import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb } from "./services/movimentiService";
-import { caricaSospesiDb, creaSospesoDb, aggiornaSospesoDb, eliminaSospesoDb } from "./services/sospesiService";
+import { caricaSospesiDb, creaSospesoDb, aggiornaSospesoDb, eliminaSospesoDb, creaStoricoSospesoDb } from "./services/sospesiService";
 
 import { supabase } from "./supabaseClient";
 
@@ -940,20 +940,17 @@ useEffect(() => {
       ...movimentoDaSalvare,
       sospesoId: sospesoCreato.id,
     };
-    const { data: storicoCreato, error: storicoError } = await supabase
-     .from("sospesi_movimenti")
-    .insert({
-      sospeso_id: sospesoCreato.id,
-      tipo: "origine",
-      data_movimento: giornataCorrente,
-      importo: nuovoSospeso.importoOriginario,
-      modalita_pagamento: payload.modalita,
-      note: payload.note || null,
-      user_id: session?.user?.id || null,
-      user_email: session?.user?.email || null,
-    })
-    .select("id")
-    .single();
+    const { data: storicoCreato, error: storicoError } =
+      await creaStoricoSospesoDb({
+        sospeso_id: sospesoCreato.id,
+        tipo: "origine",
+        data_movimento: giornataCorrente,
+        importo: nuovoSospeso.importoOriginario,
+        modalita_pagamento: payload.modalita,
+        note: payload.note || null,
+        user_id: session?.user?.id || null,
+        user_email: session?.user?.email || null,
+      });
   
     if (storicoCreato?.id) {
       storicoSospesiDaCollegare.push(storicoCreato.id);
