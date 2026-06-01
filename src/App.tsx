@@ -1016,9 +1016,9 @@ useEffect(() => {
     );
   
    if (sospesoOriginale?.id) {
-      const { error } = await supabase
-        .from("sospesi_cassa")
-        .update({
+      const { error } = await aggiornaSospesoDb(
+        sospesoOriginale.id,
+        {
           ...buildReferentePayload(payload),
           contraente: payload.contraente || null,
           ramo: payload.ramo || null,
@@ -1026,8 +1026,8 @@ useEffect(() => {
           importo_originario: payload.importo,
           residuo: payload.importo,
           note: payload.note || null,
-        })
-        .eq("id", sospesoOriginale.id);
+        }
+      );
     
       if (error) {
         console.error(error);
