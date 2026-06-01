@@ -1143,9 +1143,8 @@ useEffect(() => {
         sospesoId: sospesoCreato.id,
       };
 
-      const { error: storicoError } = await supabase
-                .from("sospesi_movimenti")
-        .insert({
+      const { error: storicoError } =
+        await creaStoricoSospesoDb({
           sospeso_id: sospesoCreato.id,
           tipo: "origine",
           data_movimento: giornataCorrente,
