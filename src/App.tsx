@@ -1142,6 +1142,10 @@ useEffect(() => {
           s.id === tempId ? { ...s, id: sospesoCreato.id } : s
         )
       );
+      movimentoDaSalvare = {
+        ...movimentoDaSalvare,
+        sospesoId: sospesoCreato.id,
+      };
 
       const { error: storicoError } = await supabase
                 .from("sospesi_movimenti")
