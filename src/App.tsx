@@ -1144,7 +1144,7 @@ useEffect(() => {
       );
 
       const { error: storicoError } = await supabase
-        .from("sospesi_movimenti")
+                .from("sospesi_movimenti")
         .insert({
           sospeso_id: sospesoCreato.id,
           tipo: "origine",
@@ -1276,7 +1276,12 @@ useEffect(() => {
  
 }
     setMovimenti((rows) => [movimentoDaSalvare, ...rows]);
+    
     if (giornataDbId) {
+      console.log(
+        "movimentoDaSalvare prima insert",
+        movimentoDaSalvare
+      );
       const { data: movimentoCreato, error } = await salvaMovimentoDb(
         buildMovimentoPayload(
           movimentoDaSalvare,
