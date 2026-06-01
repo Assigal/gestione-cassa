@@ -24,7 +24,7 @@ import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePaylo
 
 import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
 import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb } from "./services/movimentiService";
-import { caricaSospesiDb, creaSospesoDb, aggiornaSospesoDb, eliminaSospesoDb, creaStoricoSospesoDb } from "./services/sospesiService";
+import { caricaSospesiDb, creaSospesoDb, aggiornaSospesoDb, eliminaSospesoDb, creaStoricoSospesoDb, creaStoricoSospesiBulkDb } from "./services/sospesiService";
 
 import { supabase } from "./supabaseClient";
 
@@ -1295,9 +1295,8 @@ useEffect(() => {
     }
         
     if (movimentoCreato?.id && storicoSospesiDaInserire.length > 0) {
-      const { error: storicoRecuperiError } = await supabase
-        .from("sospesi_movimenti")
-        .insert(
+      const { error: storicoRecuperiError } =
+        await creaStoricoSospesiBulkDb(
           storicoSospesiDaInserire.map((row) => ({
             ...row,
             movimento_cassa_id: movimentoCreato.id,
