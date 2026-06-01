@@ -24,7 +24,7 @@ import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePaylo
 
 import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
 import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb } from "./services/movimentiService";
-import { caricaSospesiDb, creaSospesoDb, aggiornaSospesoDb, eliminaSospesoDb, creaStoricoSospesoDb, creaStoricoSospesiBulkDb } from "./services/sospesiService";
+import { caricaSospesiDb, creaSospesoDb, aggiornaSospesoDb, eliminaSospesoDb, creaStoricoSospesoDb, creaStoricoSospesiBulkDb, collegaStoricoOrigineAMovimentoDb } from "./services/sospesiService";
 
 import { supabase } from "./supabaseClient";
 
@@ -1309,16 +1309,13 @@ useEffect(() => {
       }
   }
      
- if (movimentoCreato?.id && payload.tipo === "Titolo del giorno") {
-    const { error: linkStoricoError } = await supabase
-      .from("sospesi_movimenti")
-      .update({
-        movimento_cassa_id: movimentoCreato.id,
-      })
-      .eq("tipo", "origine")
-      .eq("data_movimento", giornataCorrente)
-      .eq("importo", payload.importo)
-      .is("movimento_cassa_id", null);
+if (movimentoCreato?.id && payload.tipo === "Titolo del giorno") {
+    const { error: linkStoricoError } =
+      await collegaStoricoOrigineAMovimentoDb(
+        movimentoCreato.id,
+        giornataCorrente,
+        payload.importo
+      );
   
     if (linkStoricoError) {
       console.error(linkStoricoError);
