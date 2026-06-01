@@ -934,6 +934,10 @@ useEffect(() => {
       );
   
  if (sospesoCreato) {
+    movimentoDaSalvare = {
+      ...movimentoDaSalvare,
+      sospesoId: sospesoCreato.id,
+    };
     const { data: storicoCreato, error: storicoError } = await supabase
      .from("sospesi_movimenti")
     .insert({
