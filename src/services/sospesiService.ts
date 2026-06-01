@@ -35,5 +35,7 @@ export async function eliminaSospesoDb(id: string) {
 export async function creaStoricoSospesoDb(payloadDb: any) {
   return await supabase
     .from("sospesi_movimenti")
-    .insert(payloadDb);
+    .insert(payloadDb)
+    .select("id")
+    .single();
 }
