@@ -25,6 +25,7 @@ import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePaylo
 import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
 import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb } from "./services/movimentiService";
 import { caricaSospesiDb, creaSospesoDb, aggiornaSospesoDb, eliminaSospesoDb, creaStoricoSospesoDb, creaStoricoSospesiBulkDb, collegaStoricoOrigineAMovimentoDb } from "./services/sospesiService";
+import { caricaQuadratureDb } from "./services/quadratureService";
 
 import { supabase } from "./supabaseClient";
 
@@ -476,11 +477,7 @@ useEffect(() => {
       async function caricaQuadratureDaSupabase() {
         if (!giornataDbId) return;
     
-        const { data, error } = await supabase
-          .from("quadrature_cassa")
-          .select("*")
-          .eq("giornata_id", giornataDbId)
-          .order("bloccata_il", { ascending: false });
+        const { data, error } = await caricaQuadratureDb(giornataDbId);
     
         if (error) {
           console.error(error);
