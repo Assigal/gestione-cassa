@@ -24,6 +24,7 @@ export function buildMovimentoPayload(
 ){
   return {
     giornata_id: giornataDbId,
+    sospeso_id: payload.sospesoId || null,
 
     tipo_movimento: payload.tipo,
     codice_subagenzia: payload.sub,
