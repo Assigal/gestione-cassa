@@ -1031,6 +1031,7 @@ useEffect(() => {
         alert("Sospeso aggiornato localmente, ma non aggiornato su Supabase.");
       }
     }
+ } 
 
   if (payload.sconto >= sogliaStampaAbbuono) {
     const stampa = window.confirm(
