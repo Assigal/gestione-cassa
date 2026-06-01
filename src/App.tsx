@@ -890,15 +890,19 @@ useEffect(() => {
     }
 
  if (primaEraSospeso && !oraESospeso) {
-    setSospesi((rows) =>
-      rows.filter((s) => s.polizza !== movimentoOriginale?.polizza)
+    const sospesoOriginale = sospesi.find(
+      (s) => s.id === movimentoOriginale?.sospesoId
     );
   
-    if (movimentoOriginale?.polizza) {
+    setSospesi((rows) =>
+      rows.filter((s) => s.id !== sospesoOriginale?.id)
+    );
+  
+    if (sospesoOriginale?.id) {
       const { error } = await supabase
         .from("sospesi_cassa")
         .delete()
-        .eq("polizza", movimentoOriginale.polizza);
+        .eq("id", sospesoOriginale.id);
   
       if (error) {
         console.error(error);
