@@ -1284,10 +1284,6 @@ useEffect(() => {
     setMovimenti((rows) => [movimentoDaSalvare, ...rows]);
     
     if (giornataDbId) {
-      console.log(
-        "movimentoDaSalvare prima insert",
-        movimentoDaSalvare
-      );
       const { data: movimentoCreato, error } = await salvaMovimentoDb(
         buildMovimentoPayload(
           movimentoDaSalvare,
