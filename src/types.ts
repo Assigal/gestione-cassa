@@ -5,6 +5,7 @@ export interface Movimento {
   contraente: string;
   referenteSospesi: string;
   referenteSospesiId: string;
+  sospesoId?: string;
   importo: number;
   sconto: number;
   netto: number;
