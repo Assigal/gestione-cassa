@@ -39,3 +39,9 @@ export async function creaStoricoSospesoDb(payloadDb: any) {
     .select("id")
     .single();
 }
+
+export async function creaStoricoSospesiBulkDb(rows: any[]) {
+  return await supabase
+    .from("sospesi_movimenti")
+    .insert(rows);
+}
