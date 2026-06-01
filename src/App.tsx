@@ -1279,7 +1279,7 @@ useEffect(() => {
     if (giornataDbId) {
       const { data: movimentoCreato, error } = await salvaMovimentoDb(
         buildMovimentoPayload(
-          payload,
+          movimentoDaSalvare,
           giornataDbId,
           session
         )
