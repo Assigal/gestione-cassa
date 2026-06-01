@@ -45,3 +45,19 @@ export async function creaStoricoSospesiBulkDb(rows: any[]) {
     .from("sospesi_movimenti")
     .insert(rows);
 }
+
+export async function collegaStoricoOrigineAMovimentoDb(
+  movimentoId: number,
+  giornataCorrente: string,
+  importo: number
+) {
+  return await supabase
+    .from("sospesi_movimenti")
+    .update({
+      movimento_cassa_id: movimentoId,
+    })
+    .eq("tipo", "origine")
+    .eq("data_movimento", giornataCorrente)
+    .eq("importo", importo)
+    .is("movimento_cassa_id", null);
+}
