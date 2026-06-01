@@ -24,3 +24,10 @@ export async function aggiornaSospesoDb(
     .update(payloadDb)
     .eq("id", id);
 }
+
+export async function eliminaSospesoDb(id: string) {
+  return await supabase
+    .from("sospesi_cassa")
+    .delete()
+    .eq("id", id);
+}
