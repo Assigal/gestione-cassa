@@ -31,3 +31,9 @@ export async function eliminaSospesoDb(id: string) {
     .delete()
     .eq("id", id);
 }
+
+export async function creaStoricoSospesoDb(payloadDb: any) {
+  return await supabase
+    .from("sospesi_movimenti")
+    .insert(payloadDb);
+}
