@@ -441,6 +441,7 @@ useEffect(() => {
         contraente: row.contraente || "",
         referenteSospesi: row.referente_sospesi || "",
         referenteSospesiId: row.referente_sospesi_id || "",
+        sospesoId: row.sospeso_id || "",
         importo: Number(row.importo_lordo || 0),
         sconto: Number(row.sconto || 0),
         netto: Number(row.importo_netto || 0),
@@ -993,10 +994,7 @@ useEffect(() => {
      
   if (primaEraSospeso && oraESospeso) {
     const sospesoOriginale = sospesi.find(
-      (s) =>
-        s.polizza === movimentoOriginale?.polizza &&
-        s.ramo === movimentoOriginale?.ramo &&
-        s.contraente === movimentoOriginale?.contraente
+      (s) => s.id === movimentoOriginale?.sospesoId
     );
   
     setSospesi((rows) =>
