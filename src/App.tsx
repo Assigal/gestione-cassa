@@ -26,6 +26,7 @@ import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvan
 import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb } from "./services/movimentiService";
 import { caricaSospesiDb, creaSospesoDb, aggiornaSospesoDb, eliminaSospesoDb, creaStoricoSospesoDb, creaStoricoSospesiBulkDb, collegaStoricoOrigineAMovimentoDb } from "./services/sospesiService";
 import { caricaQuadratureDb, salvaQuadraturaDb } from "./services/quadratureService";
+import { loginDb, logoutDb, caricaProfiloUtenteDb } from "./services/authService";
 
 import { supabase } from "./supabaseClient";
 
@@ -209,11 +210,7 @@ export default function GestioneCassa() {
 // ======================================================
 
 async function caricaProfiloUtente(userId: string) {
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", userId)
-    .single();
+  const { data, error } = await caricaProfiloUtenteDb(userId);
 
   if (error) {
     console.error(error);
@@ -224,10 +221,10 @@ async function caricaProfiloUtente(userId: string) {
 }
 
 async function login() {
-  const { error } = await supabase.auth.signInWithPassword({
-    email: loginEmail,
-    password: loginPassword,
-  });
+  const { error } = await loginDb(
+    loginEmail,
+    loginPassword
+  );
 
   if (error) {
     alert("Login non riuscito: " + error.message);
@@ -235,7 +232,7 @@ async function login() {
 }
 
 async function logout() {
-  await supabase.auth.signOut();
+  await logoutDb();
 }
   
 async function addAuditLog(azione: string) {
