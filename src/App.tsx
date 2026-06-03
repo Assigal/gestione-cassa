@@ -893,7 +893,55 @@ useEffect(() => {
       }
     }
   }
+
+  async function aggiornaSospesoAssociato(
+    movimentoOriginale: Movimento | undefined,
+    payload: Movimento
+  ) {
+    const sospesoOriginale =
+      trovaSospesoOriginale(movimentoOriginale);
   
+    setSospesi((rows) =>
+      rows.map((s) =>
+        s.id === sospesoOriginale?.id
+          ? {
+              ...s,
+              referenteSospesi: payload.referenteSospesi,
+              contraente: payload.contraente,
+              ramo: payload.ramo,
+              polizza: payload.polizza,
+              importoOriginario: payload.importo,
+              residuo:
+                payload.importo -
+                s.recuperato -
+                s.scontoApplicato,
+              note: payload.note,
+            }
+          : s
+      )
+    );
+  
+    if (sospesoOriginale?.id) {
+      const { error } = await aggiornaSospesoDb(
+        sospesoOriginale.id,
+        {
+          ...buildReferentePayload(payload),
+          contraente: payload.contraente || null,
+          ramo: payload.ramo || null,
+          polizza: payload.polizza || null,
+          importo_originario: payload.importo,
+          residuo: payload.importo,
+          note: payload.note || null,
+        }
+      );
+  
+      if (error) {
+        console.error(error);
+        alert("Sospeso aggiornato localmente, ma non aggiornato su Supabase.");
+      }
+    }
+  }
+      
   async function saveForm() {
     const importo = Number(form.importo || 0);
     if (!form.importo || importo === 0) {
@@ -1032,46 +1080,11 @@ useEffect(() => {
 }
      
   if (primaEraSospeso && oraESospeso) {
-    const sospesoOriginale =
-      trovaSospesoOriginale(movimentoOriginale);
-  
-    setSospesi((rows) =>
-      rows.map((s) =>
-        s.id === sospesoOriginale?.id
-          ? {
-              ...s,
-              referenteSospesi: payload.referenteSospesi,
-              contraente: payload.contraente,
-              ramo: payload.ramo,
-              polizza: payload.polizza,
-              importoOriginario: payload.importo,
-              residuo: payload.importo - s.recuperato - s.scontoApplicato,
-              note: payload.note,
-            }
-          : s
-      )
+    await aggiornaSospesoAssociato(
+    movimentoOriginale,
+    payload
     );
-  
-   if (sospesoOriginale?.id) {
-      const { error } = await aggiornaSospesoDb(
-        sospesoOriginale.id,
-        {
-          ...buildReferentePayload(payload),
-          contraente: payload.contraente || null,
-          ramo: payload.ramo || null,
-          polizza: payload.polizza || null,
-          importo_originario: payload.importo,
-          residuo: payload.importo,
-          note: payload.note || null,
-        }
-      );
-    
-      if (error) {
-        console.error(error);
-        alert("Sospeso aggiornato localmente, ma non aggiornato su Supabase.");
-      }
-    }
- } 
+  }
 
   if (payload.sconto >= sogliaStampaAbbuono) {
     const stampa = window.confirm(
