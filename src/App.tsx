@@ -813,7 +813,87 @@ useEffect(() => {
 
     return { updatedSospesi, allocazioni };
   }
+  
+  function movimentoEraSospeso(movimento?: Movimento) {
+    return (
+      !!movimento &&
+      movimento.tipo === "Titolo del giorno" &&
+      (
+        movimento.modalita === "S" ||
+        isAssegnoPostdatato(
+          movimento,
+          giornataCorrente
+        )
+      )
+    );
+  }
+  
+  function payloadGeneraSospeso(payload: any) {
+    return (
+      payload.tipo === "Titolo del giorno" &&
+      (
+        payload.modalita === "S" ||
+        (
+          payload.modalita === "A" &&
+          payload.dataAssegno > giornataCorrente
+        )
+      )
+    );
+  }
 
+  function creaNuovoSospesoDaPayload(payload: Movimento) {
+    return {
+      id: `sosp-${Date.now()}`,
+      referenteSospesi: payload.referenteSospesi,
+      referenteSospesiId: payload.referenteSospesiId,
+      contraente: payload.contraente,
+      ramo: payload.ramo,
+      polizza: payload.polizza,
+      importoOriginario: payload.importo,
+      recuperato: 0,
+      scontoApplicato: 0,
+      residuo: payload.importo,
+      stato: "Aperto",
+      dataSospeso: giornataCorrente,
+      note: payload.note,
+    };
+  }
+
+  function trovaSospesoOriginale(
+      movimento?: Movimento
+    ) {
+    return sospesi.find(
+      (s) => s.id === movimento?.sospesoId
+    );
+  }
+
+  async function rimuoviSospesoAssociato(
+    movimentoOriginale?: Movimento
+  ) {
+    const sospesoOriginale =
+      trovaSospesoOriginale(movimentoOriginale);
+  
+    setSospesi((rows) =>
+      rows.filter(
+        (s) => s.id !== sospesoOriginale?.id
+      )
+    );
+  
+    if (sospesoOriginale?.id) {
+      const { error } =
+        await eliminaSospesoDb(
+          sospesoOriginale.id
+        );
+  
+      if (error) {
+        console.error(error);
+        alert(
+          "Sospeso rimosso localmente, ma non eliminato da Supabase."
+        );
+      }
+    }
+  }
+  
   async function saveForm() {
     const importo = Number(form.importo || 0);
     if (!form.importo || importo === 0) {
@@ -846,26 +926,13 @@ useEffect(() => {
    if (editingMovement) {
     const movimentoOriginale = movimenti.find((row) => row.id === editingMovement);
 
-    const primaEraSospeso =
-      movimentoOriginale &&
-      movimentoOriginale.tipo === "Titolo del giorno" &&
-      (
-        movimentoOriginale.modalita === "S" ||
-        isAssegnoPostdatato(
-          movimentoOriginale,
-          giornataCorrente
-        )
-      );
+    const primaEraSospeso = movimentoEraSospeso(
+      movimentoOriginale
+    );
     
-    const oraESospeso =
-      payload.tipo === "Titolo del giorno" &&
-      (
-        payload.modalita === "S" ||
-        (
-          payload.modalita === "A" &&
-          payload.dataAssegno > giornataCorrente
-        )
-      );
+    const oraESospeso = payloadGeneraSospeso(
+      payload
+    );
      
     setMovimenti((rows) =>
       rows.map((row) => (row.id === editingMovement ? { ...row, ...payload } : row))
@@ -877,63 +944,42 @@ useEffect(() => {
         buildMovimentoUpdatePayload(payload, session)
       );
       
-        if (error) {
+      if (error) {
         console.error(error);
         alert("Movimento modificato localmente, ma non aggiornato su Supabase.");
       }
     }
 
  if (primaEraSospeso && !oraESospeso) {
-    const sospesoOriginale = sospesi.find(
-      (s) => s.id === movimentoOriginale?.sospesoId
+    await rimuoviSospesoAssociato(
+      movimentoOriginale
     );
-  
-    setSospesi((rows) =>
-      rows.filter((s) => s.id !== sospesoOriginale?.id)
-    );
-  
-    if (sospesoOriginale?.id) {
-      const { error } = await eliminaSospesoDb(sospesoOriginale.id);
-  
-      if (error) {
-        console.error(error);
-        alert("Sospeso rimosso localmente, ma non eliminato da Supabase.");
-      }
-    }
   }
-
+     
  if (!primaEraSospeso && oraESospeso) {
-  const nuovoSospeso = {
-    id: `sosp-${Date.now()}`,
-    referenteSospesi: payload.referenteSospesi,
-    referenteSospesiId: payload.referenteSospesiId,
-    contraente: payload.contraente,
-    ramo: payload.ramo,
-    polizza: payload.polizza,
-    importoOriginario: payload.importo,
-    recuperato: 0,
-    scontoApplicato: 0,
-    residuo: payload.importo,
-    stato: "Aperto",
-    dataSospeso: giornataCorrente,
-    note: payload.note,
-  };
+  const nuovoSospeso = creaNuovoSospesoDaPayload(payload);
 
   setSospesi((rows) => [nuovoSospeso, ...rows]);
 
    const { data: sospesoCreato, error } =
       await creaSospesoDb(
-        buildSospesoPayload(
-          nuovoSospeso,
-          giornataCorrente
-        )
+        buildSospesoPayload(nuovoSospeso)
       );
   
- if (sospesoCreato) {
-    movimentoDaSalvare = {
-      ...movimentoDaSalvare,
-      sospesoId: sospesoCreato.id,
-    };
+   if (sospesoCreato) {
+    setMovimenti((rows) =>
+      rows.map((row) =>
+        row.id === editingMovement
+          ? { ...row, sospesoId: sospesoCreato.id }
+          : row
+      )
+    );
+  
+    await aggiornaMovimentoDb(
+      editingMovement,
+      { sospeso_id: sospesoCreato.id }
+    );
+     
     const { data: storicoCreato, error: storicoError } =
       await creaStoricoSospesoDb({
         sospeso_id: sospesoCreato.id,
@@ -956,38 +1002,38 @@ useEffect(() => {
     }
   }
   
-    if (error) {
-      console.error(error);
-      alert("Sospeso creato localmente, ma non salvato su Supabase.");
-    }
-    if (payload.modalita === "S") {
-       const stampa = window.confirm(
-         "Vuoi stampare il modulo sospeso da far firmare al cliente?"
-       );
-    
-      if (stampa) {
-        stampaModuloSospeso({
-          id: `sosp-${Date.now()}`,
-          referenteSospesi: payload.referenteSospesi,
-          contraente: payload.contraente,
-          ramo: payload.ramo,
-          polizza: payload.polizza,
-          importoOriginario: payload.importo,
-          recuperato: 0,
-          scontoApplicato: 0,
-          residuo: payload.importo,
-          stato: "Aperto",
-          dataSospeso: giornataCorrente,
-          note: payload.note,
-        });
-      }
+  if (error) {
+    console.error(error);
+    alert("Sospeso creato localmente, ma non salvato su Supabase.");
+  }
+   
+  if (payload.modalita === "S") {
+      const stampa = window.confirm(
+      "Vuoi stampare il modulo sospeso da far firmare al cliente?"
+    );
+      
+    if (stampa) {
+      stampaModuloSospeso({
+        id: `sosp-${Date.now()}`,
+        referenteSospesi: payload.referenteSospesi,
+        contraente: payload.contraente,
+        ramo: payload.ramo,
+        polizza: payload.polizza,
+        importoOriginario: payload.importo,
+        recuperato: 0,
+        scontoApplicato: 0,
+        residuo: payload.importo,
+        stato: "Aperto",
+        dataSospeso: giornataCorrente,
+        note: payload.note,
+      });
     }
   }
+}
      
   if (primaEraSospeso && oraESospeso) {
-    const sospesoOriginale = sospesi.find(
-      (s) => s.id === movimentoOriginale?.sospesoId
-    );
+    const sospesoOriginale =
+      trovaSospesoOriginale(movimentoOriginale);
   
     setSospesi((rows) =>
       rows.map((s) =>
