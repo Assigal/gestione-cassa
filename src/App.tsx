@@ -1383,16 +1383,12 @@ useEffect(() => {
         setSospesi((rows) => [nuovoSospeso, ...rows]);
 
         if (giornataDbId) {
-          const { error } = await creaSospesoDb(
-            buildSospesoPayload(nuovoSospeso)
-        );
-    
-        if (error) {
-          console.error(error);
-          alert("Nuovo sospeso creato localmente, ma non salvato su Supabase.");
+          await salvaSospesoConStorico(
+            nuovoSospeso,
+            payload
+          );
         }
       }
-    }
 
     setSelectedSospesoIds([]);
  
