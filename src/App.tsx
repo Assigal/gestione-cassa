@@ -1010,6 +1010,29 @@ useEffect(() => {
       }
     }
   }
+
+  async function gestisciStampaAbbuono(
+    movimento: Movimento,
+    motivazioneContext: string = ""
+  ) {
+    if (movimento.sconto < sogliaStampaAbbuono) return;
+  
+    const stampa = window.confirm(
+      "Vuoi stampare il modulo abbuono provvigioni?"
+    );
+  
+    if (!stampa) return;
+  
+    const motivazione =
+      window.prompt("Inserisci la motivazione dell'abbuono") || motivazioneContext;
+  
+    stampaModuloAbbuono(
+      movimento,
+      motivazione,
+      giornataCorrente,
+      euro
+    );
+  }
   
   async function saveForm() {
     const importo = Number(form.importo || 0);
@@ -1067,47 +1090,31 @@ useEffect(() => {
       }
     }
 
- if (primaEraSospeso && !oraESospeso) {
-    await rimuoviSospesoAssociato(
-      movimentoOriginale
-    );
-  }
-     
-  if (!primaEraSospeso && oraESospeso) {
-    await creaSospesoAssociatoAMovimento(
-      editingMovement,
-      payload
-    );
-  }
-     
-  if (primaEraSospeso && oraESospeso) {
-    await aggiornaSospesoAssociato(
-    movimentoOriginale,
-    payload
-    );
-  }
-
-  if (payload.sconto >= sogliaStampaAbbuono) {
-    const stampa = window.confirm(
-      "Vuoi stampare il modulo abbuono provvigioni?"
-    );
-  
-    if (stampa) {
-      const motivazione =
-        window.prompt("Inserisci la motivazione dell'abbuono") || "";
-  
-      stampaModuloAbbuono(
-        {
-          id: editingMovement,
-          ...payload,
-          createdByEmail: session?.user?.email || "",
-        },
-        motivazione,
-        giornataCorrente,
-        euro
+   if (primaEraSospeso && !oraESospeso) {
+      await rimuoviSospesoAssociato(
+        movimentoOriginale
       );
     }
-  }
+       
+    if (!primaEraSospeso && oraESospeso) {
+      await creaSospesoAssociatoAMovimento(
+        editingMovement,
+        payload
+      );
+    }
+     
+    if (primaEraSospeso && oraESospeso) {
+      await aggiornaSospesoAssociato(
+      movimentoOriginale,
+      payload
+      );
+    }
+
+  await gestisciStampaAbbuono({
+    id: editingMovement,
+    ...payload,
+    createdByEmail: session?.user?.email || "",
+  });
   
   setEditingMovement(null);
   addAuditLog(`Modificato movimento ${payload.tipo} - polizza ${payload.polizza || "-"}`);
