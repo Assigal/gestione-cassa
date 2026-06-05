@@ -21,7 +21,7 @@ import { numeroPolizzaCompleto, descrizioneMovimento, isAssegnoPostdatato, isVer
 import { normalizzaModalitaPagamento } from "./importUtils";
 import { stampaModuloSospeso, stampaModuloAbbuono } from "./printUtils";
 import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePayload, buildSospesoPayload } from "./payloadBuilders";
-import { movimentoEraSospeso, importoMovimentoNonValido } from "./movementRules";
+import { movimentoEraSospeso, importoMovimentoNonValido, payloadGeneraSospeso } from "./movementRules";
 
 import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
 import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb } from "./services/movimentiService";
@@ -1373,7 +1373,7 @@ useEffect(() => {
     
     const storicoSospesiDaInserire: any[] = [];
 
-    if (payloadGeneraSospeso(payload)) {
+    if (payloadGeneraSospeso(payload, giornataCorrente)) {
       
       const nuovoSospeso =
         creaNuovoSospesoDaPayload(payload);
@@ -1415,7 +1415,7 @@ useEffect(() => {
     }
     if (movimentoERecuperoSospeso(payload)) {
       const recuperoDiventaNuovoSospeso =
-        payloadGeneraSospeso(payload);
+        payloadGeneraSospeso(payload, giornataCorrente);
      
       const { updatedSospesi, allocazioni } =
         applicaRecuperoSospesi(
