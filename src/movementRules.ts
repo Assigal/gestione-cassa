@@ -72,3 +72,24 @@ export function trovaMovimentoDuplicato(
     ) || null
   );
 }
+
+export function creaNuovoSospesoDaPayload(
+  payload: Movimento,
+  giornataCorrente: string
+): Sospeso {
+  return {
+    id: `sosp-${Date.now()}`,
+    referenteSospesi: payload.referenteSospesi,
+    referenteSospesiId: payload.referenteSospesiId,
+    contraente: payload.contraente,
+    ramo: payload.ramo,
+    polizza: payload.polizza,
+    importoOriginario: payload.importo,
+    recuperato: 0,
+    scontoApplicato: 0,
+    residuo: payload.importo,
+    stato: "Aperto",
+    dataSospeso: giornataCorrente,
+    note: payload.note,
+  };
+}
