@@ -1131,6 +1131,43 @@ useEffect(() => {
       ) || null
     );
   }
+
+  async function salvaSospesoConStorico(
+    nuovoSospeso: Sospeso,
+    payload: any
+  ) {
+    const { data: sospesoCreato, error } =
+      await creaSospesoDb(
+        buildSospesoPayload(nuovoSospeso)
+      );
+  
+    if (error) {
+      console.error(error);
+      alert("Sospeso salvato localmente, ma non salvato su Supabase.");
+      return null;
+    }
+  
+    if (!sospesoCreato) return null;
+  
+    const { error: storicoError } =
+      await creaStoricoSospesoDb({
+        sospeso_id: sospesoCreato.id,
+        tipo: "origine",
+        data_movimento: giornataCorrente,
+        importo: nuovoSospeso.importoOriginario,
+        modalita_pagamento: payload.modalita,
+        note: payload.note || null,
+        user_id: session?.user?.id || null,
+        user_email: session?.user?.email || null,
+      });
+  
+    if (storicoError) {
+      console.error(storicoError);
+      alert("Sospeso creato, ma storico origine non salvato: " + storicoError.message);
+    }
+  
+    return sospesoCreato;
+  }
   
   async function saveForm() {
     const importo = Number(form.importo || 0);
@@ -1188,23 +1225,10 @@ useEffect(() => {
 
     if (payloadGeneraSospeso(payload)) {
       
-      const tempId = `sosp-${Date.now()}`;
-    
-      const nuovoSospeso = {
-        id: tempId,
-        referenteSospesi: payload.referenteSospesi,
-        referenteSospesiId: payload.referenteSospesiId,
-        contraente: payload.contraente,
-        ramo: payload.ramo,
-        polizza: payload.polizza,
-        importoOriginario: payload.importo,
-        recuperato: 0,
-        scontoApplicato: 0,
-        residuo: payload.importo,
-        stato: "Aperto",
-        dataSospeso: giornataCorrente,
-        note: payload.note,
-      };
+      const nuovoSospeso =
+        creaNuovoSospesoDaPayload(payload);
+      
+      const tempId = nuovoSospeso.id;
     
       setSospesi((rows) => [nuovoSospeso, ...rows]);
 
