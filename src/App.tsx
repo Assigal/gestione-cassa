@@ -21,7 +21,8 @@ import { numeroPolizzaCompleto, descrizioneMovimento, isAssegnoPostdatato, isVer
 import { normalizzaModalitaPagamento } from "./importUtils";
 import { stampaModuloSospeso, stampaModuloAbbuono } from "./printUtils";
 import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePayload, buildSospesoPayload } from "./payloadBuilders";
-import { movimentoEraSospeso, importoMovimentoNonValido, payloadGeneraSospeso, movimentoERecuperoSospeso, trovaMovimentoDuplicato, creaNuovoSospesoDaPayload } from "./movementRules";
+import { movimentoEraSospeso, importoMovimentoNonValido, payloadGeneraSospeso, movimentoERecuperoSospeso, trovaMovimentoDuplicato,
+        creaNuovoSospesoDaPayload, creaMovimentoDaPayload } from "./movementRules";
 
 import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
 import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb } from "./services/movimentiService";
@@ -1072,14 +1073,6 @@ useEffect(() => {
     resetForm();
   }
 
-  function creaMovimentoDaPayload(payload: any): Movimento {
-    return {
-      id: Date.now(),
-      ...payload,
-      createdByEmail: session?.user?.email || "",
-    };
-  }
-
   async function salvaSospesoConStorico(
     nuovoSospeso: Sospeso,
     payload: any
@@ -1308,8 +1301,11 @@ useEffect(() => {
       return;
     }
 
-    let movimentoDaSalvare =
-      creaMovimentoDaPayload(payload);
+   let movimentoDaSalvare =
+     creaMovimentoDaPayload(
+       payload,
+       session?.user?.email || ""
+     );
     
    const duplicato = trovaMovimentoDuplicato(
       payload,
