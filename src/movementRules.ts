@@ -93,3 +93,14 @@ export function creaNuovoSospesoDaPayload(
     note: payload.note,
   };
 }
+
+export function creaMovimentoDaPayload(
+  payload: any,
+  createdByEmail: string
+): Movimento {
+  return {
+    id: Date.now(),
+    ...payload,
+    createdByEmail,
+  };
+}
