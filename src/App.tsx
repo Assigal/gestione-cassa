@@ -1192,6 +1192,67 @@ useEffect(() => {
   
     return { updatedSospesi, allocazioni };
   }
+
+  async function aggiornaSospesiRecuperati(
+    updatedSospesi: Sospeso[],
+    allocazioni: AllocazioneRecupero[],
+    payload: any,
+    storicoSospesiDaInserire: any[]
+  ) {
+    if (!giornataDbId) return;
+  
+    for (const sospesoId of selectedSospesoIds) {
+      const sospesoAggiornato =
+        updatedSospesi.find((s) => s.id === sospesoId);
+  
+      const allocazione =
+        allocazioni.find((a) => a.sospesoId === sospesoId);
+  
+      if (!sospesoAggiornato) continue;
+  
+      const { error } = await aggiornaSospesoDb(
+        sospesoId,
+        {
+          recuperato: sospesoAggiornato.recuperato,
+          sconto_applicato: sospesoAggiornato.scontoApplicato,
+          residuo: sospesoAggiornato.residuo,
+          stato: sospesoAggiornato.stato,
+          note: sospesoAggiornato.note || null,
+        }
+      );
+  
+      if (error) {
+        console.error(error);
+        alert("Recupero aggiornato localmente, ma non salvato su Supabase.");
+      }
+  
+      if (allocazione?.incasso) {
+        storicoSospesiDaInserire.push({
+          sospeso_id: sospesoId,
+          tipo: "recupero",
+          data_movimento: giornataCorrente,
+          importo: allocazione.incasso,
+          modalita_pagamento: payload.modalita,
+          note: payload.note || null,
+          user_id: session?.user?.id || null,
+          user_email: session?.user?.email || null,
+        });
+      }
+  
+      if (allocazione?.sconto) {
+        storicoSospesiDaInserire.push({
+          sospeso_id: sospesoId,
+          tipo: "sconto",
+          data_movimento: giornataCorrente,
+          importo: allocazione.sconto,
+          modalita_pagamento: payload.modalita,
+          note: payload.note || "Sconto applicato su recupero sospeso",
+          user_id: session?.user?.id || null,
+          user_email: session?.user?.email || null,
+        });
+      }
+    }
+  }
   
   async function saveForm() {
     const importo = Number(form.importo || 0);
@@ -1302,56 +1363,12 @@ useEffect(() => {
       allocazioniRecupero: allocazioni,
     };
 
-  if (giornataDbId) {
-    for (const sospesoId of selectedSospesoIds) {
-      const sospesoAggiornato = updatedSospesi.find((s) => s.id === sospesoId);
-      const allocazione = allocazioni.find((a) => a.sospesoId === sospesoId);
-
-      if (sospesoAggiornato) {
-        const { error } = await aggiornaSospesoDb(
-          sospesoId,
-          {
-            recuperato: sospesoAggiornato.recuperato,
-            sconto_applicato: sospesoAggiornato.scontoApplicato,
-            residuo: sospesoAggiornato.residuo,
-            stato: sospesoAggiornato.stato,
-            note: sospesoAggiornato.note || null,
-          }
-        );
-
-        if (error) {
-          console.error(error);
-          alert("Recupero aggiornato localmente, ma non salvato su Supabase.");
-        }
-
-        if (allocazione?.incasso) {
-          storicoSospesiDaInserire.push({
-            sospeso_id: sospesoId,
-            tipo: "recupero",
-            data_movimento: giornataCorrente,
-            importo: allocazione.incasso,
-            modalita_pagamento: payload.modalita,
-            note: payload.note || null,
-            user_id: session?.user?.id || null,
-            user_email: session?.user?.email || null,
-          });
-        }
-        
-        if (allocazione?.sconto) {
-          storicoSospesiDaInserire.push({
-            sospeso_id: sospesoId,
-            tipo: "sconto",
-            data_movimento: giornataCorrente,
-            importo: allocazione.sconto,
-            modalita_pagamento: payload.modalita,
-            note: payload.note || "Sconto applicato su recupero sospeso",
-            user_id: session?.user?.id || null,
-            user_email: session?.user?.email || null,
-          });
-        }
-      }
-    }
-  }
+  await aggiornaSospesiRecuperati(
+    updatedSospesi,
+    allocazioni,
+    payload,
+    storicoSospesiDaInserire
+  );
 
   if (recuperoDiventaNuovoSospeso) {
     const nuovoSospeso = {
