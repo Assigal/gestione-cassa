@@ -21,7 +21,7 @@ import { numeroPolizzaCompleto, descrizioneMovimento, isAssegnoPostdatato, isVer
 import { normalizzaModalitaPagamento } from "./importUtils";
 import { stampaModuloSospeso, stampaModuloAbbuono } from "./printUtils";
 import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePayload, buildSospesoPayload } from "./payloadBuilders";
-import { movimentoEraSospeso, importoMovimentoNonValido, payloadGeneraSospeso, movimentoERecuperoSospeso } from "./movementRules";
+import { movimentoEraSospeso, importoMovimentoNonValido, payloadGeneraSospeso, movimentoERecuperoSospeso, trovaMovimentoDuplicato } from "./movementRules";
 
 import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
 import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb } from "./services/movimentiService";
@@ -1098,29 +1098,6 @@ useEffect(() => {
     };
   }
 
-  function trovaMovimentoDuplicato(
-    payload: any,
-    editingMovement: number | null
-  ) {
-    if (
-      payload.tipo !== "Titolo del giorno" ||
-      !payload.polizza ||
-      payload.importo <= 0
-    ) {
-      return null;
-    }
-  
-    return (
-      movimenti.find(
-        (m) =>
-          m.tipo === "Titolo del giorno" &&
-          m.polizza?.trim() === payload.polizza?.trim() &&
-          Number(m.importo) === Number(payload.importo) &&
-          m.id !== editingMovement
-      ) || null
-    );
-  }
-
   async function salvaSospesoConStorico(
     nuovoSospeso: Sospeso,
     payload: any
@@ -1352,9 +1329,10 @@ useEffect(() => {
     let movimentoDaSalvare =
       creaMovimentoDaPayload(payload);
     
-    const duplicato = trovaMovimentoDuplicato(
+   const duplicato = trovaMovimentoDuplicato(
       payload,
-      editingMovement
+      editingMovement,
+      movimenti
     );
     
     if (duplicato) {
