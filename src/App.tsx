@@ -941,7 +941,76 @@ useEffect(() => {
       }
     }
   }
-      
+
+  async function creaSospesoAssociatoAMovimento(
+    movimentoId: number,
+    payload: Movimento
+  ) {
+    const nuovoSospeso =
+      creaNuovoSospesoDaPayload(payload);
+  
+    setSospesi((rows) => [nuovoSospeso, ...rows]);
+  
+    const { data: sospesoCreato, error } =
+      await creaSospesoDb(
+        buildSospesoPayload(nuovoSospeso)
+      );
+  
+    if (error) {
+      console.error(error);
+      alert("Sospeso creato localmente, ma non salvato su Supabase.");
+      return;
+    }
+  
+    if (!sospesoCreato) return;
+  
+    setMovimenti((rows) =>
+      rows.map((row) =>
+        row.id === movimentoId
+          ? { ...row, sospesoId: sospesoCreato.id }
+          : row
+      )
+    );
+  
+    await aggiornaMovimentoDb(
+      movimentoId,
+      { sospeso_id: sospesoCreato.id }
+    );
+  
+    const { error: storicoError } =
+      await creaStoricoSospesoDb({
+        sospeso_id: sospesoCreato.id,
+        tipo: "origine",
+        data_movimento: giornataCorrente,
+        importo: nuovoSospeso.importoOriginario,
+        modalita_pagamento: payload.modalita,
+        note: payload.note || null,
+        user_id: session?.user?.id || null,
+        user_email: session?.user?.email || null,
+      });
+  
+    if (storicoError) {
+      console.error(storicoError);
+      alert("Sospeso creato, ma storico origine non salvato: " + storicoError.message);
+    }
+  
+    if (payload.modalita === "S") {
+      const stampa = window.confirm(
+        "Vuoi stampare il modulo sospeso da far firmare al cliente?"
+      );
+  
+      if (stampa) {
+        stampaModuloSospeso(
+          {
+            ...nuovoSospeso,
+            id: sospesoCreato.id,
+          },
+          euro
+        );
+      }
+    }
+  }
+  
   async function saveForm() {
     const importo = Number(form.importo || 0);
     if (!form.importo || importo === 0) {
@@ -1004,80 +1073,12 @@ useEffect(() => {
     );
   }
      
- if (!primaEraSospeso && oraESospeso) {
-  const nuovoSospeso = creaNuovoSospesoDaPayload(payload);
-
-  setSospesi((rows) => [nuovoSospeso, ...rows]);
-
-   const { data: sospesoCreato, error } =
-      await creaSospesoDb(
-        buildSospesoPayload(nuovoSospeso)
-      );
-  
-   if (sospesoCreato) {
-    setMovimenti((rows) =>
-      rows.map((row) =>
-        row.id === editingMovement
-          ? { ...row, sospesoId: sospesoCreato.id }
-          : row
-      )
-    );
-  
-    await aggiornaMovimentoDb(
+  if (!primaEraSospeso && oraESospeso) {
+    await creaSospesoAssociatoAMovimento(
       editingMovement,
-      { sospeso_id: sospesoCreato.id }
+      payload
     );
-     
-    const { data: storicoCreato, error: storicoError } =
-      await creaStoricoSospesoDb({
-        sospeso_id: sospesoCreato.id,
-        tipo: "origine",
-        data_movimento: giornataCorrente,
-        importo: nuovoSospeso.importoOriginario,
-        modalita_pagamento: payload.modalita,
-        note: payload.note || null,
-        user_id: session?.user?.id || null,
-        user_email: session?.user?.email || null,
-      });
-  
-    if (storicoCreato?.id) {
-      storicoSospesiDaCollegare.push(storicoCreato.id);
-    }
-  
-    if (storicoError) {
-      console.error(storicoError);
-      alert("Sospeso creato, ma storico origine non salvato: " + storicoError.message);
-    }
   }
-  
-  if (error) {
-    console.error(error);
-    alert("Sospeso creato localmente, ma non salvato su Supabase.");
-  }
-   
-  if (payload.modalita === "S") {
-      const stampa = window.confirm(
-      "Vuoi stampare il modulo sospeso da far firmare al cliente?"
-    );
-      
-    if (stampa) {
-      stampaModuloSospeso({
-        id: `sosp-${Date.now()}`,
-        referenteSospesi: payload.referenteSospesi,
-        contraente: payload.contraente,
-        ramo: payload.ramo,
-        polizza: payload.polizza,
-        importoOriginario: payload.importo,
-        recuperato: 0,
-        scontoApplicato: 0,
-        residuo: payload.importo,
-        stato: "Aperto",
-        dataSospeso: giornataCorrente,
-        note: payload.note,
-      });
-    }
-  }
-}
      
   if (primaEraSospeso && oraESospeso) {
     await aggiornaSospesoAssociato(
