@@ -1100,6 +1100,14 @@ useEffect(() => {
     );
     resetForm();
   }
+
+  function creaMovimentoDaPayload(payload: any): Movimento {
+    return {
+      id: Date.now(),
+      ...payload,
+      createdByEmail: session?.user?.email || "",
+    };
+  }
   
   async function saveForm() {
     const importo = Number(form.importo || 0);
@@ -1138,31 +1146,29 @@ useEffect(() => {
       return;
     }
 
-    let movimentoDaSalvare: Movimento = {
-      id: Date.now(),
-      ...payload,
-      createdByEmail: session?.user?.email || "",
-    };
+    let movimentoDaSalvare =
+      creaMovimentoDaPayload(payload);
+    
     if (
       payload.tipo === "Titolo del giorno" &&
       payload.polizza &&
       payload.importo > 0
     ) {
-      const duplicato = movimenti.find(
-        (m) =>
-          m.tipo === "Titolo del giorno" &&
-          m.polizza?.trim() === payload.polizza?.trim() &&
-          Number(m.importo) === Number(payload.importo) &&
-          m.id !== editingMovement
-      );
-    
-      if (duplicato) {
-        alert(
-          `ATTENZIONE: esiste già un titolo con stessa polizza e stesso importo.\n\nPolizza: ${payload.polizza}\nImporto: € ${payload.importo}`
+        const duplicato = movimenti.find(
+          (m) =>
+            m.tipo === "Titolo del giorno" &&
+            m.polizza?.trim() === payload.polizza?.trim() &&
+            Number(m.importo) === Number(payload.importo) &&
+            m.id !== editingMovement
         );
-        return;
+      
+        if (duplicato) {
+          alert(
+            `ATTENZIONE: esiste già un titolo con stessa polizza e stesso importo.\n\nPolizza: ${payload.polizza}\nImporto: € ${payload.importo}`
+          );
+          return;
+        }
       }
-    }
     const storicoSospesiDaCollegare: string[] = [];
     const storicoSospesiDaInserire: any[] = [];
 
