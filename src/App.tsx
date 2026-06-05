@@ -1033,6 +1033,73 @@ useEffect(() => {
       euro
     );
   }
+
+  async function gestisciModificaMovimento(
+    editingMovement: number,
+    payload: any
+  ) {
+    const movimentoOriginale = movimenti.find(
+      (row) => row.id === editingMovement
+    );
+  
+    const primaEraSospeso = movimentoEraSospeso(
+      movimentoOriginale
+    );
+  
+    const oraESospeso = payloadGeneraSospeso(
+      payload
+    );
+  
+    setMovimenti((rows) =>
+      rows.map((row) =>
+        row.id === editingMovement
+          ? { ...row, ...payload }
+          : row
+      )
+    );
+  
+    if (giornataDbId) {
+      const { error } = await aggiornaMovimentoDb(
+        editingMovement,
+        buildMovimentoUpdatePayload(payload, session)
+      );
+  
+      if (error) {
+        console.error(error);
+        alert("Movimento modificato localmente, ma non aggiornato su Supabase.");
+      }
+    }
+  
+    if (primaEraSospeso && !oraESospeso) {
+      await rimuoviSospesoAssociato(movimentoOriginale);
+    }
+  
+    if (!primaEraSospeso && oraESospeso) {
+      await creaSospesoAssociatoAMovimento(
+        editingMovement,
+        payload
+      );
+    }
+  
+    if (primaEraSospeso && oraESospeso) {
+      await aggiornaSospesoAssociato(
+        movimentoOriginale,
+        payload
+      );
+    }
+  
+    await gestisciStampaAbbuono({
+      id: editingMovement,
+      ...payload,
+      createdByEmail: session?.user?.email || "",
+    });
+  
+    setEditingMovement(null);
+    addAuditLog(
+      `Modificato movimento ${payload.tipo} - polizza ${payload.polizza || "-"}`
+    );
+    resetForm();
+  }
   
   async function saveForm() {
     const importo = Number(form.importo || 0);
@@ -1064,63 +1131,12 @@ useEffect(() => {
     };
 
     if (editingMovement) {
-      const movimentoOriginale = movimenti.find((row) => row.id === editingMovement);
-  
-      const primaEraSospeso = movimentoEraSospeso(
-        movimentoOriginale
-      );
-      
-      const oraESospeso = payloadGeneraSospeso(
+      await gestisciModificaMovimento(
+        editingMovement,
         payload
       );
-       
-      setMovimenti((rows) =>
-        rows.map((row) => (row.id === editingMovement ? { ...row, ...payload } : row))
-      );
-  
-      if (giornataDbId) {
-        const { error } = await aggiornaMovimentoDb(
-          editingMovement,
-          buildMovimentoUpdatePayload(payload, session)
-        );
-        
-        if (error) {
-          console.error(error);
-          alert("Movimento modificato localmente, ma non aggiornato su Supabase.");
-        }
-      }
-  
-     if (primaEraSospeso && !oraESospeso) {
-        await rimuoviSospesoAssociato(
-          movimentoOriginale
-        );
-      }
-         
-      if (!primaEraSospeso && oraESospeso) {
-        await creaSospesoAssociatoAMovimento(
-          editingMovement,
-          payload
-        );
-      }
-       
-      if (primaEraSospeso && oraESospeso) {
-        await aggiornaSospesoAssociato(
-        movimentoOriginale,
-        payload
-        );
-      }
-  
-    await gestisciStampaAbbuono({
-      id: editingMovement,
-      ...payload,
-      createdByEmail: session?.user?.email || "",
-    });
-    
-    setEditingMovement(null);
-    addAuditLog(`Modificato movimento ${payload.tipo} - polizza ${payload.polizza || "-"}`);
-    resetForm();
-    return;
-  }
+      return;
+    }
 
     let movimentoDaSalvare: Movimento = {
       id: Date.now(),
