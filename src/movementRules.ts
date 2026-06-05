@@ -22,3 +22,19 @@ export function importoMovimentoNonValido(form: FormState): boolean {
   const importo = Number(form.importo || 0);
   return !form.importo || importo === 0;
 }
+
+export function payloadGeneraSospeso(
+  payload: any,
+  giornataCorrente: string
+): boolean {
+  return (
+    payload.tipo === "Titolo del giorno" &&
+    (
+      payload.modalita === "S" ||
+      (
+        payload.modalita === "A" &&
+        payload.dataAssegno > giornataCorrente
+      )
+    )
+  );
+}
