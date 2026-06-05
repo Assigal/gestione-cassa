@@ -48,3 +48,27 @@ export function movimentoERecuperoSospeso(
     haSospesiSelezionati
   );
 }
+
+export function trovaMovimentoDuplicato(
+  payload: any,
+  editingMovement: number | null,
+  movimenti: Movimento[]
+): Movimento | null {
+  if (
+    payload.tipo !== "Titolo del giorno" ||
+    !payload.polizza ||
+    payload.importo <= 0
+  ) {
+    return null;
+  }
+
+  return (
+    movimenti.find(
+      (m) =>
+        m.tipo === "Titolo del giorno" &&
+        m.polizza?.trim() === payload.polizza?.trim() &&
+        Number(m.importo) === Number(payload.importo) &&
+        m.id !== editingMovement
+    ) || null
+  );
+}
