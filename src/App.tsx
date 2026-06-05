@@ -21,7 +21,7 @@ import { numeroPolizzaCompleto, descrizioneMovimento, isAssegnoPostdatato, isVer
 import { normalizzaModalitaPagamento } from "./importUtils";
 import { stampaModuloSospeso, stampaModuloAbbuono } from "./printUtils";
 import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePayload, buildSospesoPayload } from "./payloadBuilders";
-import { movimentoEraSospeso } from "./movementRules";
+import { movimentoEraSospeso, importoMovimentoNonValido } from "./movementRules";
 
 import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
 import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb } from "./services/movimentiService";
@@ -1321,8 +1321,7 @@ useEffect(() => {
   }
   
   async function saveForm() {
-    const importo = Number(form.importo || 0);
-    if (!form.importo || importo === 0) {
+    if (importoMovimentoNonValido(form)) {
       alert("Inserire un importo valido diverso da zero.");
       return;
     }
