@@ -23,6 +23,7 @@ export function importoMovimentoNonValido(form: FormState): boolean {
   return !form.importo || importo === 0;
 }
 
+
 export function payloadGeneraSospeso(
   payload: any,
   giornataCorrente: string
