@@ -1337,6 +1337,7 @@ useEffect(() => {
           };
         }
       }
+      
       if (payload.modalita === "S") {
         const stampa = window.confirm(
           "Vuoi stampare il modulo sospeso da far firmare al cliente?"
@@ -1347,141 +1348,125 @@ useEffect(() => {
         }
       }
     }
-  if (movimentoERecuperoSospeso(payload)) {
-    const recuperoDiventaNuovoSospeso =
-      payloadGeneraSospeso(payload);
+    if (movimentoERecuperoSospeso(payload)) {
+      const recuperoDiventaNuovoSospeso =
+        payloadGeneraSospeso(payload);
      
-    const { updatedSospesi, allocazioni } =
-      applicaRecuperoSospesi(
-        netto,
-        sconto,
-        payload.note
+      const { updatedSospesi, allocazioni } =
+        applicaRecuperoSospesi(
+          netto,
+          sconto,
+          payload.note
+        );
+      
+      movimentoDaSalvare = {
+        ...movimentoDaSalvare,
+        allocazioniRecupero: allocazioni,
+      };
+  
+      await aggiornaSospesiRecuperati(
+        updatedSospesi,
+        allocazioni,
+        payload,
+        storicoSospesiDaInserire
       );
+  
+      if (recuperoDiventaNuovoSospeso) {
+        const nuovoSospeso = {
+          id: `sosp-${Date.now()}`,
+          referenteSospesi: payload.referenteSospesi,
+          referenteSospesiId: payload.referenteSospesiId,
+          contraente: payload.contraente,
+          ramo: payload.ramo,
+          polizza: payload.polizza,
+          importoOriginario: payload.importo,
+          recuperato: 0,
+          scontoApplicato: 0,
+          residuo: payload.importo,
+          stato: "Aperto",
+          dataSospeso: giornataCorrente,
+          note: payload.note || "Recupero sospeso con pagamento non incassabile",
+        };
+  
+        setSospesi((rows) => [nuovoSospeso, ...rows]);
+
+        if (giornataDbId) {
+          const { error } = await creaSospesoDb(
+            buildSospesoPayload(nuovoSospeso)
+        );
     
-    movimentoDaSalvare = {
-      ...movimentoDaSalvare,
-      allocazioniRecupero: allocazioni,
-    };
-
-  await aggiornaSospesiRecuperati(
-    updatedSospesi,
-    allocazioni,
-    payload,
-    storicoSospesiDaInserire
-  );
-
-  if (recuperoDiventaNuovoSospeso) {
-    const nuovoSospeso = {
-      id: `sosp-${Date.now()}`,
-      referenteSospesi: payload.referenteSospesi,
-      referenteSospesiId: payload.referenteSospesiId,
-      contraente: payload.contraente,
-      ramo: payload.ramo,
-      polizza: payload.polizza,
-      importoOriginario: payload.importo,
-      recuperato: 0,
-      scontoApplicato: 0,
-      residuo: payload.importo,
-      stato: "Aperto",
-      dataSospeso: giornataCorrente,
-      note: payload.note || "Recupero sospeso con pagamento non incassabile",
-    };
-
-    setSospesi((rows) => [nuovoSospeso, ...rows]);
-
-    if (giornataDbId) {
-      const { error } = await creaSospesoDb(
-        buildSospesoPayload(nuovoSospeso)
-      );
-    
-      if (error) {
-        console.error(error);
-        alert("Nuovo sospeso creato localmente, ma non salvato su Supabase.");
+        if (error) {
+          console.error(error);
+          alert("Nuovo sospeso creato localmente, ma non salvato su Supabase.");
+        }
       }
     }
-  }
 
-  setSelectedSospesoIds([]);
+    setSelectedSospesoIds([]);
  
-}
-    setMovimenti((rows) => [movimentoDaSalvare, ...rows]);
+  }
+  setMovimenti((rows) => [movimentoDaSalvare, ...rows]);
     
-    if (giornataDbId) {
-      const { data: movimentoCreato, error } = await salvaMovimentoDb(
-        buildMovimentoPayload(
-          movimentoDaSalvare,
-          giornataDbId,
-          session
-        )
-      );
+  if (giornataDbId) {
+    const { data: movimentoCreato, error } = await salvaMovimentoDb(
+      buildMovimentoPayload(
+      movimentoDaSalvare,
+      giornataDbId,
+      session
+      )
+    );
 
     if (error) {
       console.error(error);
       alert("Movimento salvato localmente, ma non salvato su Supabase: " + error.message);
     }
-        
+          
     if (movimentoCreato) {
-       movimentoDaSalvare.id = movimentoCreato.id;
+      movimentoDaSalvare.id = movimentoCreato.id;
     }
-        
+          
     if (movimentoCreato?.id && storicoSospesiDaInserire.length > 0) {
       const { error: storicoRecuperiError } =
         await creaStoricoSospesiBulkDb(
           storicoSospesiDaInserire.map((row) => ({
-            ...row,
-            movimento_cassa_id: movimentoCreato.id,
+          ...row,
+          movimento_cassa_id: movimentoCreato.id,
           }))
         );
-    
+      
       if (storicoRecuperiError) {
         console.error(storicoRecuperiError);
-        alert("Movimento salvato, ma storico recuperi/sconti non salvato.");
+          alert("Movimento salvato, ma storico recuperi/sconti non salvato.");
       }
-  }
+    }  
      
-if (movimentoCreato?.id && payload.tipo === "Titolo del giorno") {
-    const { error: linkStoricoError } =
-      await collegaStoricoOrigineAMovimentoDb(
-        movimentoCreato.id,
-        giornataCorrente,
-        payload.importo
-      );
-  
-    if (linkStoricoError) {
-      console.error(linkStoricoError);
-      alert("Movimento salvato, ma storico sospesi non collegato al movimento.");
-    }
-  }
-}
-    if (payload.sconto >= sogliaStampaAbbuono) {
-      const stampa = window.confirm(
-        "Vuoi stampare il modulo abbuono provvigioni?"
-      );
-    
-      if (stampa) {
-        const motivazione =
-          window.prompt("Inserisci la motivazione dell'abbuono") || "";
-    
-        stampaModuloAbbuono(
-          {
-            ...movimentoDaSalvare,
-            createdByEmail: session?.user?.email || "",
-          },
-          motivazione,
+    if (movimentoCreato?.id && payload.tipo === "Titolo del giorno") {
+      const { error: linkStoricoError } =
+        await collegaStoricoOrigineAMovimentoDb(
+          movimentoCreato.id,
           giornataCorrente,
-          euro
+          payload.importo
         );
+      
+      if (linkStoricoError) {
+        console.error(linkStoricoError);
+          alert("Movimento salvato, ma storico sospesi non collegato al movimento.");
       }
     }
+  }
+  await gestisciStampaAbbuono({
+    ...movimentoDaSalvare,
+    createdByEmail: session?.user?.email || "",
+  });
 
-    addAuditLog(`Inserito movimento ${payload.tipo} - polizza ${payload.polizza || "-"} - importo ${euro(payload.importo)}`);
-      if (selectedImport) {
+  addAuditLog(`Inserito movimento ${payload.tipo} - polizza ${payload.polizza || "-"} - importo ${euro(payload.importo)}`);
+    if (selectedImport) {
         setImportCompagnia((rows) => rows.filter((row) => row.id !== selectedImport));
         setSelectedImport(null);
-      }
+}
   
       resetForm();
-    }
+ }
 
  async function bloccaQuadraturaMezza() {
   const cassaReale = Number(quadMezza.cassaReale || 0);
