@@ -1,4 +1,4 @@
-import type { Movimento, AllocazioneRecupero } from "./types";
+import type { Movimento, AllocazioneRecupero, AllocazioneRecupero } from "./types";
 
 export function movimentoEraSospeso(
   movimento: Movimento | undefined,
