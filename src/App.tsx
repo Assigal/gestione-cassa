@@ -1169,6 +1169,13 @@ useEffect(() => {
     return sospesoCreato;
   }
   
+  function movimentoERecuperoSospeso(payload: any) {
+    return (
+      payload.tipo === "Recupero sospeso" &&
+      selectedSospesoIds.length > 0
+    );
+  }
+  
   async function saveForm() {
     const importo = Number(form.importo || 0);
     if (!form.importo || importo === 0) {
@@ -1262,13 +1269,9 @@ useEffect(() => {
         }
       }
     }
-   if (payload.tipo === "Recupero sospeso" && selectedSospesoIds.length) {
+  if (movimentoERecuperoSospeso(payload)) {
     const recuperoDiventaNuovoSospeso =
-      payload.modalita === "S" ||
-      (
-        payload.modalita === "A" &&
-        payload.dataAssegno > giornataCorrente
-      );
+      payloadGeneraSospeso(payload);
      
   const { updatedSospesi, allocazioni } = applyRecuperoToSospesi(
     netto,
