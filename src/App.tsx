@@ -1406,7 +1406,12 @@ useEffect(() => {
         }
       }
     }
-    if (movimentoERecuperoSospeso(payload, selectedSospesoIds)) {
+    if (
+      movimentoERecuperoSospeso(
+        payload,
+        selectedSospesoIds.length > 0
+      )
+    ) {
       const recuperoDiventaNuovoSospeso =
         payloadGeneraSospeso(payload, giornataCorrente);
      
