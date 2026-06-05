@@ -21,7 +21,7 @@ import { numeroPolizzaCompleto, descrizioneMovimento, isAssegnoPostdatato, isVer
 import { normalizzaModalitaPagamento } from "./importUtils";
 import { stampaModuloSospeso, stampaModuloAbbuono } from "./printUtils";
 import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePayload, buildSospesoPayload } from "./payloadBuilders";
-import { movimentoEraSospeso, importoMovimentoNonValido, payloadGeneraSospeso, movimentoERecuperoSospeso, trovaMovimentoDuplicato } from "./movementRules";
+import { movimentoEraSospeso, importoMovimentoNonValido, payloadGeneraSospeso, movimentoERecuperoSospeso, trovaMovimentoDuplicato, creaNuovoSospesoDaPayload } from "./movementRules";
 
 import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
 import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb } from "./services/movimentiService";
@@ -828,24 +828,6 @@ useEffect(() => {
     );
   }
 
-  function creaNuovoSospesoDaPayload(payload: Movimento) {
-    return {
-      id: `sosp-${Date.now()}`,
-      referenteSospesi: payload.referenteSospesi,
-      referenteSospesiId: payload.referenteSospesiId,
-      contraente: payload.contraente,
-      ramo: payload.ramo,
-      polizza: payload.polizza,
-      importoOriginario: payload.importo,
-      recuperato: 0,
-      scontoApplicato: 0,
-      residuo: payload.importo,
-      stato: "Aperto",
-      dataSospeso: giornataCorrente,
-      note: payload.note,
-    };
-  }
-
   function trovaSospesoOriginale(
       movimento?: Movimento
     ) {
@@ -934,7 +916,7 @@ useEffect(() => {
     payload: Movimento
   ) {
     const nuovoSospeso =
-      creaNuovoSospesoDaPayload(payload);
+      creaNuovoSospesoDaPayload(payload, giornataCorrente);
   
     setSospesi((rows) => [nuovoSospeso, ...rows]);
   
@@ -1414,12 +1396,15 @@ useEffect(() => {
   
       if (recuperoDiventaNuovoSospeso) {
         const nuovoSospeso =
-          creaNuovoSospesoDaPayload({
-            ...payload,
-            note:
-              payload.note ||
-              "Recupero sospeso con pagamento non incassabile",
-          });
+          creaNuovoSospesoDaPayload(
+            {
+              ...payload,
+              note:
+                payload.note ||
+                "Recupero sospeso con pagamento non incassabile",
+            },
+            giornataCorrente
+          );
   
         setSospesi((rows) => [nuovoSospeso, ...rows]);
 
