@@ -23,7 +23,6 @@ export function importoMovimentoNonValido(form: FormState): boolean {
   return !form.importo || importo === 0;
 }
 
-
 export function payloadGeneraSospeso(
   payload: any,
   giornataCorrente: string
@@ -37,5 +36,15 @@ export function payloadGeneraSospeso(
         payload.dataAssegno > giornataCorrente
       )
     )
+  );
+}
+
+export function movimentoERecuperoSospeso(
+  payload: any,
+  selectedSospesoIds: string[]
+): boolean {
+  return (
+    payload.tipo === "Recupero sospeso" &&
+    selectedSospesoIds.length > 0
   );
 }
