@@ -1372,21 +1372,13 @@ useEffect(() => {
       );
   
       if (recuperoDiventaNuovoSospeso) {
-        const nuovoSospeso = {
-          id: `sosp-${Date.now()}`,
-          referenteSospesi: payload.referenteSospesi,
-          referenteSospesiId: payload.referenteSospesiId,
-          contraente: payload.contraente,
-          ramo: payload.ramo,
-          polizza: payload.polizza,
-          importoOriginario: payload.importo,
-          recuperato: 0,
-          scontoApplicato: 0,
-          residuo: payload.importo,
-          stato: "Aperto",
-          dataSospeso: giornataCorrente,
-          note: payload.note || "Recupero sospeso con pagamento non incassabile",
-        };
+        const nuovoSospeso =
+          creaNuovoSospesoDaPayload({
+            ...payload,
+            note:
+              payload.note ||
+              "Recupero sospeso con pagamento non incassabile",
+          });
   
         setSospesi((rows) => [nuovoSospeso, ...rows]);
 
