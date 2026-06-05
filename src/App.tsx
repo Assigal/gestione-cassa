@@ -1253,6 +1253,83 @@ useEffect(() => {
       }
     }
   }
+
+  async function salvaMovimentoFinale(
+    movimentoDaSalvare: Movimento,
+    payload: any,
+    storicoSospesiDaInserire: any[]
+  ) {
+    setMovimenti((rows) => [
+      movimentoDaSalvare,
+      ...rows,
+    ]);
+  
+    if (!giornataDbId) {
+      return movimentoDaSalvare;
+    }
+  
+    const { data: movimentoCreato, error } =
+      await salvaMovimentoDb(
+        buildMovimentoPayload(
+          movimentoDaSalvare,
+          giornataDbId,
+          session
+        )
+      );
+  
+    if (error) {
+      console.error(error);
+      alert(
+        "Movimento salvato localmente, ma non salvato su Supabase: " +
+          error.message
+      );
+    }
+  
+    if (movimentoCreato) {
+      movimentoDaSalvare.id = movimentoCreato.id;
+    }
+  
+    if (
+      movimentoCreato?.id &&
+      storicoSospesiDaInserire.length > 0
+    ) {
+      const { error: storicoRecuperiError } =
+        await creaStoricoSospesiBulkDb(
+          storicoSospesiDaInserire.map((row) => ({
+            ...row,
+            movimento_cassa_id: movimentoCreato.id,
+          }))
+        );
+  
+      if (storicoRecuperiError) {
+        console.error(storicoRecuperiError);
+        alert(
+          "Movimento salvato, ma storico recuperi/sconti non salvato."
+        );
+      }
+    }
+  
+    if (
+      movimentoCreato?.id &&
+      payload.tipo === "Titolo del giorno"
+    ) {
+      const { error: linkStoricoError } =
+        await collegaStoricoOrigineAMovimentoDb(
+          movimentoCreato.id,
+          giornataCorrente,
+          payload.importo
+        );
+  
+      if (linkStoricoError) {
+        console.error(linkStoricoError);
+        alert(
+          "Movimento salvato, ma storico sospesi non collegato al movimento."
+        );
+      }
+    }
+  
+    return movimentoDaSalvare;
+  }
   
   async function saveForm() {
     const importo = Number(form.importo || 0);
@@ -1393,55 +1470,13 @@ useEffect(() => {
     setSelectedSospesoIds([]);
  
   }
-  setMovimenti((rows) => [movimentoDaSalvare, ...rows]);
     
-  if (giornataDbId) {
-    const { data: movimentoCreato, error } = await salvaMovimentoDb(
-      buildMovimentoPayload(
-      movimentoDaSalvare,
-      giornataDbId,
-      session
-      )
-    );
-
-    if (error) {
-      console.error(error);
-      alert("Movimento salvato localmente, ma non salvato su Supabase: " + error.message);
-    }
-          
-    if (movimentoCreato) {
-      movimentoDaSalvare.id = movimentoCreato.id;
-    }
-          
-    if (movimentoCreato?.id && storicoSospesiDaInserire.length > 0) {
-      const { error: storicoRecuperiError } =
-        await creaStoricoSospesiBulkDb(
-          storicoSospesiDaInserire.map((row) => ({
-          ...row,
-          movimento_cassa_id: movimentoCreato.id,
-          }))
-        );
-      
-      if (storicoRecuperiError) {
-        console.error(storicoRecuperiError);
-          alert("Movimento salvato, ma storico recuperi/sconti non salvato.");
-      }
-    }  
-     
-    if (movimentoCreato?.id && payload.tipo === "Titolo del giorno") {
-      const { error: linkStoricoError } =
-        await collegaStoricoOrigineAMovimentoDb(
-          movimentoCreato.id,
-          giornataCorrente,
-          payload.importo
-        );
-      
-      if (linkStoricoError) {
-        console.error(linkStoricoError);
-          alert("Movimento salvato, ma storico sospesi non collegato al movimento.");
-      }
-    }
-  }
+  movimentoDaSalvare = await salvaMovimentoFinale(
+    movimentoDaSalvare,
+    payload,
+    storicoSospesiDaInserire
+  );
+    
   await gestisciStampaAbbuono({
     ...movimentoDaSalvare,
     createdByEmail: session?.user?.email || "",
