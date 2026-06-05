@@ -17,3 +17,8 @@ export function movimentoEraSospeso(
     )
   );
 }
+
+export function importoMovimentoNonValido(form: FormState): boolean {
+  const importo = Number(form.importo || 0);
+  return !form.importo || importo === 0;
+}
