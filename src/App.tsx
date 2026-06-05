@@ -21,6 +21,7 @@ import { numeroPolizzaCompleto, descrizioneMovimento, isAssegnoPostdatato, isVer
 import { normalizzaModalitaPagamento } from "./importUtils";
 import { stampaModuloSospeso, stampaModuloAbbuono } from "./printUtils";
 import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePayload, buildSospesoPayload } from "./payloadBuilders";
+import { movimentoEraSospeso } from "./movementRules";
 
 import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
 import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb } from "./services/movimentiService";
@@ -814,20 +815,6 @@ useEffect(() => {
     return { updatedSospesi, allocazioni };
   }
   
-  function movimentoEraSospeso(movimento?: Movimento) {
-    return (
-      !!movimento &&
-      movimento.tipo === "Titolo del giorno" &&
-      (
-        movimento.modalita === "S" ||
-        isAssegnoPostdatato(
-          movimento,
-          giornataCorrente
-        )
-      )
-    );
-  }
-  
   function payloadGeneraSospeso(payload: any) {
     return (
       payload.tipo === "Titolo del giorno" &&
@@ -1043,7 +1030,9 @@ useEffect(() => {
     );
   
     const primaEraSospeso = movimentoEraSospeso(
-      movimentoOriginale
+      movimentoOriginale,
+      giornataCorrente,
+      isAssegnoPostdatato
     );
   
     const oraESospeso = payloadGeneraSospeso(
