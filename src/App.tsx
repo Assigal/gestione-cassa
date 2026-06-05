@@ -21,7 +21,7 @@ import { numeroPolizzaCompleto, descrizioneMovimento, isAssegnoPostdatato, isVer
 import { normalizzaModalitaPagamento } from "./importUtils";
 import { stampaModuloSospeso, stampaModuloAbbuono } from "./printUtils";
 import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePayload, buildSospesoPayload } from "./payloadBuilders";
-import { movimentoEraSospeso, importoMovimentoNonValido, payloadGeneraSospeso } from "./movementRules";
+import { movimentoEraSospeso, importoMovimentoNonValido, payloadGeneraSospeso, movimentoERecuperoSospeso } from "./movementRules";
 
 import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
 import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb } from "./services/movimentiService";
@@ -1158,13 +1158,6 @@ useEffect(() => {
     return sospesoCreato;
   }
   
-  function movimentoERecuperoSospeso(payload: any) {
-    return (
-      payload.tipo === "Recupero sospeso" &&
-      selectedSospesoIds.length > 0
-    );
-  }
-
   function applicaRecuperoSospesi(
     netto: number,
     sconto: number,
@@ -1413,7 +1406,7 @@ useEffect(() => {
         }
       }
     }
-    if (movimentoERecuperoSospeso(payload)) {
+    if (movimentoERecuperoSospeso(payload, selectedSospesoIds)) {
       const recuperoDiventaNuovoSospeso =
         payloadGeneraSospeso(payload, giornataCorrente);
      
