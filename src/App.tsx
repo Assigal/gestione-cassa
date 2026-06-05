@@ -1186,89 +1186,79 @@ useEffect(() => {
     
     const storicoSospesiDaInserire: any[] = [];
 
-    if (
-      payload.tipo === "Titolo del giorno" &&
-      !isVersamentoSubagente(payload.tipo) &&
-      (
-        payload.modalita === "S" ||
-        (
-          payload.modalita === "A" &&
-          payload.dataAssegno > giornataCorrente
-        )
-      )
-    ) {
+    if (payloadGeneraSospeso(payload)) {
       
-  const tempId = `sosp-${Date.now()}`;
-
-  const nuovoSospeso = {
-    id: tempId,
-    referenteSospesi: payload.referenteSospesi,
-    referenteSospesiId: payload.referenteSospesiId,
-    contraente: payload.contraente,
-    ramo: payload.ramo,
-    polizza: payload.polizza,
-    importoOriginario: payload.importo,
-    recuperato: 0,
-    scontoApplicato: 0,
-    residuo: payload.importo,
-    stato: "Aperto",
-    dataSospeso: giornataCorrente,
-    note: payload.note,
-  };
-
-  setSospesi((rows) => [nuovoSospeso, ...rows]);
-
-  if (giornataDbId) {
-    const { data: sospesoCreato, error } =
-      await creaSospesoDb(
-        buildSospesoPayload(nuovoSospeso)
-      );
-
-    if (error) {
-      console.error(error);
-      alert("Sospeso salvato localmente, ma non salvato su Supabase.");
-    }
-
-    if (sospesoCreato) {
-      setSospesi((rows) =>
-        rows.map((s) =>
-          s.id === tempId ? { ...s, id: sospesoCreato.id } : s
-        )
-      );
-      movimentoDaSalvare = {
-        ...movimentoDaSalvare,
-        sospesoId: sospesoCreato.id,
+      const tempId = `sosp-${Date.now()}`;
+    
+      const nuovoSospeso = {
+        id: tempId,
+        referenteSospesi: payload.referenteSospesi,
+        referenteSospesiId: payload.referenteSospesiId,
+        contraente: payload.contraente,
+        ramo: payload.ramo,
+        polizza: payload.polizza,
+        importoOriginario: payload.importo,
+        recuperato: 0,
+        scontoApplicato: 0,
+        residuo: payload.importo,
+        stato: "Aperto",
+        dataSospeso: giornataCorrente,
+        note: payload.note,
       };
+    
+      setSospesi((rows) => [nuovoSospeso, ...rows]);
 
-      const { error: storicoError } =
-        await creaStoricoSospesoDb({
-          sospeso_id: sospesoCreato.id,
-          tipo: "origine",
-          data_movimento: giornataCorrente,
-          importo: nuovoSospeso.importoOriginario,
-          modalita_pagamento: payload.modalita,
-          note: payload.note || null,
-          user_id: session?.user?.id || null,
-          user_email: session?.user?.email || null,
-        });
+      if (giornataDbId) {
+        const { data: sospesoCreato, error } =
+          await creaSospesoDb(
+            buildSospesoPayload(nuovoSospeso)
+          );
+    
+        if (error) {
+          console.error(error);
+          alert("Sospeso salvato localmente, ma non salvato su Supabase.");
+        }
 
-      if (storicoError) {
-        console.error(storicoError);
-        alert("Sospeso creato, ma storico origine non salvato: " + storicoError.message);
+        if (sospesoCreato) {
+          setSospesi((rows) =>
+            rows.map((s) =>
+              s.id === tempId ? { ...s, id: sospesoCreato.id } : s
+            )
+          );
+          movimentoDaSalvare = {
+            ...movimentoDaSalvare,
+            sospesoId: sospesoCreato.id,
+          };
+    
+          const { error: storicoError } =
+            await creaStoricoSospesoDb({
+              sospeso_id: sospesoCreato.id,
+              tipo: "origine",
+              data_movimento: giornataCorrente,
+              importo: nuovoSospeso.importoOriginario,
+              modalita_pagamento: payload.modalita,
+              note: payload.note || null,
+              user_id: session?.user?.id || null,
+              user_email: session?.user?.email || null,
+            });
+    
+          if (storicoError) {
+            console.error(storicoError);
+            alert("Sospeso creato, ma storico origine non salvato: " + storicoError.message);
+          }
+        }
+      }
+
+      if (payload.modalita === "S") {
+        const stampa = window.confirm(
+          "Vuoi stampare il modulo sospeso da far firmare al cliente?"
+        );
+    
+        if (stampa) {
+          stampaModuloSospeso(nuovoSospeso, euro);
+        }
       }
     }
-  }
-
-  if (payload.modalita === "S") {
-    const stampa = window.confirm(
-      "Vuoi stampare il modulo sospeso da far firmare al cliente?"
-    );
-
-    if (stampa) {
-      stampaModuloSospeso(nuovoSospeso, euro);
-    }
-  }
-}
    if (payload.tipo === "Recupero sospeso" && selectedSospesoIds.length) {
     const recuperoDiventaNuovoSospeso =
       payload.modalita === "S" ||
