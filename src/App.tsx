@@ -1017,21 +1017,21 @@ useEffect(() => {
   ) {
     if (movimento.sconto < sogliaStampaAbbuono) return;
   
-    const stampa = window.confirm(
-      "Vuoi stampare il modulo abbuono provvigioni?"
-    );
-  
-    if (!stampa) return;
-  
-    const motivazione =
-      window.prompt("Inserisci la motivazione dell'abbuono") || motivazioneContext;
-  
-    stampaModuloAbbuono(
-      movimento,
-      motivazione,
-      giornataCorrente,
-      euro
-    );
+      const stampa = window.confirm(
+        "Vuoi stampare il modulo abbuono provvigioni?"
+      );
+    
+      if (!stampa) return;
+    
+      const motivazione =
+        window.prompt("Inserisci la motivazione dell'abbuono") || motivazioneContext;
+    
+      stampaModuloAbbuono(
+        movimento,
+        motivazione,
+        giornataCorrente,
+        euro
+      );
   }
 
   async function gestisciModificaMovimento(
@@ -1184,7 +1184,6 @@ useEffect(() => {
       return;
     }
     
-    const storicoSospesiDaCollegare: string[] = [];
     const storicoSospesiDaInserire: any[] = [];
 
     if (
