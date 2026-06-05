@@ -41,10 +41,10 @@ export function payloadGeneraSospeso(
 
 export function movimentoERecuperoSospeso(
   payload: any,
-  selectedSospesoIds: string[]
+  haSospesiSelezionati: boolean
 ): boolean {
   return (
     payload.tipo === "Recupero sospeso" &&
-    selectedSospesoIds.length > 0
+    haSospesiSelezionati
   );
 }
