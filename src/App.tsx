@@ -1190,7 +1190,7 @@ useEffect(() => {
   
     setSospesi(updatedSospesi);
   
-    return allocazioni;
+    return { updatedSospesi, allocazioni };
   }
   
   async function saveForm() {
@@ -1290,7 +1290,7 @@ useEffect(() => {
     const recuperoDiventaNuovoSospeso =
       payloadGeneraSospeso(payload);
      
-    const allocazioni =
+    const { updatedSospesi, allocazioni } =
       applicaRecuperoSospesi(
         netto,
         sconto,
