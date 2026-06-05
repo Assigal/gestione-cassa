@@ -1175,6 +1175,23 @@ useEffect(() => {
       selectedSospesoIds.length > 0
     );
   }
+
+  function applicaRecuperoSospesi(
+    netto: number,
+    sconto: number,
+    note: string
+  ) {
+    const { updatedSospesi, allocazioni } =
+      applyRecuperoToSospesi(
+        netto,
+        sconto,
+        note
+      );
+  
+    setSospesi(updatedSospesi);
+  
+    return allocazioni;
+  }
   
   async function saveForm() {
     const importo = Number(form.importo || 0);
@@ -1273,14 +1290,17 @@ useEffect(() => {
     const recuperoDiventaNuovoSospeso =
       payloadGeneraSospeso(payload);
      
-  const { updatedSospesi, allocazioni } = applyRecuperoToSospesi(
-    netto,
-    sconto,
-    payload.note
-  );
-
-  setSospesi(updatedSospesi);
-  movimentoDaSalvare = { ...movimentoDaSalvare, allocazioniRecupero: allocazioni };
+    const allocazioni =
+      applicaRecuperoSospesi(
+        netto,
+        sconto,
+        payload.note
+      );
+    
+    movimentoDaSalvare = {
+      ...movimentoDaSalvare,
+      allocazioniRecupero: allocazioni,
+    };
 
   if (giornataDbId) {
     for (const sospesoId of selectedSospesoIds) {
