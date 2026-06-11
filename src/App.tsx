@@ -1264,7 +1264,21 @@ useEffect(() => {
   
     return movimentoDaSalvare;
   }
-  
+
+  function completaInserimentoMovimento(payload: any) {
+        addAuditLog(
+            `Inserito movimento ${payload.tipo} - polizza ${payload.polizza || "-"} - importo ${euro(payload.importo)}`
+          );
+        
+          if (selectedImport) {
+            setImportCompagnia((rows) =>
+              rows.filter((row) => row.id !== selectedImport)
+            );
+            setSelectedImport(null);
+          }
+        
+          resetForm();
+        }
   async function saveForm() {
     if (importoMovimentoNonValido(form)) {
       alert("Inserire un importo valido diverso da zero.");
@@ -1431,13 +1445,7 @@ useEffect(() => {
     createdByEmail: session?.user?.email || "",
   });
 
-  addAuditLog(`Inserito movimento ${payload.tipo} - polizza ${payload.polizza || "-"} - importo ${euro(payload.importo)}`);
-    if (selectedImport) {
-        setImportCompagnia((rows) => rows.filter((row) => row.id !== selectedImport));
-        setSelectedImport(null);
-}
-  
-      resetForm();
+  completaInserimentoMovimento(payload);
  }
 
  async function bloccaQuadraturaMezza() {
