@@ -1191,7 +1191,8 @@ useEffect(() => {
   async function salvaMovimentoFinale(
     movimentoDaSalvare: Movimento,
     payload: any,
-    storicoSospesiDaInserire: any[]
+    storicoSospesiDaInserire: any[],
+    sospesiDaAggiornareRpc: any[]
   ) {
     setMovimenti((rows) => [
       movimentoDaSalvare,
@@ -1451,7 +1452,8 @@ async function saveForm() {
   movimentoDaSalvare = await salvaMovimentoFinale(
     movimentoDaSalvare,
     payload,
-    storicoSospesiDaInserire
+    storicoSospesiDaInserire,
+    sospesiDaAggiornareRpc
   );
 
   await gestisciStampaAbbuono({
