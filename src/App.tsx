@@ -1383,7 +1383,7 @@ useEffect(() => {
           return movimentoDaSalvare;
         }
         
-  async function saveForm() {
+ async function saveForm() {
     if (importoMovimentoNonValido(form)) {
       alert("Inserire un importo valido diverso da zero.");
       return;
