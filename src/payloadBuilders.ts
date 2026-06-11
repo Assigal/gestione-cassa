@@ -114,3 +114,13 @@ export function buildSospesoPayload(
   };
 }
   
+export function buildSospesoAggiornatoRpcPayload(sospeso: any) {
+  return {
+    id: sospeso.id,
+    recuperato: sospeso.recuperato,
+    sconto_applicato: sospeso.scontoApplicato,
+    residuo: sospeso.residuo,
+    stato: sospeso.stato,
+    note: sospeso.note || null,
+  };
+}
