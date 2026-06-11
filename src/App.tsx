@@ -22,7 +22,7 @@ import { normalizzaModalitaPagamento } from "./importUtils";
 import { stampaModuloSospeso, stampaModuloAbbuono } from "./printUtils";
 import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePayload, buildSospesoPayload } from "./payloadBuilders";
 import { movimentoEraSospeso, importoMovimentoNonValido, payloadGeneraSospeso, movimentoERecuperoSospeso, trovaMovimentoDuplicato,
-        creaNuovoSospesoDaPayload, creaMovimentoDaPayload } from "./movementRules";
+        creaNuovoSospesoDaPayload, creaMovimentoDaPayload, creaPayloadMovimentoDaForm, } from "./movementRules";
 
 import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
 import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb } from "./services/movimentiService";
@@ -1383,35 +1383,16 @@ useEffect(() => {
           return movimentoDaSalvare;
         }
         
- async function saveForm() {
+  async function saveForm() {
     if (importoMovimentoNonValido(form)) {
       alert("Inserire un importo valido diverso da zero.");
       return;
     }
-    const importo = Number(form.importo || 0);
-    const sconto = isVersamentoSubagente(form.tipo) ? 0 : Number(form.sconto || 0);
-    const netto = importo - sconto;
-
-    const payload = {
-      ramo: isVersamentoSubagente(form.tipo) ? "" : form.ramo,
-      polizza: isVersamentoSubagente(form.tipo) ? "" : form.polizza,
-      contraente: isVersamentoSubagente(form.tipo) ? "" : form.contraente,
-      referenteSospesi: isVersamentoSubagente(form.tipo) ? "" : (form.referenteSospesi || form.contraente),
-      referenteSospesiId: isVersamentoSubagente(form.tipo) ? "" : form.referenteSospesiId,
-      importo,
-      sconto,
-      netto,
-      modalita: form.modalita,
-      dataAssegno: form.dataAssegno,
-      tipo: form.tipo,
-      sub: form.sub,
-      segno: 1,
-      note: form.note || "",
-      dataInizioSubagente: form.dataInizioSubagente || "",
-      dataFineSubagente: form.dataFineSubagente || "",
-      allocazioniRecupero: [] as AllocazioneRecupero[],
-    };
-
+    
+    const payload = creaPayloadMovimentoDaForm(form);
+    const netto = payload.netto;
+    const sconto = payload.sconto;
+    
     if (editingMovement) {
       await gestisciModificaMovimento(
         editingMovement,
@@ -1420,11 +1401,11 @@ useEffect(() => {
       return;
     }
 
-   let movimentoDaSalvare =
-     creaMovimentoDaPayload(
-       payload,
-       session?.user?.email || ""
-     );
+    let movimentoDaSalvare =
+      creaMovimentoDaPayload(
+        payload,
+        session?.user?.email || ""
+      );
     
    const duplicato = trovaMovimentoDuplicato(
       payload,
