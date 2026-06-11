@@ -1422,7 +1422,7 @@ async function saveForm() {
     return;
   }
 
-  const storicoSospesiDaInserire: any[] = [];
+  const storicoSospesiDaInserire: any[] = [];,
   const sospesiDaAggiornareRpc: any[] = [];
 
   if (payloadGeneraSospeso(payload, giornataCorrente)) {
