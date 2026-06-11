@@ -1327,6 +1327,61 @@ useEffect(() => {
         
           return movimentoDaSalvare;
         }
+  async function gestisciRecuperoSospesiDaPayload(
+          payload: Movimento,
+          movimentoDaSalvare: Movimento,
+          netto: number,
+          sconto: number,
+          storicoSospesiDaInserire: any[]
+        ): Promise<Movimento> {
+          const recuperoDiventaNuovoSospeso =
+            payloadGeneraSospeso(payload, giornataCorrente);
+        
+          const { updatedSospesi, allocazioni } =
+            applicaRecuperoSospesi(
+              netto,
+              sconto,
+              payload.note
+            );
+        
+          movimentoDaSalvare = {
+            ...movimentoDaSalvare,
+            allocazioniRecupero: allocazioni,
+          };
+        
+          await aggiornaSospesiRecuperati(
+            updatedSospesi,
+            allocazioni,
+            payload,
+            storicoSospesiDaInserire
+          );
+        
+          if (recuperoDiventaNuovoSospeso) {
+            const nuovoSospeso =
+              creaNuovoSospesoDaPayload(
+                {
+                  ...payload,
+                  note:
+                    payload.note ||
+                    "Recupero sospeso con pagamento non incassabile",
+                },
+                giornataCorrente
+              );
+        
+            setSospesi((rows) => [nuovoSospeso, ...rows]);
+        
+            if (giornataDbId) {
+              await salvaSospesoConStorico(
+                nuovoSospeso,
+                payload
+              );
+            }
+          }
+        
+          setSelectedSospesoIds([]);
+        
+          return movimentoDaSalvare;
+        }
         
   async function saveForm() {
     if (importoMovimentoNonValido(form)) {
@@ -1395,58 +1450,20 @@ useEffect(() => {
     }
           
     if (
-      movimentoERecuperoSospeso(
-        payload,
-        selectedSospesoIds.length > 0
-      )
-    ) {
-      const recuperoDiventaNuovoSospeso =
-        payloadGeneraSospeso(payload, giornataCorrente);
-     
-      const { updatedSospesi, allocazioni } =
-        applicaRecuperoSospesi(
-          netto,
-          sconto,
-          payload.note
-        );
-      
-      movimentoDaSalvare = {
-        ...movimentoDaSalvare,
-        allocazioniRecupero: allocazioni,
-      };
-  
-      await aggiornaSospesiRecuperati(
-        updatedSospesi,
-        allocazioni,
-        payload,
-        storicoSospesiDaInserire
-      );
-  
-      if (recuperoDiventaNuovoSospeso) {
-        const nuovoSospeso =
-          creaNuovoSospesoDaPayload(
-            {
-              ...payload,
-              note:
-                payload.note ||
-                "Recupero sospeso con pagamento non incassabile",
-            },
-            giornataCorrente
-          );
-  
-        setSospesi((rows) => [nuovoSospeso, ...rows]);
-
-        if (giornataDbId) {
-          await salvaSospesoConStorico(
-            nuovoSospeso,
-            payload
-          );
+          movimentoERecuperoSospeso(
+            payload,
+            selectedSospesoIds.length > 0
+          )
+        ) {
+          movimentoDaSalvare =
+            await gestisciRecuperoSospesiDaPayload(
+              payload,
+              movimentoDaSalvare,
+              netto,
+              sconto,
+              storicoSospesiDaInserire
+            );
         }
-      }
-
-    setSelectedSospesoIds([]);
- 
-  }
     
   movimentoDaSalvare = await salvaMovimentoFinale(
     movimentoDaSalvare,
