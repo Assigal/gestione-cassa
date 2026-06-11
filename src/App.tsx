@@ -20,7 +20,7 @@ import { emptyForm } from "./formDefaults";
 import { numeroPolizzaCompleto, descrizioneMovimento, isAssegnoPostdatato, isVersamentoSubagente, getDescrizioneModalita } from "./utils";
 import { normalizzaModalitaPagamento } from "./importUtils";
 import { stampaModuloSospeso, stampaModuloAbbuono } from "./printUtils";
-import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePayload, buildSospesoPayload } from "./payloadBuilders";
+import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePayload, buildSospesoPayload, buildSospesoAggiornatoRpcPayload } from "./payloadBuilders";
 import { movimentoEraSospeso, importoMovimentoNonValido, payloadGeneraSospeso, movimentoERecuperoSospeso, trovaMovimentoDuplicato,
         creaNuovoSospesoDaPayload, creaMovimentoDaPayload, creaPayloadMovimentoDaForm, } from "./movementRules";
 
@@ -1328,45 +1328,51 @@ useEffect(() => {
           return movimentoDaSalvare;
         }
   async function gestisciRecuperoSospesiDaPayload(
-          payload: Movimento,
-          movimentoDaSalvare: Movimento,
-          netto: number,
-          sconto: number,
-          storicoSospesiDaInserire: any[]
-        ): Promise<Movimento> {
-          const recuperoDiventaNuovoSospeso =
-            payloadGeneraSospeso(payload, giornataCorrente);
+    payload: Movimento,
+    movimentoDaSalvare: Movimento,
+    netto: number,
+    sconto: number,
+    storicoSospesiDaInserire: any[]
+    sospesiDaAggiornareRpc: any[]
+      ): Promise<Movimento> {
+      const recuperoDiventaNuovoSospeso =
+        payloadGeneraSospeso(payload, giornataCorrente);
         
-          const { updatedSospesi, allocazioni } =
-            applicaRecuperoSospesi(
-              netto,
-              sconto,
-              payload.note
+      const { updatedSospesi, allocazioni } =
+        applicaRecuperoSospesi(
+          netto,
+          sconto,
+          payload.note
+        );
+        sospesiDaAggiornareRpc.push(
+          ...updatedSospesi
+            .filter((s) => selectedSospesoIds.includes(s.id))
+            .map(buildSospesoAggiornatoRpcPayload)
+        );
+        
+        movimentoDaSalvare = {
+          ...movimentoDaSalvare,
+          allocazioniRecupero: allocazioni,
+        };
+        
+        await aggiornaSospesiRecuperati(
+          updatedSospesi,
+          allocazioni,
+          payload,
+          storicoSospesiDaInserire
+        );
+        
+        if (recuperoDiventaNuovoSospeso) {
+          const nuovoSospeso =
+            creaNuovoSospesoDaPayload(
+              {
+                ...payload,
+                note:
+                  payload.note ||
+                  "Recupero sospeso con pagamento non incassabile",
+              },
+              giornataCorrente
             );
-        
-          movimentoDaSalvare = {
-            ...movimentoDaSalvare,
-            allocazioniRecupero: allocazioni,
-          };
-        
-          await aggiornaSospesiRecuperati(
-            updatedSospesi,
-            allocazioni,
-            payload,
-            storicoSospesiDaInserire
-          );
-        
-          if (recuperoDiventaNuovoSospeso) {
-            const nuovoSospeso =
-              creaNuovoSospesoDaPayload(
-                {
-                  ...payload,
-                  note:
-                    payload.note ||
-                    "Recupero sospeso con pagamento non incassabile",
-                },
-                giornataCorrente
-              );
         
             setSospesi((rows) => [nuovoSospeso, ...rows]);
         
@@ -1417,6 +1423,7 @@ async function saveForm() {
   }
 
   const storicoSospesiDaInserire: any[] = [];
+  const sospesiDaAggiornareRpc: any[] = [];
 
   if (payloadGeneraSospeso(payload, giornataCorrente)) {
     movimentoDaSalvare = await gestisciCreazioneSospesoDaPayload(
@@ -1436,7 +1443,8 @@ async function saveForm() {
       movimentoDaSalvare,
       netto,
       sconto,
-      storicoSospesiDaInserire
+      storicoSospesiDaInserire,
+      sospesiDaAggiornareRpc
     );
   }
 
