@@ -1383,82 +1383,76 @@ useEffect(() => {
           return movimentoDaSalvare;
         }
         
-  async function saveForm() {
-    if (importoMovimentoNonValido(form)) {
-      alert("Inserire un importo valido diverso da zero.");
-      return;
-    }
-    
-    const payload = creaPayloadMovimentoDaForm(form);
-    const netto = payload.netto;
-    const sconto = payload.sconto;
-    
-    if (editingMovement) {
-      await gestisciModificaMovimento(
-        editingMovement,
-        payload
-      );
-      return;
-    }
+async function saveForm() {
+  if (importoMovimentoNonValido(form)) {
+    alert("Inserire un importo valido diverso da zero.");
+    return;
+  }
 
-    let movimentoDaSalvare =
-      creaMovimentoDaPayload(
-        payload,
-        session?.user?.email || ""
-      );
-    
-   const duplicato = trovaMovimentoDuplicato(
-      payload,
-      editingMovement,
-      movimenti
+  const payload = creaPayloadMovimentoDaForm(form);
+  const netto = payload.netto;
+  const sconto = payload.sconto;
+
+  if (editingMovement) {
+    await gestisciModificaMovimento(editingMovement, payload);
+    return;
+  }
+
+  let movimentoDaSalvare = creaMovimentoDaPayload(
+    payload,
+    session?.user?.email || ""
+  );
+
+  const duplicato = trovaMovimentoDuplicato(
+    payload,
+    editingMovement,
+    movimenti
+  );
+
+  if (duplicato) {
+    alert(
+      `ATTENZIONE: esiste già un titolo con stessa polizza e stesso importo.\n\nPolizza: ${payload.polizza}\nImporto: € ${payload.importo}`
     );
-    
-    if (duplicato) {
-      alert(
-        `ATTENZIONE: esiste già un titolo con stessa polizza e stesso importo.\n\nPolizza: ${payload.polizza}\nImporto: € ${payload.importo}`
-      );
-      return;
-    }
-    
-    const storicoSospesiDaInserire: any[] = [];
+    return;
+  }
 
-    if (payloadGeneraSospeso(payload, giornataCorrente)) {
-        movimentoDaSalvare =
-        await gestisciCreazioneSospesoDaPayload(
-          payload,
-          movimentoDaSalvare
-        );
-    }
-          
-    if (
-          movimentoERecuperoSospeso(
-            payload,
-            selectedSospesoIds.length > 0
-          )
-        ) {
-          movimentoDaSalvare =
-            await gestisciRecuperoSospesiDaPayload(
-              payload,
-              movimentoDaSalvare,
-              netto,
-              sconto,
-              storicoSospesiDaInserire
-            );
-        }
-    
+  const storicoSospesiDaInserire: any[] = [];
+
+  if (payloadGeneraSospeso(payload, giornataCorrente)) {
+    movimentoDaSalvare = await gestisciCreazioneSospesoDaPayload(
+      payload,
+      movimentoDaSalvare
+    );
+  }
+
+  if (
+    movimentoERecuperoSospeso(
+      payload,
+      selectedSospesoIds.length > 0
+    )
+  ) {
+    movimentoDaSalvare = await gestisciRecuperoSospesiDaPayload(
+      payload,
+      movimentoDaSalvare,
+      netto,
+      sconto,
+      storicoSospesiDaInserire
+    );
+  }
+
   movimentoDaSalvare = await salvaMovimentoFinale(
     movimentoDaSalvare,
     payload,
     storicoSospesiDaInserire
   );
-    
+
   await gestisciStampaAbbuono({
     ...movimentoDaSalvare,
     createdByEmail: session?.user?.email || "",
   });
 
   completaInserimentoMovimento(payload);
- }
+}
 
  async function bloccaQuadraturaMezza() {
   const cassaReale = Number(quadMezza.cassaReale || 0);
