@@ -1332,7 +1332,7 @@ useEffect(() => {
     movimentoDaSalvare: Movimento,
     netto: number,
     sconto: number,
-    storicoSospesiDaInserire: any[]
+    storicoSospesiDaInserire: any[],
     sospesiDaAggiornareRpc: any[]
       ): Promise<Movimento> {
       const recuperoDiventaNuovoSospeso =
