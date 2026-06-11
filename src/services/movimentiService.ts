@@ -39,3 +39,19 @@ export async function caricaRecuperiStoricoDb() {
     .select("*")
     .eq("tipo", "recupero");
 }
+
+export async function registraMovimentoCassaRpc(params: {
+  movimento: any;
+  nuovoSospeso?: any | null;
+  storicoSospesi?: any[];
+  sospesiDaAggiornare?: any[];
+  audit?: any | null;
+}) {
+  return await supabase.rpc("registra_movimento_cassa", {
+    p_movimento: params.movimento,
+    p_nuovo_sospeso: params.nuovoSospeso || null,
+    p_storico_sospesi: params.storicoSospesi || [],
+    p_sospesi_da_aggiornare: params.sospesiDaAggiornare || [],
+    p_audit: params.audit || null,
+  });
+}
