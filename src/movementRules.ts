@@ -1,4 +1,5 @@
 import type { Movimento, AllocazioneRecupero, AllocazioneRecupero } from "./types";
+import { isVersamentoSubagente } from "./utils";
 
 export function movimentoEraSospeso(
   movimento: Movimento | undefined,
@@ -102,5 +103,40 @@ export function creaMovimentoDaPayload(
     id: Date.now(),
     ...payload,
     createdByEmail,
+  };
+}
+
+export function creaPayloadMovimentoDaForm(
+  form: FormState
+) {
+  const importo = Number(form.importo || 0);
+  const versamentoSubagente = isVersamentoSubagente(form.tipo);
+
+  const sconto = versamentoSubagente
+    ? 0
+    : Number(form.sconto || 0);
+
+  const netto = importo - sconto;
+
+  return {
+    ramo: versamentoSubagente ? "" : form.ramo,
+    polizza: versamentoSubagente ? "" : form.polizza,
+    contraente: versamentoSubagente ? "" : form.contraente,
+    referenteSospesi: versamentoSubagente
+      ? ""
+      : form.referenteSospesi || form.contraente,
+    referenteSospesiId: versamentoSubagente ? "" : form.referenteSospesiId,
+    importo,
+    sconto,
+    netto,
+    modalita: form.modalita,
+    dataAssegno: form.dataAssegno,
+    tipo: form.tipo,
+    sub: form.sub,
+    segno: 1,
+    note: form.note || "",
+    dataInizioSubagente: form.dataInizioSubagente || "",
+    dataFineSubagente: form.dataFineSubagente || "",
+    allocazioniRecupero: [] as AllocazioneRecupero[],
   };
 }
