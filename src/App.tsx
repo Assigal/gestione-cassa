@@ -25,7 +25,7 @@ import { movimentoEraSospeso, importoMovimentoNonValido, payloadGeneraSospeso, m
         creaNuovoSospesoDaPayload, creaMovimentoDaPayload, creaPayloadMovimentoDaForm, } from "./movementRules";
 
 import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
-import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb } from "./services/movimentiService";
+import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb, registraMovimentoCassaRpc } from "./services/movimentiService";
 import { caricaSospesiDb, creaSospesoDb, aggiornaSospesoDb, eliminaSospesoDb, creaStoricoSospesoDb, creaStoricoSospesiBulkDb, collegaStoricoOrigineAMovimentoDb } from "./services/sospesiService";
 import { caricaQuadratureDb, salvaQuadraturaDb } from "./services/quadratureService";
 import { loginDb, logoutDb, caricaProfiloUtenteDb } from "./services/authService";
@@ -37,6 +37,8 @@ import { supabase } from "./supabaseClient";
 // ======================================================
 
 const GIORNATA_CORRENTE = new Date().toISOString().slice(0, 10);
+
+const USA_RPC_MOVIMENTO_ATOMICO = false;
 
 const movimentiRegistratiSeed: Movimento[] = [];
 const sospesiSeed: Sospeso[] = [];
