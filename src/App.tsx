@@ -1279,6 +1279,55 @@ useEffect(() => {
         
           resetForm();
         }
+        
+  async function gestisciCreazioneSospesoDaPayload(
+          payload: Movimento,
+          movimentoDaSalvare: Movimento
+        ): Promise<Movimento> {
+          const nuovoSospeso =
+            creaNuovoSospesoDaPayload(
+              payload,
+              giornataCorrente
+            );
+        
+          const tempId = nuovoSospeso.id;
+        
+          setSospesi((rows) => [nuovoSospeso, ...rows]);
+        
+          if (giornataDbId) {
+            const sospesoCreato =
+              await salvaSospesoConStorico(
+                nuovoSospeso,
+                payload
+              );
+        
+            if (sospesoCreato) {
+              setSospesi((rows) =>
+                rows.map((s) =>
+                  s.id === tempId ? { ...s, id: sospesoCreato.id } : s
+                )
+              );
+        
+              movimentoDaSalvare = {
+                ...movimentoDaSalvare,
+                sospesoId: sospesoCreato.id,
+              };
+            }
+          }
+        
+          if (payload.modalita === "S") {
+            const stampa = window.confirm(
+              "Vuoi stampare il modulo sospeso da far firmare al cliente?"
+            );
+        
+            if (stampa) {
+              stampaModuloSospeso(nuovoSospeso, euro);
+            }
+          }
+        
+          return movimentoDaSalvare;
+        }
+        
   async function saveForm() {
     if (importoMovimentoNonValido(form)) {
       alert("Inserire un importo valido diverso da zero.");
@@ -1338,48 +1387,13 @@ useEffect(() => {
     const storicoSospesiDaInserire: any[] = [];
 
     if (payloadGeneraSospeso(payload, giornataCorrente)) {
-      
-      const nuovoSospeso =
-          creaNuovoSospesoDaPayload(
-            payload,
-            giornataCorrente
-          );
-      
-      const tempId = nuovoSospeso.id;
-    
-      setSospesi((rows) => [nuovoSospeso, ...rows]);
-
-      if (giornataDbId) {
-        const sospesoCreato =
-          await salvaSospesoConStorico(
-            nuovoSospeso,
-            payload
-          );
-      
-        if (sospesoCreato) {
-          setSospesi((rows) =>
-            rows.map((s) =>
-              s.id === tempId ? { ...s, id: sospesoCreato.id } : s
-            )
-          );
-      
-          movimentoDaSalvare = {
-            ...movimentoDaSalvare,
-            sospesoId: sospesoCreato.id,
-          };
-        }
-      }
-      
-      if (payload.modalita === "S") {
-        const stampa = window.confirm(
-          "Vuoi stampare il modulo sospeso da far firmare al cliente?"
+        movimentoDaSalvare =
+        await gestisciCreazioneSospesoDaPayload(
+          payload,
+          movimentoDaSalvare
         );
-    
-        if (stampa) {
-          stampaModuloSospeso(nuovoSospeso, euro);
-        }
-      }
     }
+          
     if (
       movimentoERecuperoSospeso(
         payload,
