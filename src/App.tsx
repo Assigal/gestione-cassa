@@ -1270,6 +1270,7 @@ useEffect(() => {
       alert("Inserire un importo valido diverso da zero.");
       return;
     }
+    const importo = Number(form.importo || 0);
     const sconto = isVersamentoSubagente(form.tipo) ? 0 : Number(form.sconto || 0);
     const netto = importo - sconto;
 
@@ -1325,7 +1326,10 @@ useEffect(() => {
     if (payloadGeneraSospeso(payload, giornataCorrente)) {
       
       const nuovoSospeso =
-        creaNuovoSospesoDaPayload(payload);
+          creaNuovoSospesoDaPayload(
+            payload,
+            giornataCorrente
+          );
       
       const tempId = nuovoSospeso.id;
     
