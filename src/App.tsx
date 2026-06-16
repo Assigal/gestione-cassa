@@ -1194,7 +1194,8 @@ useEffect(() => {
     movimentoDaSalvare: Movimento,
     payload: any,
     storicoSospesiDaInserire: any[],
-    sospesiDaAggiornareRpc: any[]
+    sospesiDaAggiornareRpc: any[],
+    nuovoSospesoRpc: any | null
   ) {
     setMovimenti((rows) => [
       movimentoDaSalvare,
@@ -1220,7 +1221,7 @@ useEffect(() => {
           giornataDbId,
           session
         ),
-        nuovoSospeso: null,
+        nuovoSospeso: nuovoSospesoRpc,
         storicoSospesi: storicoSospesiDaInserire,
         sospesiDaAggiornare: sospesiDaAggiornareRpc,
         audit: {
@@ -1475,8 +1476,14 @@ async function saveForm() {
 
   const storicoSospesiDaInserire: any[] = [];
   const sospesiDaAggiornareRpc: any[] = [];
+  let nuovoSospesoRpc: any | null = null;
 
   if (payloadGeneraSospeso(payload, giornataCorrente)) {
+    nuovoSospesoRpc = buildSospesoPayload(
+      creaNuovoSospesoDaPayload(payload, giornataCorrente),
+      giornataCorrente
+    );
+  
     movimentoDaSalvare = await gestisciCreazioneSospesoDaPayload(
       payload,
       movimentoDaSalvare
@@ -1503,9 +1510,10 @@ async function saveForm() {
     movimentoDaSalvare,
     payload,
     storicoSospesiDaInserire,
-    sospesiDaAggiornareRpc
+    sospesiDaAggiornareRpc,
+    nuovoSospesoRpc
   );
-
+  
   await gestisciStampaAbbuono({
     ...movimentoDaSalvare,
     createdByEmail: session?.user?.email || "",
