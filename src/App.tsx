@@ -1207,23 +1207,9 @@ useEffect(() => {
     }
 
     const usaRpcPerQuestoMovimento =
-      USA_RPC_MOVIMENTO_ATOMICO &&
-      !movimentoERecuperoSospeso(
-        payload,
-        selectedSospesoIds.length > 0
-      );
+      USA_RPC_MOVIMENTO_ATOMICO;
     
     if (usaRpcPerQuestoMovimento) {
-        alert(
-          "RPC attiva - nuovoSospesoRpc: " +
-            JSON.stringify(nuovoSospesoRpc)
-        );
-      console.log("RPC nuovoSospesoRpc", nuovoSospesoRpc);
-      console.log("RPC movimento", buildMovimentoPayload(
-        movimentoDaSalvare,
-        giornataDbId,
-        session
-      ));
       const { data, error } = await registraMovimentoCassaRpc({
         movimento: buildMovimentoPayload(
           movimentoDaSalvare,
@@ -1395,8 +1381,9 @@ useEffect(() => {
     netto: number,
     sconto: number,
     storicoSospesiDaInserire: any[],
-    sospesiDaAggiornareRpc: any[]
-      ): Promise<Movimento> {
+    sospesiDaAggiornareRpc: any[],
+    saltaSalvataggioDb = false
+  ): Promise<Movimento> {
       const recuperoDiventaNuovoSospeso =
         payloadGeneraSospeso(payload, giornataCorrente);
         
@@ -1417,12 +1404,14 @@ useEffect(() => {
           allocazioniRecupero: allocazioni,
         };
         
-        await aggiornaSospesiRecuperati(
-          updatedSospesi,
-          allocazioni,
-          payload,
-          storicoSospesiDaInserire
-        );
+        if (!saltaSalvataggioDb) {
+          await aggiornaSospesiRecuperati(
+            updatedSospesi,
+            allocazioni,
+            payload,
+            storicoSospesiDaInserire
+          );
+        }
         
         if (recuperoDiventaNuovoSospeso) {
           const nuovoSospeso =
@@ -1487,12 +1476,9 @@ async function saveForm() {
   const storicoSospesiDaInserire: any[] = [];
   const sospesiDaAggiornareRpc: any[] = [];
   let nuovoSospesoRpc: any | null = null;
+  
   const usaRpcPerQuestoMovimento =
-    USA_RPC_MOVIMENTO_ATOMICO &&
-    !movimentoERecuperoSospeso(
-      payload,
-      selectedSospesoIds.length > 0
-    );
+    USA_RPC_MOVIMENTO_ATOMICO;
 
   if (payloadGeneraSospeso(payload, giornataCorrente)) {
     nuovoSospesoRpc = buildSospesoPayload(
@@ -1513,15 +1499,16 @@ async function saveForm() {
       selectedSospesoIds.length > 0
     )
   ) {
-    movimentoDaSalvare = await gestisciRecuperoSospesiDaPayload(
-      payload,
-      movimentoDaSalvare,
-      netto,
-      sconto,
-      storicoSospesiDaInserire,
-      sospesiDaAggiornareRpc
-    );
-  }
+     movimentoDaSalvare = await gestisciRecuperoSospesiDaPayload(
+        payload,
+        movimentoDaSalvare,
+        netto,
+        sconto,
+        storicoSospesiDaInserire,
+        sospesiDaAggiornareRpc,
+        usaRpcPerQuestoMovimento
+      );
+    }
 
   movimentoDaSalvare = await salvaMovimentoFinale(
     movimentoDaSalvare,
