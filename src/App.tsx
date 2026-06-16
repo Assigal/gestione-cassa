@@ -1398,6 +1398,37 @@ useEffect(() => {
             .filter((s) => selectedSospesoIds.includes(s.id))
             .map(buildSospesoAggiornatoRpcPayload)
         );
+
+        for (const sospesoId of selectedSospesoIds) {
+          const allocazione =
+            allocazioni.find((a) => a.sospesoId === sospesoId);
+        
+          if (allocazione?.incasso) {
+            storicoSospesiDaInserire.push({
+              sospeso_id: sospesoId,
+              tipo: "recupero",
+              data_movimento: giornataCorrente,
+              importo: allocazione.incasso,
+              modalita_pagamento: payload.modalita,
+              note: payload.note || null,
+              user_id: session?.user?.id || null,
+              user_email: session?.user?.email || null,
+            });
+          }
+        
+          if (allocazione?.sconto) {
+            storicoSospesiDaInserire.push({
+              sospeso_id: sospesoId,
+              tipo: "sconto",
+              data_movimento: giornataCorrente,
+              importo: allocazione.sconto,
+              modalita_pagamento: payload.modalita,
+              note: payload.note || "Sconto applicato su recupero sospeso",
+              user_id: session?.user?.id || null,
+              user_email: session?.user?.email || null,
+            });
+          }
+        }
         
         movimentoDaSalvare = {
           ...movimentoDaSalvare,
