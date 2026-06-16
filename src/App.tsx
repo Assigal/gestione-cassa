@@ -1483,6 +1483,12 @@ async function saveForm() {
   const storicoSospesiDaInserire: any[] = [];
   const sospesiDaAggiornareRpc: any[] = [];
   let nuovoSospesoRpc: any | null = null;
+  const usaRpcPerQuestoMovimento =
+    USA_RPC_MOVIMENTO_ATOMICO &&
+    !movimentoERecuperoSospeso(
+      payload,
+      selectedSospesoIds.length > 0
+    );
 
   if (payloadGeneraSospeso(payload, giornataCorrente)) {
     nuovoSospesoRpc = buildSospesoPayload(
@@ -1493,7 +1499,7 @@ async function saveForm() {
     movimentoDaSalvare = await gestisciCreazioneSospesoDaPayload(
       payload,
       movimentoDaSalvare,
-      USA_RPC_MOVIMENTO_ATOMICO
+      usaRpcPerQuestoMovimento
     );
   }
 
