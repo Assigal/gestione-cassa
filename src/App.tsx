@@ -1225,7 +1225,7 @@ useEffect(() => {
         sospesiDaAggiornare: sospesiDaAggiornareRpc,
         audit: {
           giornata_id: giornataDbId,
-          utente_id: session?.user?.id || null,
+          utente_id: null,
           azione: "inserimento_movimento",
           dettaglio: {
             tipo: payload.tipo,
