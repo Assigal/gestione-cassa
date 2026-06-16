@@ -1311,20 +1311,25 @@ useEffect(() => {
     return movimentoDaSalvare;
   }
 
-  function completaInserimentoMovimento(payload: any) {
-        addAuditLog(
-            `Inserito movimento ${payload.tipo} - polizza ${payload.polizza || "-"} - importo ${euro(payload.importo)}`
-          );
-        
-          if (selectedImport) {
-            setImportCompagnia((rows) =>
-              rows.filter((row) => row.id !== selectedImport)
-            );
-            setSelectedImport(null);
-          }
-        
-          resetForm();
-        }
+  function completaInserimentoMovimento(
+    payload: any,
+    registraAudit = true
+  ) {
+    if (registraAudit) {
+      addAuditLog(
+        `Inserito movimento ${payload.tipo} - polizza ${payload.polizza || "-"} - importo ${euro(payload.importo)}`
+      );
+    }
+  
+    if (selectedImport) {
+      setImportCompagnia((rows) =>
+        rows.filter((row) => row.id !== selectedImport)
+      );
+      setSelectedImport(null);
+    }
+  
+    resetForm();
+  }
         
   async function gestisciCreazioneSospesoDaPayload(
           payload: Movimento,
@@ -1506,7 +1511,10 @@ async function saveForm() {
     createdByEmail: session?.user?.email || "",
   });
 
-  completaInserimentoMovimento(payload);
+  completaInserimentoMovimento(
+    payload,
+    !usaRpcPerQuestoMovimento
+  );
 }
 
  async function bloccaQuadraturaMezza() {
