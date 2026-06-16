@@ -1214,6 +1214,10 @@ useEffect(() => {
       );
     
     if (usaRpcPerQuestoMovimento) {
+        alert(
+          "RPC attiva - nuovoSospesoRpc: " +
+            JSON.stringify(nuovoSospesoRpc)
+        );
       console.log("RPC nuovoSospesoRpc", nuovoSospesoRpc);
       console.log("RPC movimento", buildMovimentoPayload(
         movimentoDaSalvare,
