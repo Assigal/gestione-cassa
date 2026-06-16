@@ -1214,6 +1214,12 @@ useEffect(() => {
       );
     
     if (usaRpcPerQuestoMovimento) {
+      console.log("RPC nuovoSospesoRpc", nuovoSospesoRpc);
+      console.log("RPC movimento", buildMovimentoPayload(
+        movimentoDaSalvare,
+        giornataDbId,
+        session
+      ));
       const { data, error } = await registraMovimentoCassaRpc({
         movimento: buildMovimentoPayload(
           movimentoDaSalvare,
