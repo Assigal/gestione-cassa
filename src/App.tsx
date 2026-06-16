@@ -1204,7 +1204,42 @@ useEffect(() => {
     if (!giornataDbId) {
       return movimentoDaSalvare;
     }
-  
+
+    if (USA_RPC_MOVIMENTO_ATOMICO) {
+      const { data, error } = await registraMovimentoCassaRpc({
+        movimento: buildMovimentoPayload(
+          movimentoDaSalvare,
+          giornataDbId,
+          session
+        ),
+        nuovoSospeso: null,
+        storicoSospesi: storicoSospesiDaInserire,
+        sospesiDaAggiornare: sospesiDaAggiornareRpc,
+        audit: {
+          giornata_id: giornataDbId,
+          utente_id: session?.user?.id || null,
+          azione: "inserimento_movimento",
+          dettaglio: {
+            tipo: payload.tipo,
+            polizza: payload.polizza || null,
+            importo: payload.importo,
+          },
+        },
+      });
+    
+      if (error) {
+        console.error(error);
+        alert("Movimento non salvato su Supabase: " + error.message);
+        return movimentoDaSalvare;
+      }
+    
+      if (data?.movimento_id) {
+        movimentoDaSalvare.id = data.movimento_id;
+      }
+    
+      return movimentoDaSalvare;
+    }
+    
     const { data: movimentoCreato, error } =
       await salvaMovimentoDb(
         buildMovimentoPayload(
