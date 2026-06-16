@@ -38,7 +38,7 @@ import { supabase } from "./supabaseClient";
 
 const GIORNATA_CORRENTE = new Date().toISOString().slice(0, 10);
 
-const USA_RPC_MOVIMENTO_ATOMICO = false;
+const USA_RPC_MOVIMENTO_ATOMICO = true;
 
 const movimentiRegistratiSeed: Movimento[] = [];
 const sospesiSeed: Sospeso[] = [];
