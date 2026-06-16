@@ -1205,7 +1205,15 @@ useEffect(() => {
       return movimentoDaSalvare;
     }
 
-    if (USA_RPC_MOVIMENTO_ATOMICO) {
+    const usaRpcPerQuestoMovimento =
+      USA_RPC_MOVIMENTO_ATOMICO &&
+      !payloadGeneraSospeso(payload, giornataCorrente) &&
+      !movimentoERecuperoSospeso(
+        payload,
+        selectedSospesoIds.length > 0
+      );
+    
+    if (usaRpcPerQuestoMovimento) {
       const { data, error } = await registraMovimentoCassaRpc({
         movimento: buildMovimentoPayload(
           movimentoDaSalvare,
