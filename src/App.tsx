@@ -1208,7 +1208,7 @@ useEffect(() => {
 
     const usaRpcPerQuestoMovimento =
       USA_RPC_MOVIMENTO_ATOMICO &&
-      movimentoERecuperoSospeso(
+      !movimentoERecuperoSospeso(
         payload,
         selectedSospesoIds.length > 0
       );
