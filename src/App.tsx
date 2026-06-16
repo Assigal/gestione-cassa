@@ -1333,9 +1333,10 @@ useEffect(() => {
   }
         
   async function gestisciCreazioneSospesoDaPayload(
-          payload: Movimento,
-          movimentoDaSalvare: Movimento
-        ): Promise<Movimento> {
+    payload: Movimento,
+    movimentoDaSalvare: Movimento,
+    saltaSalvataggioDb = false
+    ): Promise<Movimento> {
           const nuovoSospeso =
             creaNuovoSospesoDaPayload(
               payload,
@@ -1346,7 +1347,7 @@ useEffect(() => {
         
           setSospesi((rows) => [nuovoSospeso, ...rows]);
         
-          if (giornataDbId) {
+         if (giornataDbId && !saltaSalvataggioDb) {
             const sospesoCreato =
               await salvaSospesoConStorico(
                 nuovoSospeso,
@@ -1486,7 +1487,8 @@ async function saveForm() {
   
     movimentoDaSalvare = await gestisciCreazioneSospesoDaPayload(
       payload,
-      movimentoDaSalvare
+      movimentoDaSalvare,
+      USA_RPC_MOVIMENTO_ATOMICO
     );
   }
 
