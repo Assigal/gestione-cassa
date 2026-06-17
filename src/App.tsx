@@ -1135,10 +1135,12 @@ useEffect(() => {
     }
   
     if (primaEraSospeso && oraESospeso) {
-      await aggiornaSospesoAssociato(
+      if (!modificaSospesoRestaSospeso) {
+        await aggiornaSospesoAssociato(
         movimentoOriginale,
         payload
-      );
+        );
+      }
     }
   
     await gestisciStampaAbbuono({
@@ -1149,7 +1151,10 @@ useEffect(() => {
   
     setEditingMovement(null);
     
-    if (!modificaSempliceNonSospeso) {
+    if (
+      !modificaSempliceNonSospeso &&
+      !modificaSospesoRestaSospeso
+    ) {
       addAuditLog(
         `Modificato movimento ${payload.tipo} - polizza ${payload.polizza || "-"}`
       );
