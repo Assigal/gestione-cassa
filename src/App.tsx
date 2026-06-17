@@ -26,7 +26,7 @@ import { movimentoEraSospeso, importoMovimentoNonValido, payloadGeneraSospeso, m
 
 import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
 import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb, registraMovimentoCassaRpc,
-         aggiornaMovimentoCassaSempliceRpc, aggiornaMovimentoCassaConSospesoRpc, aggiornaMovimentoCassaCreaSospesoRpc } from "./services/movimentiService";
+         aggiornaMovimentoCassaSempliceRpc, aggiornaMovimentoCassaConSospesoRpc, aggiornaMovimentoCassaCreaSospesoRpc, aggiornaMovimentoCassaRimuoviSospesoRpc } from "./services/movimentiService";
 import { caricaSospesiDb, creaSospesoDb, aggiornaSospesoDb, eliminaSospesoDb, creaStoricoSospesoDb, creaStoricoSospesiBulkDb, collegaStoricoOrigineAMovimentoDb } from "./services/sospesiService";
 import { caricaQuadratureDb, salvaQuadraturaDb } from "./services/quadratureService";
 import { loginDb, logoutDb, caricaProfiloUtenteDb } from "./services/authService";
@@ -1044,6 +1044,11 @@ useEffect(() => {
       !primaEraSospeso &&
       oraESospeso;
 
+    const modificaSospesoDiventaNormale =
+      USA_RPC_MOVIMENTO_ATOMICO &&
+      primaEraSospeso &&
+      !oraESospeso;
+
     const sospesoOriginale =
       trovaSospesoOriginale(movimentoOriginale);
 
@@ -1170,6 +1175,33 @@ useEffect(() => {
             },
             ...rows,
           ]);
+        }
+
+      } else if (modificaSospesoDiventaNormale && sospesoOriginale?.id) {
+        const { error } =
+          await aggiornaMovimentoCassaRimuoviSospesoRpc({
+            movimentoId: String(editingMovement),
+            sospesoId: String(sospesoOriginale.id),
+            movimento: buildMovimentoUpdatePayload(payload, session),
+            audit: {
+              giornata_id: giornataDbId,
+              utente_id: null,
+              azione: "modifica_movimento_rimuovi_sospeso",
+              dettaglio: {
+                movimento_id: editingMovement,
+                sospeso_id: sospesoOriginale.id,
+                tipo: payload.tipo,
+                polizza: payload.polizza || null,
+                importo: payload.importo,
+                user_email: session?.user?.email || null,
+              },
+            },
+          });
+      
+        if (error) {
+          console.error(error);
+          alert("Movimento/sospeso non aggiornati su Supabase: " + error.message);
+          return;
         }
         
       } else {
