@@ -1225,17 +1225,6 @@ useEffect(() => {
   
     setEditingMovement(null);
     
-    if (
-      !modificaSempliceNonSospeso &&
-      !modificaSospesoRestaSospeso &&
-      !modificaNormaleDiventaSospeso &&
-      !modificaSospesoDiventaNormale
-    ) {
-      addAuditLog(
-        `Modificato movimento ${payload.tipo} - polizza ${payload.polizza || "-"}`
-      );
-    }
-    
     resetForm();
   }
 
