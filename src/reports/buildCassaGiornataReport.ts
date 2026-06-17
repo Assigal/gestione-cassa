@@ -12,6 +12,7 @@ type MovimentoCassaDb = {
   importo_lordo: number;
   sconto: number;
   importo_netto: number;
+  importo_incassato: number;
   segno: number;
   note: string | null;
   data_inizio_subagente: string | null;
@@ -82,11 +83,16 @@ function toReportMovimento(m: MovimentoCassaDb) {
     polizza: m.polizza ?? "",
     tipoPagamento: m.modalita_pagamento,
     importo: Number(m.importo_lordo ?? 0),
+    incassato: Number(m.importo_incassato ?? 0),
     sconto: Number(m.sconto ?? 0),
     utente: m.created_by_email ?? "",
     cip: normalize(m.codice_subagenzia),
     isPostdatato: isAssegnoPostdatato(m),
   };
+}
+
+function sumBy<T>(items: T[], getValue: (item: T) => number): number {
+  return items.reduce((total, item) => total + getValue(item), 0);
 }
 
 export function buildCassaGiornataReport({
@@ -110,6 +116,45 @@ export function buildCassaGiornataReport({
   
   const versamentiSubagenti = movimenti.filter(isVersamentoSubagente);
 
+  const totaleTitoliCip100 = sumBy(titoliCip100, (m) => m.importo);
+  const totaleCompagniaSafe =
+    totaleCompagnia !== undefined ? Number(totaleCompagnia) : undefined;
+  
+  const differenzaCompagnia =
+    totaleCompagniaSafe !== undefined
+      ? totaleTitoliCip100 - totaleCompagniaSafe
+      : undefined;
+
+  const quadraturaCompagnia = {
+    totaleTitoliCip100,
+    totaleCompagnia: totaleCompagniaSafe,
+    differenza: differenzaCompagnia,
+    isQuadrata:
+      differenzaCompagnia !== undefined
+        ? Math.abs(differenzaCompagnia) < 0.01
+        : undefined,
+  };
+
+  const totaleSconti = sumBy(titoliCip100, (m) => m.sconto);
+
+  const postdatati = titoliCip100.filter((m) => m.isPostdatato);
+  
+  const indicatori = {
+    totaleSconti,
+    totaleSospesiCreati: sumBy(
+      movimenti.filter((m) => isTitoloDelGiorno(m) && !!m.sospeso_id),
+      (m) => Number(m.importo_lordo ?? 0)
+    ),
+    numeroSospesiCreati: movimenti.filter(
+      (m) => isTitoloDelGiorno(m) && !!m.sospeso_id
+    ).length,
+    totaleRecuperiSospesi: sumBy(recuperiSospesi, (m) => m.importo),
+    numeroSospesiCreati: movimenti.filter((m) => !!m.sospeso_id).length,
+    numeroRecuperiSospesi: recuperiSospesi.length,
+    numeroAltriCip: titoliAltriCip.length,
+    numeroPostdatati: postdatati.length,
+  };
+  
   console.log({
     titoliCip100: titoliCip100.length,
     titoliAltriCip: titoliAltriCip.length,
