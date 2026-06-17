@@ -1039,8 +1039,25 @@ useEffect(() => {
       primaEraSospeso &&
       oraESospeso;
 
+    const modificaNormaleDiventaSospeso =
+      USA_RPC_MOVIMENTO_ATOMICO &&
+      !primaEraSospeso &&
+      oraESospeso;
+
     const sospesoOriginale =
       trovaSospesoOriginale(movimentoOriginale);
+
+    const nuovoSospesoPerModifica =
+      creaNuovoSospesoDaPayload(
+        payload,
+        giornataCorrente
+      );
+    
+    const nuovoSospesoRpc =
+      buildSospesoPayload(
+        nuovoSospesoPerModifica,
+        giornataCorrente
+      );
     
     setMovimenti((rows) =>
       rows.map((row) =>
@@ -1111,6 +1128,50 @@ useEffect(() => {
           alert("Movimento/sospeso non aggiornati su Supabase: " + error.message);
           return;
         }
+
+      } else if (modificaNormaleDiventaSospeso) {
+        const { data, error } = await aggiornaMovimentoCassaCreaSospesoRpc({
+          movimentoId: String(editingMovement),
+          movimento: buildMovimentoUpdatePayload(payload, session),
+          sospeso: nuovoSospesoRpc,
+          audit: {
+            giornata_id: giornataDbId,
+            utente_id: null,
+            azione: "modifica_movimento_crea_sospeso",
+            dettaglio: {
+              movimento_id: editingMovement,
+              tipo: payload.tipo,
+              polizza: payload.polizza || null,
+              importo: payload.importo,
+              user_email: session?.user?.email || null,
+            },
+          },
+        });
+      
+        if (error) {
+          console.error(error);
+          alert("Movimento/sospeso non aggiornati su Supabase: " + error.message);
+          return;
+        }
+      
+        if (data?.sospeso_id) {
+          setMovimenti((rows) =>
+            rows.map((row) =>
+              row.id === editingMovement
+                ? { ...row, sospesoId: data.sospeso_id }
+                : row
+            )
+          );
+      
+          setSospesi((rows) => [
+            {
+              ...nuovoSospesoPerModifica,
+              id: data.sospeso_id,
+            },
+            ...rows,
+          ]);
+        }
+        
       } else {
         const { error } = await aggiornaMovimentoDb(
           editingMovement,
