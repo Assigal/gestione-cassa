@@ -1218,7 +1218,11 @@ useEffect(() => {
     }
   
     if (primaEraSospeso && !oraESospeso) {
-      await rimuoviSospesoAssociato(movimentoOriginale);
+      if (!modificaSospesoDiventaNormale) {
+        await rimuoviSospesoAssociato(
+          movimentoOriginale
+        );
+      }
     }
   
     if (!primaEraSospeso && oraESospeso) {
@@ -1250,7 +1254,8 @@ useEffect(() => {
     if (
       !modificaSempliceNonSospeso &&
       !modificaSospesoRestaSospeso &&
-      !modificaNormaleDiventaSospeso
+      !modificaNormaleDiventaSospeso &&
+      !modificaSospesoDiventaNormale
     ) {
       addAuditLog(
         `Modificato movimento ${payload.tipo} - polizza ${payload.polizza || "-"}`
