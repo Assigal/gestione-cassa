@@ -1032,7 +1032,15 @@ useEffect(() => {
       USA_RPC_MOVIMENTO_ATOMICO &&
       !primaEraSospeso &&
       !oraESospeso;
-  
+
+    const modificaSospesoRestaSospeso =
+      USA_RPC_MOVIMENTO_ATOMICO &&
+      primaEraSospeso &&
+      oraESospeso;
+
+    const sospesoOriginale =
+      trovaSospesoOriginale(movimentoOriginale);
+    
     setMovimenti((rows) =>
       rows.map((row) =>
         row.id === editingMovement
@@ -1063,6 +1071,43 @@ useEffect(() => {
         if (error) {
           console.error(error);
           alert("Movimento non aggiornato su Supabase: " + error.message);
+          return;
+        }
+      } else if (modificaSospesoRestaSospeso && sospesoOriginale?.id) {
+        const { error } = await aggiornaMovimentoCassaConSospesoRpc({
+          movimentoId: String(editingMovement),
+          movimento: buildMovimentoUpdatePayload(payload, session),
+          sospesoId: String(sospesoOriginale.id),
+          sospeso: {
+            ...buildReferentePayload(payload),
+            contraente: payload.contraente || null,
+            ramo: payload.ramo || null,
+            polizza: payload.polizza || null,
+            importo_originario: payload.importo,
+            residuo:
+              payload.importo -
+              sospesoOriginale.recuperato -
+              sospesoOriginale.scontoApplicato,
+            note: payload.note || null,
+          },
+          audit: {
+            giornata_id: giornataDbId,
+            utente_id: null,
+            azione: "modifica_movimento_con_sospeso",
+            dettaglio: {
+              movimento_id: editingMovement,
+              sospeso_id: sospesoOriginale.id,
+              tipo: payload.tipo,
+              polizza: payload.polizza || null,
+              importo: payload.importo,
+              user_email: session?.user?.email || null,
+            },
+          },
+        });
+    
+        if (error) {
+          console.error(error);
+          alert("Movimento/sospeso non aggiornati su Supabase: " + error.message);
           return;
         }
       } else {
