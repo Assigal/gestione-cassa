@@ -32,6 +32,7 @@ export interface ReportChiusuraSubagente {
   periodoDal: string;
   periodoAl: string;
   importo: number;
+  modalitaPagamento: string;
   utente: string;
   note?: string;
 }
@@ -58,7 +59,7 @@ export interface CassaGiornataReport {
     titoliCip100: ReportMovimento[];
     titoliAltriCip: ReportMovimento[];
     recuperiSospesi: ReportRecuperoSospeso[];
-    chiusureSubagenti: ReportChiusuraSubagente[];
+    versamentiSubagenti: ReportChiusuraSubagente[];
     altriMovimenti: ReportMovimento[];
   };
 
