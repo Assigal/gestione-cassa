@@ -48,6 +48,7 @@ export interface CassaGiornataReport {
 
   indicatori: {
     totaleSconti: number;
+    totaleIncassatoCip100: number;
     totaleSospesiCreati: number;
     totaleRecuperiSospesi: number;
     numeroSospesiCreati: number;
