@@ -902,7 +902,10 @@ useEffect(() => {
           ramo: payload.ramo || null,
           polizza: payload.polizza || null,
           importo_originario: payload.importo,
-          residuo: payload.importo,
+          residuo:
+            payload.importo -
+            sospesoOriginale.recuperato -
+            sospesoOriginale.scontoApplicato,
           note: payload.note || null,
         }
       );
