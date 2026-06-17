@@ -67,3 +67,19 @@ export async function aggiornaMovimentoCassaSempliceRpc(params: {
     p_audit: params.audit || null,
   });
 }
+
+export async function aggiornaMovimentoCassaConSospesoRpc(params: {
+  movimentoId: string;
+  movimento: any;
+  sospesoId: string;
+  sospeso: any;
+  audit?: any | null;
+}) {
+  return await supabase.rpc("aggiorna_movimento_cassa_con_sospeso", {
+    p_movimento_id: params.movimentoId,
+    p_movimento: params.movimento,
+    p_sospeso_id: params.sospesoId,
+    p_sospeso: params.sospeso,
+    p_audit: params.audit || null,
+  });
+}
