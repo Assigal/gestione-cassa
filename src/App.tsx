@@ -25,7 +25,8 @@ import { movimentoEraSospeso, importoMovimentoNonValido, payloadGeneraSospeso, m
         creaNuovoSospesoDaPayload, creaMovimentoDaPayload, creaPayloadMovimentoDaForm, } from "./movementRules";
 
 import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
-import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb, registraMovimentoCassaRpc, aggiornaMovimentoCassaSempliceRpc, aggiornaMovimentoCassaConSospesoRpc } from "./services/movimentiService";
+import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb, registraMovimentoCassaRpc,
+         aggiornaMovimentoCassaSempliceRpc, aggiornaMovimentoCassaConSospesoRpc, aggiornaMovimentoCassaCreaSospesoRpc } from "./services/movimentiService";
 import { caricaSospesiDb, creaSospesoDb, aggiornaSospesoDb, eliminaSospesoDb, creaStoricoSospesoDb, creaStoricoSospesiBulkDb, collegaStoricoOrigineAMovimentoDb } from "./services/sospesiService";
 import { caricaQuadratureDb, salvaQuadraturaDb } from "./services/quadratureService";
 import { loginDb, logoutDb, caricaProfiloUtenteDb } from "./services/authService";
