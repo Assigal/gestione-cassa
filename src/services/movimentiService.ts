@@ -55,3 +55,15 @@ export async function registraMovimentoCassaRpc(params: {
     p_audit: params.audit || null,
   });
 }
+
+export async function aggiornaMovimentoCassaSempliceRpc(params: {
+  movimentoId: string;
+  movimento: any;
+  audit?: any | null;
+}) {
+  return await supabase.rpc("aggiorna_movimento_cassa_semplice", {
+    p_movimento_id: params.movimentoId,
+    p_movimento: params.movimento,
+    p_audit: params.audit || null,
+  });
+}
