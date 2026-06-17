@@ -1021,7 +1021,8 @@ useEffect(() => {
     );
   
     const oraESospeso = payloadGeneraSospeso(
-      payload
+      payload,
+      giornataCorrente
     );
   
     setMovimenti((rows) =>
