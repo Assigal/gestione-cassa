@@ -15,6 +15,7 @@ export interface ReportMovimento {
   polizza: string;
   tipoPagamento: string;
   importo: number;
+  incassato: number;
   sconto: number;
   utente: string;
   cip: string;
