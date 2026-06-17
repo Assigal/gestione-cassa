@@ -1024,6 +1024,11 @@ useEffect(() => {
       payload,
       giornataCorrente
     );
+
+    const modificaSempliceNonSospeso =
+      USA_RPC_MOVIMENTO_ATOMICO &&
+      !primaEraSospeso &&
+      !oraESospeso;
   
     setMovimenti((rows) =>
       rows.map((row) =>
@@ -1034,14 +1039,39 @@ useEffect(() => {
     );
   
     if (giornataDbId) {
-      const { error } = await aggiornaMovimentoDb(
-        editingMovement,
-        buildMovimentoUpdatePayload(payload, session)
-      );
-  
-      if (error) {
-        console.error(error);
-        alert("Movimento modificato localmente, ma non aggiornato su Supabase.");
+      if (modificaSempliceNonSospeso) {
+        const { error } = await aggiornaMovimentoCassaSempliceRpc({
+          movimentoId: String(editingMovement),
+          movimento: buildMovimentoUpdatePayload(payload, session),
+          audit: {
+            giornata_id: giornataDbId,
+            utente_id: null,
+            azione: "modifica_movimento",
+            dettaglio: {
+              movimento_id: editingMovement,
+              tipo: payload.tipo,
+              polizza: payload.polizza || null,
+              importo: payload.importo,
+              user_email: session?.user?.email || null,
+            },
+          },
+        });
+    
+        if (error) {
+          console.error(error);
+          alert("Movimento non aggiornato su Supabase: " + error.message);
+          return;
+        }
+      } else {
+        const { error } = await aggiornaMovimentoDb(
+          editingMovement,
+          buildMovimentoUpdatePayload(payload, session)
+        );
+    
+        if (error) {
+          console.error(error);
+          alert("Movimento modificato localmente, ma non aggiornato su Supabase.");
+        }
       }
     }
   
