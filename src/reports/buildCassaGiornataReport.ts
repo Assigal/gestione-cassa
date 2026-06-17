@@ -117,6 +117,12 @@ export function buildCassaGiornataReport({
   const versamentiSubagenti = movimenti.filter(isVersamentoSubagente);
 
   const totaleTitoliCip100 = sumBy(titoliCip100, (m) => m.importo);
+
+  const totaleIncassatoCip100 = sumBy(
+    titoliCip100,
+    (m) => m.incassato
+  );
+  
   const totaleCompagniaSafe =
     totaleCompagnia !== undefined ? Number(totaleCompagnia) : undefined;
   
@@ -141,6 +147,7 @@ export function buildCassaGiornataReport({
   
   const indicatori = {
     totaleSconti,
+    totaleIncassatoCip100,
     totaleSospesiCreati: sumBy(
       movimenti.filter((m) => isTitoloDelGiorno(m) && !!m.sospeso_id),
       (m) => Number(m.importo_lordo ?? 0)
@@ -148,8 +155,13 @@ export function buildCassaGiornataReport({
     numeroSospesiCreati: movimenti.filter(
       (m) => isTitoloDelGiorno(m) && !!m.sospeso_id
     ).length,
-    totaleRecuperiSospesi: sumBy(recuperiSospesi, (m) => m.importo),
-    numeroSospesiCreati: movimenti.filter((m) => !!m.sospeso_id).length,
+    totaleSospesiCreati: sumBy(titoliCip100, (m) =>
+      Math.max(m.importo - m.sconto - m.incassato, 0)
+    ),
+    
+    numeroSospesiCreati: titoliCip100.filter(
+      (m) => m.importo - m.sconto - m.incassato > 0
+    ).length,
     numeroRecuperiSospesi: recuperiSospesi.length,
     numeroAltriCip: titoliAltriCip.length,
     numeroPostdatati: postdatati.length,
