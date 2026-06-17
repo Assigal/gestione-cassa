@@ -1100,9 +1100,13 @@ useEffect(() => {
     });
   
     setEditingMovement(null);
-    addAuditLog(
-      `Modificato movimento ${payload.tipo} - polizza ${payload.polizza || "-"}`
-    );
+    
+    if (!modificaSempliceNonSospeso) {
+      addAuditLog(
+        `Modificato movimento ${payload.tipo} - polizza ${payload.polizza || "-"}`
+      );
+    }
+    
     resetForm();
   }
 
