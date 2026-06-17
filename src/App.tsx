@@ -1217,32 +1217,6 @@ useEffect(() => {
       }
     }
   
-    if (primaEraSospeso && !oraESospeso) {
-      if (!modificaSospesoDiventaNormale) {
-        await rimuoviSospesoAssociato(
-          movimentoOriginale
-        );
-      }
-    }
-  
-    if (!primaEraSospeso && oraESospeso) {
-      if (!modificaNormaleDiventaSospeso) {
-        await creaSospesoAssociatoAMovimento(
-          editingMovement,
-          payload
-        );
-      }
-    }
-  
-    if (primaEraSospeso && oraESospeso) {
-      if (!modificaSospesoRestaSospeso) {
-        await aggiornaSospesoAssociato(
-        movimentoOriginale,
-        payload
-        );
-      }
-    }
-  
     await gestisciStampaAbbuono({
       id: editingMovement,
       ...payload,
