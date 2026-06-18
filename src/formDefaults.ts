@@ -7,6 +7,7 @@ export const emptyForm: FormState = {
   referenteSospesi: "",
   referenteSospesiId: "",
   importo: "",
+  importoIncassato: "",
   sconto: "0",
   modalita: "C",
   dataAssegno: "",
