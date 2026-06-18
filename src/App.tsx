@@ -736,6 +736,7 @@ useEffect(() => {
     setEditingMovement(row.id);
     setSelectedImport(null);
     setSelectedSospesoIds([]);
+    setFormAutoMode(false);
     setForm({
       ...emptyForm,
       ramo: row.ramo,
@@ -744,6 +745,7 @@ useEffect(() => {
       referenteSospesi: row.referenteSospesi || row.contraente,
       referenteSospesiId: row.referenteSospesiId || "",
       importo: String(row.importo),
+      importoIncassato: String(row.incassato ?? row.importo),
       sconto: String(row.sconto || 0),
       modalita: row.modalita,
       dataAssegno: row.dataAssegno || "",
