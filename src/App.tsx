@@ -658,6 +658,7 @@ useEffect(() => {
     setSelectedImport(row.id);
     setEditingMovement(null);
     setSelectedSospesoIds([]);
+    setFormAutoMode(true);
     setForm({
       ...emptyForm,
       ramo: row.ramo,
@@ -665,6 +666,8 @@ useEffect(() => {
       contraente: row.contraente,
       referenteSospesi: row.contraente,
       importo: String(row.importo),
+      importoIncassato: String(row.importo),
+      sconto: "0",
       modalita: normalizzaModalitaPagamento(row.modalitaCompagnia),
       sub: row.sub || "100",
       tipo: "Titolo del giorno",
