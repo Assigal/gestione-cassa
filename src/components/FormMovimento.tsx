@@ -149,6 +149,25 @@ export function FormMovimento({
                   <input type="number" className="w-full rounded-2xl border px-3 py-2" value={form.importo} onChange={(e) => setForm({ ...form, importo: e.target.value })} />
                 </label>
 
+                 {form.tipo === "Titolo del giorno" && (
+                  <label className="space-y-1 lg:col-span-2">
+                    <span className="text-xs font-medium text-slate-500">
+                      Importo incassato
+                    </span>
+                    <input
+                      type="number"
+                      className="w-full rounded-2xl border px-3 py-2"
+                      value={form.importoIncassato}
+                      onChange={(e) =>
+                        setForm({
+                          ...form,
+                          importoIncassato: e.target.value,
+                        })
+                      }
+                    />
+                  </label>
+                )}
+
                 {!isVersamentoSubagente(form.tipo) && (
                   <label className="space-y-1 lg:col-span-2">
                     <span className="text-xs font-medium text-slate-500">Sconto</span>
