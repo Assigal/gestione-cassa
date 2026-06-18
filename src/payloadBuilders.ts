@@ -41,6 +41,7 @@ export function buildMovimentoPayload(
     importo_lordo: payload.importo,
     sconto: payload.sconto,
     importo_netto: payload.netto,
+    importo_incassato: payload.incassato,
 
     segno: payload.segno,
 
@@ -77,6 +78,7 @@ export function buildMovimentoUpdatePayload(
     importo_lordo: payload.importo,
     sconto: payload.sconto,
     importo_netto: payload.netto,
+    importo_incassato: payload.incassato,
 
     segno: payload.segno,
 
