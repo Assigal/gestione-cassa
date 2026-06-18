@@ -17,7 +17,7 @@ import type { Movimento, Sospeso, FormState, ImportRow, AllocazioneRecupero } fr
 import { tipiMovimento } from "./constants";
 import { euro, deltaLabel } from "./formatters";
 import { emptyForm } from "./formDefaults";
-import { numeroPolizzaCompleto, descrizioneMovimento, isAssegnoPostdatato, isVersamentoSubagente, getDescrizioneModalita } from "./utils";
+import { numeroPolizzaCompleto, descrizioneMovimento, isAssegnoPostdatato, isVersamentoSubagente, getDescrizioneModalita, calcolaValoriTitolo } from "./utils";
 import { normalizzaModalitaPagamento } from "./importUtils";
 import { stampaModuloSospeso, stampaModuloAbbuono } from "./printUtils";
 import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePayload, buildSospesoPayload, buildSospesoAggiornatoRpcPayload } from "./payloadBuilders";
