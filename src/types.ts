@@ -7,6 +7,7 @@ export interface Movimento {
   referenteSospesiId: string;
   sospesoId?: string;
   importo: number;
+  incassato: number;
   sconto: number;
   netto: number;
   modalita: string;
@@ -41,6 +42,7 @@ export interface FormState {
   referenteSospesi: string;
   referenteSospesi_id: string;
   importo: string;
+  importoIncassato: string;
   sconto: string;
   modalita: string;
   dataAssegno: string;
