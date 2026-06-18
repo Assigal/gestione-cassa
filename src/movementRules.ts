@@ -117,6 +117,10 @@ export function creaPayloadMovimentoDaForm(
     : Number(form.sconto || 0);
 
   const netto = importo - sconto;
+  const incassato =
+    form.tipo === "Titolo del giorno"
+      ? Number(form.importoIncassato || importo || 0)
+      : importo;
 
   return {
     ramo: versamentoSubagente ? "" : form.ramo,
@@ -129,6 +133,7 @@ export function creaPayloadMovimentoDaForm(
     importo,
     sconto,
     netto,
+    incassato,
     modalita: form.modalita,
     dataAssegno: form.dataAssegno,
     tipo: form.tipo,
