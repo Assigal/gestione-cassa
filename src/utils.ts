@@ -48,3 +48,13 @@ export function getDescrizioneModalita(codice: string | null | undefined) {
 
   return map[normalized] || codice || "-";
 }
+
+export function calcolaValoriTitolo(importo: number) {
+  const sconto = Number((importo - Math.floor(importo)).toFixed(2));
+  const incassato = Number((importo - sconto).toFixed(2));
+
+  return {
+    sconto,
+    incassato,
+  };
+}
