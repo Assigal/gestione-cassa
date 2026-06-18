@@ -150,46 +150,63 @@ export function FormMovimento({
                 )}
 
                 <label className="space-y-1 lg:col-span-2">
-                  <span className="text-xs font-medium text-slate-500">{isVersamentoSubagente(form.tipo) ? "Importo versato" : "Importo titolo"}</span>
-                  <input type="number" className="w-full rounded-2xl border px-3 py-2" value={form.importo} onChange={(e) => setForm({ ...form, importo: e.target.value })} />
+                  <span className="text-xs font-medium text-slate-500">
+                    {isVersamentoSubagente(form.tipo)
+                      ? "Importo versato"
+                      : "Importo titolo"}
+                  </span>
+                
+                  <input
+                    type="number"
+                    className="w-full rounded-2xl border px-3 py-2"
+                    value={form.importo}
+                    onChange={(e) => {
+                      const nuovoImporto = e.target.value;
+                
+                      if (form.tipo === "Titolo del giorno" && formAutoMode) {
+                        const { sconto, incassato } = calcolaValoriTitolo(
+                          Number(nuovoImporto || 0)
+                        );
+                
+                        setForm({
+                          ...form,
+                          importo: nuovoImporto,
+                          sconto: String(sconto),
+                          importoIncassato: String(incassato),
+                        });
+                
+                        return;
+                      }
+                
+                      setForm({
+                        ...form,
+                        importo: nuovoImporto,
+                      });
+                    }}
+                  />
                 </label>
-
-                 {form.tipo === "Titolo del giorno" && (
+                
+                {form.tipo === "Titolo del giorno" && (
                   <label className="space-y-1 lg:col-span-2">
                     <span className="text-xs font-medium text-slate-500">
                       Importo incassato
                     </span>
+                
                     <input
                       type="number"
                       className="w-full rounded-2xl border px-3 py-2"
                       value={form.importoIncassato}
                       onChange={(e) => {
-                        const nuovoImporto = e.target.value;
-                      
-                        if (form.tipo === "Titolo del giorno" && formAutoMode) {
-                          const { sconto, incassato } = calcolaValoriTitolo(
-                            Number(nuovoImporto || 0)
-                          );
-                      
-                          setForm({
-                            ...form,
-                            importo: nuovoImporto,
-                            sconto: String(sconto),
-                            importoIncassato: String(incassato),
-                          });
-                      
-                          return;
-                        }
-                      
+                        setFormAutoMode(false);
+                
                         setForm({
                           ...form,
-                          importo: nuovoImporto,
+                          importoIncassato: e.target.value,
                         });
                       }}
                     />
                   </label>
                 )}
-
                 {!isVersamentoSubagente(form.tipo) && (
                   <label className="space-y-1 lg:col-span-2">
                     <span className="text-xs font-medium text-slate-500">Sconto</span>
