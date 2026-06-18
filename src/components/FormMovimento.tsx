@@ -12,6 +12,8 @@ type FormMovimentoProps = {
 
   form: FormState;
   setForm: React.Dispatch<React.SetStateAction<FormState>>;
+  formAutoMode: boolean;
+  setFormAutoMode: React.Dispatch<React.SetStateAction<boolean>>;
   saveForm: () => void;
   resetForm: () => void;
   fileInputRef: React.RefObject<HTMLInputElement>;
@@ -37,6 +39,8 @@ export function FormMovimento({
   giornataChiusa,
   selectedImportRow,
   form,
+  formAutoMode,
+  setFormAutoMode,
   setForm,
   saveForm,
   resetForm,
