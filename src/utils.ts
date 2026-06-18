@@ -50,11 +50,8 @@ export function getDescrizioneModalita(codice: string | null | undefined) {
 }
 
 export function calcolaValoriTitolo(importo: number) {
-  const sconto = Number((importo - Math.floor(importo)).toFixed(2));
-  const incassato = Number((importo - sconto).toFixed(2));
-
   return {
-    sconto,
-    incassato,
+    sconto: 0,
+    incassato: Number(importo.toFixed(2)),
   };
 }
