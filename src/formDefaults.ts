@@ -16,4 +16,5 @@ export const emptyForm: FormState = {
   note: "",
   dataInizioSubagente: "",
   dataFineSubagente: "",
+  manualInput: false,
 };
