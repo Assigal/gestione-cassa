@@ -447,6 +447,7 @@ useEffect(() => {
         referenteSospesiId: row.referente_sospesi_id || "",
         sospesoId: row.sospeso_id || "",
         importo: Number(row.importo_lordo || 0),
+        incassato: Number(row.importo_incassato || 0),
         sconto: Number(row.sconto || 0),
         netto: Number(row.importo_netto || 0),
         modalita: row.modalita_pagamento || "C",
