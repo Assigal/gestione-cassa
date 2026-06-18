@@ -2,6 +2,7 @@ import React from "react";
 import { ClipboardList, Upload } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { calcolaValoriTitolo } from "../utils";
 
 type FormMovimentoProps = {
   editingMovement: number | null;
@@ -162,12 +163,29 @@ export function FormMovimento({
                       type="number"
                       className="w-full rounded-2xl border px-3 py-2"
                       value={form.importoIncassato}
-                      onChange={(e) =>
+                      onChange={(e) => {
+                        const nuovoImporto = e.target.value;
+                      
+                        if (form.tipo === "Titolo del giorno" && formAutoMode) {
+                          const { sconto, incassato } = calcolaValoriTitolo(
+                            Number(nuovoImporto || 0)
+                          );
+                      
+                          setForm({
+                            ...form,
+                            importo: nuovoImporto,
+                            sconto: String(sconto),
+                            importoIncassato: String(incassato),
+                          });
+                      
+                          return;
+                        }
+                      
                         setForm({
                           ...form,
-                          importoIncassato: e.target.value,
-                        })
-                      }
+                          importo: nuovoImporto,
+                        });
+                      }}
                     />
                   </label>
                 )}
