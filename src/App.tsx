@@ -200,6 +200,7 @@ export default function GestioneCassa() {
     } | null>(null);
     const [searchSospesi, setSearchSospesi] = useState("");
     const [form, setForm] = useState<FormState>(emptyForm);
+    const [formAutoMode, setFormAutoMode] = useState(true);
     const [auditLog, setAuditLog] = useState<string[]>([]);
     const [sogliaStampaAbbuono, setSogliaStampaAbbuono] = useState(3);
     const [giornataChiusa, setGiornataChiusa] = useState(false);
@@ -1866,6 +1867,8 @@ alert(
   selectedImportRow={selectedImportRow}
   form={form}
   setForm={setForm}
+  formAutoMode={formAutoMode}
+  setFormAutoMode={setFormAutoMode}
   saveForm={saveForm}
   resetForm={resetForm}
   fileInputRef={fileInputRef}
