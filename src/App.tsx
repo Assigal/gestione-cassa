@@ -1104,6 +1104,22 @@ useEffect(() => {
           alert("Movimento/sospeso non aggiornati su Supabase: " + error.message);
           return;
         }
+
+        setMovimenti((rows) =>
+          rows.map((row) =>
+            row.id === editingMovement
+              ? {
+                  ...row,
+                  ...payload,
+                  sospesoId: "",
+                }
+              : row
+          )
+        );
+
+setSospesi((rows) =>
+  rows.filter((s) => s.id !== sospesoOriginale.id)
+);
         
       } else {
         const { error } = await aggiornaMovimentoDb(
