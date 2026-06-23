@@ -9,13 +9,18 @@ export function movimentoEraSospeso(
     giornata: string
   ) => boolean
 ) {
+  if (!movimento) return false;
+  if (movimento.tipo !== "Titolo del giorno") return false;
+
+  const importoSospeso =
+    Number(movimento.importo || 0) -
+    Number(movimento.sconto || 0) -
+    Number(movimento.incassato || 0);
+
   return (
-    !!movimento &&
-    movimento.tipo === "Titolo del giorno" &&
-    (
-      movimento.modalita === "S" ||
-      isAssegnoPostdatato(movimento, giornataCorrente)
-    )
+    importoSospeso > 0.009 ||
+    movimento.modalita === "S" ||
+    isAssegnoPostdatato(movimento, giornataCorrente)
   );
 }
 
