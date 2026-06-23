@@ -1099,11 +1099,15 @@ useEffect(() => {
           setMovimenti((rows) =>
             rows.map((row) =>
               row.id === editingMovement
-                ? { ...row, sospesoId: data.sospeso_id }
+                ? {
+                    ...row,
+                    ...payload,
+                    sospesoId: data.sospeso_id,
+                  }
                 : row
             )
           );
-      
+        
           setSospesi((rows) => [
             {
               ...nuovoSospesoPerModifica,
