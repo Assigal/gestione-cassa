@@ -1222,6 +1222,9 @@ useEffect(() => {
     sospesiDaAggiornareRpc: any[],
     nuovoSospesoRpc: any | null
   ) {
+
+    const tempId = movimentoDaSalvare.id;
+
     setMovimenti((rows) => [
       movimentoDaSalvare,
       ...rows,
@@ -1240,6 +1243,7 @@ useEffect(() => {
         "DEBUG buildMovimentoPayload",
         buildMovimentoPayload(movimentoDaSalvare, giornataDbId, session)
       );
+    
       const { data, error } = await registraMovimentoCassaRpc({
         movimento: buildMovimentoPayload(
           movimentoDaSalvare,
@@ -1269,29 +1273,41 @@ useEffect(() => {
     
       if (data?.movimento_id) {
         movimentoDaSalvare.id = data.movimento_id;
+    
+        setMovimenti((rows) =>
+          rows.map((row) =>
+            row.id === tempId
+              ? { ...row, id: data.movimento_id }
+              : row
+          )
+        );
+      }
+    
+      if (data?.sospeso_id && nuovoSospesoRpc) {
+        movimentoDaSalvare.sospesoId = data.sospeso_id;
+    
+        setMovimenti((rows) =>
+          rows.map((row) =>
+            row.id === data.movimento_id || row.id === tempId
+              ? {
+                  ...row,
+                  id: data.movimento_id,
+                  sospesoId: data.sospeso_id,
+                }
+              : row
+          )
+        );
+    
+        setSospesi((rows) => [
+          {
+            ...creaNuovoSospesoDaPayload(payload, giornataCorrente),
+            id: data.sospeso_id,
+          },
+          ...rows,
+        ]);
       }
     
       return movimentoDaSalvare;
-    }
-
-    if (data?.sospeso_id && nuovoSospesoRpc) {
-      movimentoDaSalvare.sospesoId = data.sospeso_id;
-    
-      setMovimenti((rows) =>
-        rows.map((row) =>
-          row.id === movimentoDaSalvare.id
-            ? { ...row, sospesoId: data.sospeso_id }
-            : row
-        )
-      );
-    
-      setSospesi((rows) => [
-        {
-          ...creaNuovoSospesoDaPayload(payload, giornataCorrente),
-          id: data.sospeso_id,
-        },
-        ...rows,
-      ]);
     }
     
     const { data: movimentoCreato, error } =
@@ -1353,8 +1369,6 @@ useEffect(() => {
         );
       }
     }
-  
-    return movimentoDaSalvare;
   }
 
   function completaInserimentoMovimento(
