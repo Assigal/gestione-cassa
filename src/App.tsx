@@ -594,7 +594,7 @@ useEffect(() => {
     
         return false;
       })
-      .reduce((sum, m) => sum + m.netto * (m.segno || 1), 0);
+    .reduce((sum, m) => sum + m.incassato * (m.segno || 1), 0);    
     
     const totaleSospesi = movimenti
       .filter(
@@ -605,7 +605,7 @@ useEffect(() => {
   .reduce((sum, m) => sum + m.importo, 0);
     const totaleRecuperi = movimenti
       .filter((m) => m.tipo === "Recupero sospeso")
-      .reduce((sum, m) => sum + m.netto, 0);
+      .reduce((sum, m) => sum + m.incassato, 0);
     const vers = Number(versamento || 0);
     const cassa = avanzoPrecedente + incassiFisici - vers;
 
