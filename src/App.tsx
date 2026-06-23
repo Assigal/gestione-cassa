@@ -1495,6 +1495,15 @@ async function saveForm() {
   const usaRpcPerQuestoMovimento =
     USA_RPC_MOVIMENTO_ATOMICO;
 
+  console.log("DEBUG payload sospeso", {
+    tipo: payload.tipo,
+    importo: payload.importo,
+    sconto: payload.sconto,
+    incassato: payload.incassato,
+    sospesoCalcolato: payload.importo - payload.sconto - payload.incassato,
+    generaSospeso: payloadGeneraSospeso(payload, giornataCorrente),
+  });
+
   if (payloadGeneraSospeso(payload, giornataCorrente)) {
     nuovoSospesoRpc = buildSospesoPayload(
       creaNuovoSospesoDaPayload(payload, giornataCorrente),
