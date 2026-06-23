@@ -1194,6 +1194,11 @@ useEffect(() => {
       USA_RPC_MOVIMENTO_ATOMICO;
     
     if (usaRpcPerQuestoMovimento) {
+      console.log("DEBUG movimentoDaSalvare", movimentoDaSalvare);
+      console.log(
+        "DEBUG buildMovimentoPayload",
+        buildMovimentoPayload(movimentoDaSalvare, giornataDbId, session)
+      );
       const { data, error } = await registraMovimentoCassaRpc({
         movimento: buildMovimentoPayload(
           movimentoDaSalvare,
