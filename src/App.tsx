@@ -848,12 +848,32 @@ useEffect(() => {
     );
   }
 
-  function trovaSospesoOriginale(
-      movimento?: Movimento
-    ) {
-    return sospesi.find(
-      (s) => s.id === movimento?.sospesoId
+  function trovaSospesoOriginale(movimento?: Movimento) {
+    if (!movimento?.sospesoId) return undefined;
+  
+    const sospeso = sospesi.find(
+      (s) => s.id === movimento.sospesoId
     );
+  
+    if (sospeso) return sospeso;
+  
+    return {
+      id: movimento.sospesoId,
+      referenteSospesi: movimento.referenteSospesi,
+      referenteSospesiId: movimento.referenteSospesiId,
+      contraente: movimento.contraente,
+      ramo: movimento.ramo,
+      polizza: movimento.polizza,
+      importoOriginario:
+        movimento.importo - movimento.sconto - movimento.incassato,
+      recuperato: 0,
+      scontoApplicato: 0,
+      residuo:
+        movimento.importo - movimento.sconto - movimento.incassato,
+      stato: "Aperto",
+      dataSospeso: giornataCorrente,
+      note: movimento.note,
+    };
   }
  
   async function gestisciStampaAbbuono(
