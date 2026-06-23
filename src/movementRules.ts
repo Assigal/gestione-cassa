@@ -28,15 +28,26 @@ export function payloadGeneraSospeso(
   payload: any,
   giornataCorrente: string
 ): boolean {
+  if (payload.tipo !== "Titolo del giorno") {
+    return false;
+  }
+
+  const importoSospeso =
+    Number(payload.importo || 0) -
+    Number(payload.sconto || 0) -
+    Number(payload.incassato || 0);
+
+  const incassoParziale = importoSospeso > 0.009;
+
+  const assegnoPostdatato =
+    payload.modalita === "A" &&
+    payload.dataAssegno &&
+    payload.dataAssegno > giornataCorrente;
+
   return (
-    payload.tipo === "Titolo del giorno" &&
-    (
-      payload.modalita === "S" ||
-      (
-        payload.modalita === "A" &&
-        payload.dataAssegno > giornataCorrente
-      )
-    )
+    payload.modalita === "S" ||
+    assegnoPostdatato ||
+    incassoParziale
   );
 }
 
@@ -78,6 +89,13 @@ export function creaNuovoSospesoDaPayload(
   payload: Movimento,
   giornataCorrente: string
 ): Sospeso {
+  const importoSospeso = Math.max(
+    Number(payload.importo || 0) -
+    Number(payload.sconto || 0) -
+    Number(payload.incassato || 0),
+    0
+  );
+
   return {
     id: `sosp-${Date.now()}`,
     referenteSospesi: payload.referenteSospesi,
@@ -85,10 +103,10 @@ export function creaNuovoSospesoDaPayload(
     contraente: payload.contraente,
     ramo: payload.ramo,
     polizza: payload.polizza,
-    importoOriginario: payload.importo,
+    importoOriginario: importoSospeso,
     recuperato: 0,
     scontoApplicato: 0,
-    residuo: payload.importo,
+    residuo: importoSospeso,
     stato: "Aperto",
     dataSospeso: giornataCorrente,
     note: payload.note,
