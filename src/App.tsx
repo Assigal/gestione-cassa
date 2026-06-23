@@ -1253,6 +1253,18 @@ useEffect(() => {
     
       return movimentoDaSalvare;
     }
+
+    if (data?.sospeso_id && nuovoSospesoRpc) {
+      movimentoDaSalvare.sospesoId = data.sospeso_id;
+    
+      setSospesi((rows) => [
+        {
+          ...creaNuovoSospesoDaPayload(payload, giornataCorrente),
+          id: data.sospeso_id,
+        },
+        ...rows,
+      ]);
+    }
     
     const { data: movimentoCreato, error } =
       await salvaMovimentoDb(
