@@ -975,9 +975,12 @@ useEffect(() => {
             contraente: payload.contraente || null,
             ramo: payload.ramo || null,
             polizza: payload.polizza || null,
-            importo_originario: payload.importo,
+            importo_originario:
+              payload.importo - payload.sconto - payload.incassato,
             residuo:
               payload.importo -
+              payload.sconto -
+              payload.incassato -
               sospesoOriginale.recuperato -
               sospesoOriginale.scontoApplicato,
             note: payload.note || null,
