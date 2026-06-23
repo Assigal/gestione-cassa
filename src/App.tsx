@@ -827,15 +827,24 @@ useEffect(() => {
   }
   
   function payloadGeneraSospeso(payload: any) {
+    if (payload.tipo !== "Titolo del giorno") return false;
+  
+    const importoSospeso =
+      Number(payload.importo || 0) -
+      Number(payload.sconto || 0) -
+      Number(payload.incassato || 0);
+  
+    const incassoParziale = importoSospeso > 0.009;
+  
+    const assegnoPostdatato =
+      payload.modalita === "A" &&
+      payload.dataAssegno &&
+      payload.dataAssegno > giornataCorrente;
+  
     return (
-      payload.tipo === "Titolo del giorno" &&
-      (
-        payload.modalita === "S" ||
-        (
-          payload.modalita === "A" &&
-          payload.dataAssegno > giornataCorrente
-        )
-      )
+      payload.modalita === "S" ||
+      assegnoPostdatato ||
+      incassoParziale
     );
   }
 
