@@ -1404,9 +1404,11 @@ useEffect(() => {
         
           const tempId = nuovoSospeso.id;
         
-          setSospesi((rows) => [nuovoSospeso, ...rows]);
-        
-         if (giornataDbId && !saltaSalvataggioDb) {
+          if (!saltaSalvataggioDb) {
+            setSospesi((rows) => [nuovoSospeso, ...rows]);
+          }
+          
+          if (giornataDbId && !saltaSalvataggioDb) {
             const sospesoCreato =
               await salvaSospesoConStorico(
                 nuovoSospeso,
