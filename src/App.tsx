@@ -921,6 +921,13 @@ useEffect(() => {
     const sospesoOriginale =
       trovaSospesoOriginale(movimentoOriginale);
 
+    console.log("DEBUG modifica sospeso", {
+      movimentoOriginale,
+      primaEraSospeso,
+      oraESospeso,
+      sospesoOriginale,
+    });
+
     const nuovoSospesoPerModifica =
       creaNuovoSospesoDaPayload(
         payload,
