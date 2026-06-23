@@ -1034,6 +1034,41 @@ useEffect(() => {
           alert("Movimento/sospeso non aggiornati su Supabase: " + error.message);
           return;
         }
+        const nuovoImportoSospeso =
+          payload.importo - payload.sconto - payload.incassato;
+        
+        setMovimenti((rows) =>
+          rows.map((row) =>
+            row.id === editingMovement
+              ? {
+                  ...row,
+                  ...payload,
+                  sospesoId: sospesoOriginale.id,
+                }
+              : row
+          )
+        );
+        
+        setSospesi((rows) =>
+          rows.map((s) =>
+            s.id === sospesoOriginale.id
+              ? {
+                  ...s,
+                  referenteSospesi: payload.referenteSospesi,
+                  referenteSospesiId: payload.referenteSospesiId,
+                  contraente: payload.contraente,
+                  ramo: payload.ramo,
+                  polizza: payload.polizza,
+                  importoOriginario: nuovoImportoSospeso,
+                  residuo:
+                    nuovoImportoSospeso -
+                    s.recuperato -
+                    s.scontoApplicato,
+                  note: payload.note,
+                }
+              : s
+          )
+        );
 
       } else if (modificaNormaleDiventaSospeso) {
         const { data, error } = await aggiornaMovimentoCassaCreaSospesoRpc({
