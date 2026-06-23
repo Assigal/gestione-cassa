@@ -1257,6 +1257,14 @@ useEffect(() => {
     if (data?.sospeso_id && nuovoSospesoRpc) {
       movimentoDaSalvare.sospesoId = data.sospeso_id;
     
+      setMovimenti((rows) =>
+        rows.map((row) =>
+          row.id === movimentoDaSalvare.id
+            ? { ...row, sospesoId: data.sospeso_id }
+            : row
+        )
+      );
+    
       setSospesi((rows) => [
         {
           ...creaNuovoSospesoDaPayload(payload, giornataCorrente),
