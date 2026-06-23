@@ -925,6 +925,8 @@ useEffect(() => {
       movimentoOriginale,
       primaEraSospeso,
       oraESospeso,
+      sospesoIdMovimento: movimentoOriginale?.sospesoId,
+      sospesiIds: sospesi.map((s) => s.id),
       sospesoOriginale,
     });
 
