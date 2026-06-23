@@ -54,7 +54,7 @@ export function TabellaMovimenti({
                       <th className="px-3 py-2">Tipo</th>
                       <th className="px-3 py-2">Modalità</th>
                       <th className="px-3 py-2 text-right">Lordo</th>
-                      <th className="px-3 py-2 text-right">Netto</th>
+                      <th className="px-3 py-2 text-right">Incassato</th>
                       <th className="px-3 py-2">Note</th>
                       <th className="px-3 py-2"></th>
                     </tr>
@@ -90,7 +90,7 @@ export function TabellaMovimenti({
                             </div>
                           </td>
                           <td className="px-3 py-2 text-right">{euro(m.importo)}</td>
-                          <td className="px-3 py-2 text-right font-medium">{euro(m.netto)}</td>
+                          <td className="px-3 py-2 text-right font-medium">{euro(m.incassato)}</td>
                           <td className="px-3 py-2 text-xs text-slate-500">{m.note || "-"}</td>
                           <td className="px-3 py-2 text-right">
                             <div className="flex justify-end gap-1">
