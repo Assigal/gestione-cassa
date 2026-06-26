@@ -114,3 +114,22 @@ export async function aggiornaMovimentoCassaRimuoviSospesoRpc(params: {
     }
   );
 }
+
+export async function eliminaMovimentoCassaRpc({
+  movimentoId,
+  sospesoId,
+  allocazioniRecupero,
+  audit,
+}: {
+  movimentoId: string;
+  sospesoId?: string | null;
+  allocazioniRecupero?: any[];
+  audit?: any;
+}) {
+  return await supabase.rpc("elimina_movimento_cassa", {
+    p_movimento_id: movimentoId,
+    p_sospeso_id: sospesoId || null,
+    p_allocazioni_recupero: allocazioniRecupero || [],
+    p_audit: audit || null,
+  });
+}
