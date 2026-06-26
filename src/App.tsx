@@ -26,7 +26,7 @@ import { movimentoEraSospeso, importoMovimentoNonValido, payloadGeneraSospeso, m
 
 import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
 import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb, registraMovimentoCassaRpc,
-         aggiornaMovimentoCassaSempliceRpc, aggiornaMovimentoCassaConSospesoRpc, aggiornaMovimentoCassaCreaSospesoRpc, aggiornaMovimentoCassaRimuoviSospesoRpc } from "./services/movimentiService";
+         aggiornaMovimentoCassaSempliceRpc, aggiornaMovimentoCassaConSospesoRpc, aggiornaMovimentoCassaCreaSospesoRpc, aggiornaMovimentoCassaRimuoviSospesoRpc, eliminaMovimentoCassaRpc } from "./services/movimentiService";
 import { caricaSospesiDb, creaSospesoDb, aggiornaSospesoDb, eliminaSospesoDb, creaStoricoSospesoDb, creaStoricoSospesiBulkDb, collegaStoricoOrigineAMovimentoDb } from "./services/sospesiService";
 import { caricaQuadratureDb, salvaQuadraturaDb } from "./services/quadratureService";
 import { loginDb, logoutDb, caricaProfiloUtenteDb } from "./services/authService";
@@ -702,17 +702,33 @@ useEffect(() => {
     if (
       movimento &&
       movimento.tipo === "Titolo del giorno" &&
-      (movimento.modalita === "S" ||
-        isAssegnoPostdatato(movimento, giornataCorrente))
+      movimento.sospesoId
     ) {
       setSospesi((rows) =>
-        rows.filter((s) => s.polizza !== movimento.polizza)
+        rows.filter((s) => s.id !== movimento.sospesoId)
       );
     }
     setMovimenti((rows) => rows.filter((row) => row.id !== id));
     
-    if (giornataDbId) {
-      const { error } = await eliminaMovimentoDb(id);
+    if (giornataDbId && movimento) {
+      const { error } = await eliminaMovimentoCassaRpc({
+        movimentoId: String(id),
+        sospesoId: movimento.sospesoId || null,
+        allocazioniRecupero: movimento.allocazioniRecupero || [],
+        audit: {
+          giornata_id: giornataDbId,
+          utente_id: null,
+          azione: "eliminazione_movimento",
+          dettaglio: {
+            movimento_id: id,
+            sospeso_id: movimento.sospesoId || null,
+            tipo: movimento.tipo,
+            polizza: movimento.polizza || null,
+            importo: movimento.importo,
+            user_email: session?.user?.email || null,
+          },
+        },
+      });
     
       if (error) {
         console.error(error);
