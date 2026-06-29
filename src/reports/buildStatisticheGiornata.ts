@@ -62,10 +62,22 @@ export interface StatisticheGiornata {
     assegni: number;
   };
 
+  incassiModalita: {
+    contanti: number;
+    assegni: number;
+    pos: number;
+    bonifici: number;
+    altri: number;
+  };
+  
   qualita: {
     recuperiSospesi: number;
     sospesiCreati: number;
     saldoSospesi: number;
+    numeroSospesiCreati: number;
+    numeroRecuperiSospesi: number;
+    numeroPostdatati: number;
+    numeroMovimentiExtra: number;
   };
 
   movimenti: {
@@ -164,10 +176,65 @@ export function buildStatisticheGiornata(
       ),
     },
 
+    incassiModalita: {
+      contanti: sumBy(
+        movimenti.filter((m) => m.modalita === "C"),
+        (m) => m.incassato
+      ),
+    
+      assegni: sumBy(
+        movimenti.filter((m) => m.modalita === "A"),
+        (m) => m.incassato
+      ),
+    
+      pos: sumBy(
+        movimenti.filter((m) => m.modalita === "J"),
+        (m) => m.incassato
+      ),
+    
+      bonifici: sumBy(
+        movimenti.filter((m) => m.modalita === "B"),
+        (m) => m.incassato
+      ),
+    
+      altri: sumBy(
+        movimenti.filter(
+          (m) => !["C", "A", "J", "B"].includes(m.modalita)
+        ),
+        (m) => m.incassato
+      ),
+    },
+    
     qualita: {
-      recuperiSospesi: 0,
-      sospesiCreati: 0,
-      saldoSospesi: 0,
+      recuperiSospesi: sumBy(
+        recuperiSospesi,
+        (m) => m.incassato
+      ),
+    
+      sospesiCreati: sumBy(
+        movimenti.filter((m) => importoSospeso(m) > 0.009),
+        importoSospeso
+      ),
+    
+      saldoSospesi:
+        sumBy(recuperiSospesi, (m) => m.incassato) -
+        sumBy(
+          movimenti.filter((m) => importoSospeso(m) > 0.009),
+          importoSospeso
+        ),
+      
+      numeroSospesiCreati: movimenti.filter(
+        (m) => importoSospeso(m) > 0.009
+      ).length,
+      
+      numeroRecuperiSospesi: recuperiSospesi.length,
+      
+      numeroPostdatati: movimenti.filter(
+        (m) => m.isPostdatato
+      ).length,
+      
+      numeroMovimentiExtra:
+        titoliAltriCip.length + altriMovimenti.length,
     },
 
     movimenti: {
