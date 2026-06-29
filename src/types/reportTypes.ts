@@ -10,15 +10,26 @@ export type ReportPaymentType =
 
 export interface ReportMovimento {
   id: string;
+
   ora: string;
+
+  utente: string;      // operatore
+  dataInserimento: string;
+
   contraente: string;
   polizza: string;
+
   tipoPagamento: string;
+
   importo: number;
   incassato: number;
   sconto: number;
-  utente: string;
+  sospeso: number;
+
   cip: string;
+
+  note?: string;
+
   isPostdatato?: boolean;
 }
 
@@ -28,16 +39,23 @@ export interface ReportRecuperoSospeso extends ReportMovimento {
 
 export interface ReportChiusuraSubagente {
   id: string;
+
+  ora: string;
+
   cip: string;
   subagente?: string;
+
   periodoDal: string;
   periodoAl: string;
+
   importo: number;
+
   modalitaPagamento: string;
+
   utente: string;
+
   note?: string;
 }
-
 export interface CassaGiornataReport {
   header: {
     dataGiornata: string;
