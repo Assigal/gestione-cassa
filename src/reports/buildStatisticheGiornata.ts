@@ -3,6 +3,33 @@ import type {
   Sospeso,
 } from "../types";
 
+function sumBy<T>(
+  rows: T[],
+  selector: (row: T) => number
+): number {
+  return rows.reduce(
+    (sum, row) => sum + selector(row),
+    0
+  );
+}
+
+function normalizeCip(cip: string | number | undefined | null): string {
+  return String(cip || "").trim();
+}
+
+function importoSospeso(m: {
+  importo: number;
+  sconto: number;
+  incassato: number;
+}): number {
+  return Math.max(
+    Number(m.importo || 0) -
+      Number(m.sconto || 0) -
+      Number(m.incassato || 0),
+    0
+  );
+}
+
 export interface StatisticheGiornata {
   conteggi: {
     totaleMovimenti: number;
