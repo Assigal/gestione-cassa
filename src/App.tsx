@@ -31,6 +31,8 @@ import { caricaSospesiDb, creaSospesoDb, aggiornaSospesoDb, eliminaSospesoDb, cr
 import { caricaQuadratureDb, salvaQuadraturaDb } from "./services/quadratureService";
 import { loginDb, logoutDb, caricaProfiloUtenteDb } from "./services/authService";
 
+import { buildCassaGiornataReport } from "./reports/buildCassaGiornataReport";
+
 import { supabase } from "./supabaseClient";
 
 // ======================================================
