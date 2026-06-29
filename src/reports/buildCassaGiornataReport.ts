@@ -71,82 +71,108 @@ function toReportMovimento(m: Movimento): ReportMovimento {
 
 export function buildCassaGiornataReport({
   movimenti,
+  sospesi,
+  dataGiornata,
+  statoGiornata,
+  supervisore,
+  ultimaModifica,
   cassaFisicaIniziale,
   versamento,
-  totaleCompagnia,
+  quadraturaCassa,
 }: BuildReportParams): CassaGiornataReport {
-  
-  const titoliCip100 = movimenti
-    .filter((m) => isTitoloDelGiorno(m) && isCip100(m))
-    .map(toReportMovimento);
-  
-  const titoliAltriCip = movimenti
-    .filter((m) => isTitoloDelGiorno(m) && !isCip100(m))
-    .map(toReportMovimento);
-  
-  const recuperiSospesi = movimenti
-    .filter(isRecuperoSospeso)
-    .map(toReportMovimento);
-  
-  const versamentiSubagenti = movimenti.filter(isVersamentoSubagente);
-
-  const totaleTitoliCip100 = sumBy(titoliCip100, (m) => m.importo);
-
-  const totaleIncassatoCip100 = sumBy(
-    titoliCip100,
-    (m) => m.incassato
+  const stats = buildStatisticheGiornata(
+    movimenti,
+    sospesi
   );
-  
-  const totaleCompagniaSafe =
-    totaleCompagnia !== undefined ? Number(totaleCompagnia) : undefined;
-  
-  const differenzaCompagnia =
-    totaleCompagniaSafe !== undefined
-      ? totaleTitoliCip100 - totaleCompagniaSafe
-      : undefined;
 
-  const quadraturaCompagnia = {
-    totaleTitoliCip100,
-    totaleCompagnia: totaleCompagniaSafe,
-    differenza: differenzaCompagnia,
-    isQuadrata:
-      differenzaCompagnia !== undefined
-        ? Math.abs(differenzaCompagnia) < 0.01
-        : undefined,
+  const cassaDisponibile =
+    cassaFisicaIniziale +
+    stats.cassaFisica.contanti +
+    stats.cassaFisica.assegni;
+
+  const cassaTeorica =
+    cassaDisponibile - versamento;
+
+  return {
+    header: {
+      dataGiornata,
+      stato: statoGiornata,
+      supervisore,
+      ultimaModifica,
+      totaleMovimenti: stats.conteggi.totaleMovimenti,
+      numeroTitoliCip100: stats.conteggi.titoliCip100,
+      numeroTitoliAltriCip: stats.conteggi.titoliAltriCip,
+      numeroRecuperiSospesi: stats.conteggi.recuperiSospesi,
+      numeroVersamentiSubagenti: stats.conteggi.versamentiSubagenti,
+      numeroAltriMovimenti: stats.conteggi.altriMovimenti,
+    },
+
+    produzioneCip100: {
+      totaleLordo: stats.produzioneCip100.lordo,
+      totaleIncassato: stats.produzioneCip100.incassato,
+      totaleSconti: stats.produzioneCip100.sconti,
+      totaleSospesiCreati: stats.produzioneCip100.sospesi,
+      perModalita: stats.produzioneCip100.perModalita.map((row) => ({
+        modalita: row.modalita,
+        lordo: row.lordo,
+        incassato: row.incassato,
+        sconto: row.sconti,
+        sospeso: row.sospesi,
+        numeroMovimenti: row.numeroMovimenti,
+      })),
+    },
+
+    qualitaGiornata: {
+      totaleSospesiCreati: stats.qualita.sospesiCreati,
+      totaleRecuperiSospesi: stats.qualita.recuperiSospesi,
+      saldoSospesi: stats.qualita.saldoSospesi,
+      numeroSospesiCreati: stats.qualita.numeroSospesiCreati,
+      numeroRecuperiSospesi: stats.qualita.numeroRecuperiSospesi,
+      numeroPostdatati: stats.qualita.numeroPostdatati,
+      numeroMovimentiExtra: stats.qualita.numeroMovimentiExtra,
+    },
+
+    cassaFisica: {
+      avanzoPrecedente: cassaFisicaIniziale,
+      totaleContanti: stats.cassaFisica.contanti,
+      totaleAssegni: stats.cassaFisica.assegni,
+      disponibilita: cassaDisponibile,
+      versamento,
+      cassaTeorica,
+    },
+
+    quadraturaCassa,
+
+    sezioni: {
+      titoliCip100: stats.movimenti.titoliCip100.map(toReportMovimento),
+      titoliAltriCip: stats.movimenti.titoliAltriCip.map(toReportMovimento),
+      recuperiSospesi: stats.movimenti.recuperiSospesi.map(
+        (m): ReportRecuperoSospeso => ({
+          ...toReportMovimento(m),
+          dataOrigineSospeso: "",
+        })
+      ),
+      versamentiSubagenti: stats.movimenti.versamentiSubagenti.map(
+        (m): ReportChiusuraSubagente => ({
+          id: String(m.id),
+          ora: m.createdAt
+            ? new Date(m.createdAt).toLocaleTimeString("it-IT", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : "",
+          cip: m.sub || "",
+          periodoDal: m.dataInizioSubagente || "",
+          periodoAl: m.dataFineSubagente || "",
+          importo: m.incassato,
+          modalitaPagamento: m.modalita,
+          utente: m.createdByEmail || "",
+          note: m.note || "",
+        })
+      ),
+      altriMovimenti: stats.movimenti.altriMovimenti.map(toReportMovimento),
+    },
+
+    alert: [],
   };
-
-  const totaleSconti = sumBy(titoliCip100, (m) => m.sconto);
-
-  const postdatati = titoliCip100.filter((m) => m.isPostdatato);
-  
-  const indicatori = {
-    totaleSconti,
-    totaleIncassatoCip100,
-    totaleSospesiCreati: sumBy(
-      movimenti.filter((m) => isTitoloDelGiorno(m) && !!m.sospeso_id),
-      (m) => Number(m.importo_lordo ?? 0)
-    ),
-    numeroSospesiCreati: movimenti.filter(
-      (m) => isTitoloDelGiorno(m) && !!m.sospeso_id
-    ).length,
-    totaleSospesiCreati: sumBy(titoliCip100, (m) =>
-      Math.max(m.importo - m.sconto - m.incassato, 0)
-    ),
-    
-    numeroSospesiCreati: titoliCip100.filter(
-      (m) => m.importo - m.sconto - m.incassato > 0
-    ).length,
-    numeroRecuperiSospesi: recuperiSospesi.length,
-    numeroAltriCip: titoliAltriCip.length,
-    numeroPostdatati: postdatati.length,
-  };
-  
-  console.log({
-    titoliCip100: titoliCip100.length,
-    titoliAltriCip: titoliAltriCip.length,
-    recuperiSospesi: recuperiSospesi.length,
-    versamentiSubagenti: versamentiSubagenti.length,
-  });
-
-  throw new Error("Report builder non ancora completato");
 }
