@@ -39,22 +39,42 @@ export interface ReportChiusuraSubagente {
 }
 
 export interface CassaGiornataReport {
-  quadraturaCompagnia: {
-    totaleTitoliCip100: number;
-    totaleCompagnia?: number;
-    differenza?: number;
-    isQuadrata?: boolean;
+  header: {
+    dataGiornata: string;
+    stato: string;
+    supervisore?: string;
+    ultimaModifica?: string;
+    totaleMovimenti: number;
+    numeroTitoliCip100: number;
+    numeroTitoliAltriCip: number;
+    numeroRecuperiSospesi: number;
+    numeroVersamentiSubagenti: number;
+    numeroAltriMovimenti: number;
   };
 
-  indicatori: {
+  produzioneCip100: {
+    totaleLordo: number;
+    totaleIncassato: number;
     totaleSconti: number;
-    totaleIncassatoCip100: number;
+    totaleSospesiCreati: number;
+    perModalita: {
+      modalita: string;
+      lordo: number;
+      incassato: number;
+      sconto: number;
+      sospeso: number;
+      numeroMovimenti: number;
+    }[];
+  };
+
+  qualitaGiornata: {
     totaleSospesiCreati: number;
     totaleRecuperiSospesi: number;
+    saldoSospesi: number;
     numeroSospesiCreati: number;
     numeroRecuperiSospesi: number;
-    numeroAltriCip: number;
     numeroPostdatati: number;
+    numeroMovimentiExtra: number;
   };
 
   sezioni: {
@@ -65,15 +85,20 @@ export interface CassaGiornataReport {
     altriMovimenti: ReportMovimento[];
   };
 
-  cassa: {
-    cassaFisicaIniziale: number;
+  cassaFisica: {
+    avanzoPrecedente: number;
     totaleContanti: number;
     totaleAssegni: number;
-    totalePos: number;
-    totaleBonifici: number;
-    totaleAltriPagamenti: number;
+    disponibilita: number;
     versamento: number;
-    cassaFisicaSerale: number;
+    cassaTeorica: number;
+  };
+
+  quadraturaCassa?: {
+    cassaTeorica: number;
+    cassaReale: number;
+    differenza: number;
+    isQuadrata: boolean;
   };
 
   alert: string[];
