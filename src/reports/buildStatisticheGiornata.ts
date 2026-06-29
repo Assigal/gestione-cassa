@@ -67,6 +67,15 @@ export interface StatisticheGiornata {
     sospesiCreati: number;
     saldoSospesi: number;
   };
+
+  movimenti: {
+    titoliCip100: Movimento[];
+    titoliAltriCip: Movimento[];
+    recuperiSospesi: Movimento[];
+    versamentiSubagenti: Movimento[];
+    altriMovimenti: Movimento[];
+  };
+  
 }
 
 export function buildStatisticheGiornata(
@@ -100,6 +109,27 @@ export function buildStatisticheGiornata(
       m.tipo !== "Recupero sospeso" &&
       m.tipo !== "Versamento subagente"
   );
+
+  const modalitaCip100 = Array.from(
+    new Set(titoliCip100.map((m) => m.modalita))
+  );
+  
+  const produzioneCip100PerModalita =
+    modalitaCip100.map((modalita) => {
+      const rows = titoliCip100.filter(
+        (m) => m.modalita === modalita
+      );
+  
+      return {
+        modalita,
+        lordo: sumBy(rows, (m) => m.importo),
+        incassato: sumBy(rows, (m) => m.incassato),
+        sconti: sumBy(rows, (m) => m.sconto),
+        sospesi: sumBy(rows, importoSospeso),
+        numeroMovimenti: rows.length,
+      };
+    });
+  
   return {
     conteggi: {
       totaleMovimenti: movimenti.length,
@@ -113,16 +143,25 @@ export function buildStatisticheGiornata(
     },
 
     produzioneCip100: {
-      lordo: 0,
-      incassato: 0,
-      sconti: 0,
-      sospesi: 0,
-      perModalita: [],
+      lordo: sumBy(titoliCip100, (m) => m.importo),
+      incassato: sumBy(titoliCip100, (m) => m.incassato),
+      sconti: sumBy(titoliCip100, (m) => m.sconto),
+      sospesi: sumBy(titoliCip100, importoSospeso),
+      perModalita: produzioneCip100PerModalita,
     },
 
     cassaFisica: {
-      contanti: 0,
-      assegni: 0,
+      contanti: sumBy(
+        movimenti.filter((m) => m.modalita === "C"),
+        (m) => m.incassato * (m.segno || 1)
+      ),
+    
+      assegni: sumBy(
+        movimenti.filter(
+          (m) => m.modalita === "A" && !m.isPostdatato
+        ),
+        (m) => m.incassato * (m.segno || 1)
+      ),
     },
 
     qualita: {
@@ -130,6 +169,15 @@ export function buildStatisticheGiornata(
       sospesiCreati: 0,
       saldoSospesi: 0,
     },
+
+    movimenti: {
+      titoliCip100,
+      titoliAltriCip,
+      recuperiSospesi,
+      versamentiSubagenti,
+      altriMovimenti,
+    },
+    
   };
 
 }
