@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChiusuraCassaGiornalieraParameters } from "@/reports/ChiusuraCassaGiornaliera/ReportParameters";
+import { ChiusuraCassaGiornalieraDialog } from "@/reports/ChiusuraCassaGiornaliera/ReportDialog";
 
 type ReportDefinition = {
   id: string;
@@ -9,8 +9,8 @@ type ReportDefinition = {
   titolo: string;
   descrizione: string;
   disponibile: boolean;
-  ParametersComponent?: React.ComponentType<{
-    onCancel: () => void;
+  DialogComponent?: React.ComponentType<{
+    onClose: () => void;
   }>;
 };
 
@@ -21,8 +21,7 @@ const reports: ReportDefinition[] = [
     titolo: "Chiusura cassa giornaliera",
     descrizione: "Documento ufficiale della giornata di cassa.",
     disponibile: true,
-    ParametersComponent: ChiusuraCassaGiornalieraParameters,
-  },
+    DialogComponent: ChiusuraCassaGiornalieraDialog,  },
   {
     id: "report-cassa-mensile",
     categoria: "Cassa",
@@ -78,10 +77,10 @@ const categorie = Array.from(new Set(reports.map((r) => r.categoria)));
 
 export function ReportPanel() {
   const [selectedReport, setSelectedReport] =
-  useState<ReportDefinition | null>(null);
+    useState<ReportDefinition | null>(null);
   
-  const ParametersComponent =
-  selectedReport?.ParametersComponent;
+  const DialogComponent =
+    selectedReport?.DialogComponent;
   
   function handleOpenReport(report: ReportDefinition) {
     if (!report.disponibile) {
@@ -143,30 +142,11 @@ export function ReportPanel() {
           </div>
         ))}
 
-        {selectedReport && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-            <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl">
-              <div className="space-y-1">
-                <h3 className="text-lg font-semibold text-slate-900">
-                  {selectedReport.titolo}
-                </h3>
-                <p className="text-sm text-slate-500">
-                  {selectedReport.descrizione}
-                </p>
-              </div>
-        
-             {ParametersComponent ? (
-                <ParametersComponent
-                  onCancel={() => setSelectedReport(null)}
-                />
-              ) : (
-                <div className="mt-5 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
-                  Parametri non configurati per questo report.
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+      {DialogComponent && (
+        <DialogComponent
+          onClose={() => setSelectedReport(null)}
+        />
+      )}
         
       </CardContent>
     </Card>
