@@ -1,78 +1,33 @@
-import { CassaGiornataReport } from "../types/reportTypes";
+import type {
+  CassaGiornataReport,
+  ReportMovimento,
+  ReportRecuperoSospeso,
+  ReportChiusuraSubagente,
+} from "../types/reportTypes";
 
-type MovimentoCassaDb = {
-  id: string;
-  tipo_movimento: string;
-  codice_subagenzia: string | null;
-  ramo: string | null;
-  polizza: string | null;
-  contraente: string | null;
-  modalita_pagamento: string;
-  data_assegno: string | null;
-  importo_lordo: number;
-  sconto: number;
-  importo_netto: number;
-  importo_incassato: number;
-  segno: number;
-  note: string | null;
-  data_inizio_subagente: string | null;
-  data_fine_subagente: string | null;
-  created_at: string;
-  created_by_email: string | null;
-  sospeso_id: string | null;
-};
+import type { Movimento, Sospeso } from "../types";
+
+import { buildStatisticheGiornata } from "./buildStatisticheGiornata";
 
 interface BuildReportParams {
-  movimenti: MovimentoCassaDb[];
+  movimenti: Movimento[];
+  sospesi: Sospeso[];
+
+  dataGiornata: string;
+  statoGiornata: string;
+
+  supervisore?: string;
+  ultimaModifica?: string;
+
   cassaFisicaIniziale: number;
   versamento: number;
-  totaleCompagnia?: number;
-}
 
-const CIP_AGENZIA = "100";
-
-function normalize(value: unknown): string {
-  return String(value ?? "").trim();
-}
-
-function normalizeTipo(value: unknown): string {
-  return normalize(value).toLowerCase();
-}
-
-function isCip100(m: MovimentoCassaDb): boolean {
-  return normalize(m.codice_subagenzia) === CIP_AGENZIA;
-}
-
-function isTitoloDelGiorno(m: MovimentoCassaDb): boolean {
-  return normalizeTipo(m.tipo_movimento) === "titolo del giorno";
-}
-
-function isRecuperoSospeso(m: MovimentoCassaDb): boolean {
-  return normalizeTipo(m.tipo_movimento) === "recupero sospeso";
-}
-
-function isVersamentoSubagente(m: MovimentoCassaDb): boolean {
-  return normalizeTipo(m.tipo_movimento) === "versamento subagente";
-}
-
-function isAssegnoPostdatato(m: MovimentoCassaDb): boolean {
-  if (normalizeTipo(m.modalita_pagamento) !== "assegno") return false;
-  if (!m.data_assegno) return false;
-
-  const dataAssegno = new Date(m.data_assegno);
-  const dataCassa = new Date(m.created_at);
-
-  dataAssegno.setHours(0, 0, 0, 0);
-  dataCassa.setHours(0, 0, 0, 0);
-
-  return dataAssegno > dataCassa;
-}
-
-function getOra(createdAt: string): string {
-  return new Date(createdAt).toLocaleTimeString("it-IT", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  quadraturaCassa?: {
+    cassaTeorica: number;
+    cassaReale: number;
+    differenza: number;
+    isQuadrata: boolean;
+  };
 }
 
 function toReportMovimento(m: MovimentoCassaDb) {
@@ -89,10 +44,6 @@ function toReportMovimento(m: MovimentoCassaDb) {
     cip: normalize(m.codice_subagenzia),
     isPostdatato: isAssegnoPostdatato(m),
   };
-}
-
-function sumBy<T>(items: T[], getValue: (item: T) => number): number {
-  return items.reduce((total, item) => total + getValue(item), 0);
 }
 
 export function buildCassaGiornataReport({
