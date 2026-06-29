@@ -74,16 +74,42 @@ export function buildStatisticheGiornata(
   sospesi: Sospeso[]
 ): StatisticheGiornata {
 
+  const titoliCip100 = movimenti.filter(
+    (m) =>
+      m.tipo === "Titolo del giorno" &&
+      normalizeCip(m.sub) === "100"
+  );
+  
+  const titoliAltriCip = movimenti.filter(
+    (m) =>
+      m.tipo === "Titolo del giorno" &&
+      normalizeCip(m.sub) !== "100"
+  );
+  
+  const recuperiSospesi = movimenti.filter(
+    (m) => m.tipo === "Recupero sospeso"
+  );
+  
+  const versamentiSubagenti = movimenti.filter(
+    (m) => m.tipo === "Versamento subagente"
+  );
+  
+  const altriMovimenti = movimenti.filter(
+    (m) =>
+      m.tipo !== "Titolo del giorno" &&
+      m.tipo !== "Recupero sospeso" &&
+      m.tipo !== "Versamento subagente"
+  );
   return {
     conteggi: {
-      totaleMovimenti: 0,
-      titoliCip100: 0,
-      titoliAltriCip: 0,
-      recuperiSospesi: 0,
-      versamentiSubagenti: 0,
-      altriMovimenti: 0,
-      sospesiCreati: 0,
-      postdatati: 0,
+      totaleMovimenti: movimenti.length,
+      titoliCip100: titoliCip100.length,
+      titoliAltriCip: titoliAltriCip.length,
+      recuperiSospesi: recuperiSospesi.length,
+      versamentiSubagenti: versamentiSubagenti.length,
+      altriMovimenti: altriMovimenti.length,
+      sospesiCreati: movimenti.filter((m) => importoSospeso(m) > 0.009).length,
+      postdatati: movimenti.filter((m) => m.isPostdatato).length,
     },
 
     produzioneCip100: {
