@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ChiusuraCassaGiornalieraParameters } from "@/reports/ChiusuraCassaGiornaliera/ReportParameters";
 
 type ReportDefinition = {
   id: string;
@@ -8,6 +9,9 @@ type ReportDefinition = {
   titolo: string;
   descrizione: string;
   disponibile: boolean;
+  ParametersComponent?: React.ComponentType<{
+    onCancel: () => void;
+  }>;
 };
 
 const reports: ReportDefinition[] = [
@@ -17,6 +21,7 @@ const reports: ReportDefinition[] = [
     titolo: "Chiusura cassa giornaliera",
     descrizione: "Documento ufficiale della giornata di cassa.",
     disponibile: true,
+    ParametersComponent: ChiusuraCassaGiornalieraParameters,
   },
   {
     id: "report-cassa-mensile",
@@ -74,6 +79,9 @@ const categorie = Array.from(new Set(reports.map((r) => r.categoria)));
 export function ReportPanel() {
   const [selectedReport, setSelectedReport] =
   useState<ReportDefinition | null>(null);
+  
+  const ParametersComponent =
+  selectedReport?.ParametersComponent;
   
   function handleOpenReport(report: ReportDefinition) {
     if (!report.disponibile) {
@@ -147,42 +155,15 @@ export function ReportPanel() {
                 </p>
               </div>
         
-              <div className="mt-5 space-y-4">
-                <label className="block space-y-1">
-                  <span className="text-xs font-medium text-slate-500">
-                    Data report
-                  </span>
-                  <input
-                    type="date"
-                    className="w-full rounded-2xl border px-3 py-2"
-                    defaultValue={new Date().toISOString().slice(0, 10)}
-                  />
-                </label>
-        
-                <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
-                  La prima versione genererà la chiusura della giornata selezionata.
-                  In seguito aggiungeremo anteprima, stampa e PDF.
+             {ParametersComponent ? (
+                <ParametersComponent
+                  onCancel={() => setSelectedReport(null)}
+                />
+              ) : (
+                <div className="mt-5 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
+                  Parametri non configurati per questo report.
                 </div>
-              </div>
-        
-              <div className="mt-6 flex justify-end gap-2">
-                <Button
-                  variant="outline"
-                  className="rounded-2xl"
-                  onClick={() => setSelectedReport(null)}
-                >
-                  Annulla
-                </Button>
-        
-                <Button
-                  className="rounded-2xl"
-                  onClick={() => {
-                    alert(`Genera report: ${selectedReport.titolo}`);
-                  }}
-                >
-                  Genera report
-                </Button>
-              </div>
+              )}
             </div>
           </div>
         )}
