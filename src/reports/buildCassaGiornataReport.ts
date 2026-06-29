@@ -30,19 +30,42 @@ interface BuildReportParams {
   };
 }
 
-function toReportMovimento(m: MovimentoCassaDb) {
+function importoSospeso(m: Movimento): number {
+  return Math.max(
+    Number(m.importo || 0) -
+      Number(m.sconto || 0) -
+      Number(m.incassato || 0),
+    0
+  );
+}
+
+function toReportMovimento(m: Movimento): ReportMovimento {
   return {
-    id: m.id,
-    ora: getOra(m.created_at),
-    contraente: m.contraente ?? "",
-    polizza: m.polizza ?? "",
-    tipoPagamento: m.modalita_pagamento,
-    importo: Number(m.importo_lordo ?? 0),
-    incassato: Number(m.importo_incassato ?? 0),
-    sconto: Number(m.sconto ?? 0),
-    utente: m.created_by_email ?? "",
-    cip: normalize(m.codice_subagenzia),
-    isPostdatato: isAssegnoPostdatato(m),
+    id: String(m.id),
+    ora: m.createdAt
+      ? new Date(m.createdAt).toLocaleTimeString("it-IT", {
+          hour: "2-digit",
+          minute: "2-digit",
+        })
+      : "",
+    dataInserimento: m.createdAt || "",
+    utente: m.createdByEmail || "",
+
+    contraente: m.contraente || "",
+    polizza: m.polizza || "",
+
+    tipoPagamento: m.modalita,
+
+    importo: m.importo,
+    incassato: m.incassato,
+    sconto: m.sconto,
+    sospeso: importoSospeso(m),
+
+    cip: m.sub || "",
+
+    note: m.note || "",
+
+    isPostdatato: m.isPostdatato,
   };
 }
 
