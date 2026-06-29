@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -72,13 +72,16 @@ const reports: ReportDefinition[] = [
 const categorie = Array.from(new Set(reports.map((r) => r.categoria)));
 
 export function ReportPanel() {
+  const [selectedReport, setSelectedReport] =
+  useState<ReportDefinition | null>(null);
+  
   function handleOpenReport(report: ReportDefinition) {
     if (!report.disponibile) {
       alert("Report in preparazione.");
       return;
     }
-
-    alert(`Apro: ${report.titolo}`);
+  
+    setSelectedReport(report);
   }
 
   return (
@@ -131,6 +134,59 @@ export function ReportPanel() {
             </div>
           </div>
         ))}
+
+        {selectedReport && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+            <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-xl">
+              <div className="space-y-1">
+                <h3 className="text-lg font-semibold text-slate-900">
+                  {selectedReport.titolo}
+                </h3>
+                <p className="text-sm text-slate-500">
+                  {selectedReport.descrizione}
+                </p>
+              </div>
+        
+              <div className="mt-5 space-y-4">
+                <label className="block space-y-1">
+                  <span className="text-xs font-medium text-slate-500">
+                    Data report
+                  </span>
+                  <input
+                    type="date"
+                    className="w-full rounded-2xl border px-3 py-2"
+                    defaultValue={new Date().toISOString().slice(0, 10)}
+                  />
+                </label>
+        
+                <div className="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
+                  La prima versione genererà la chiusura della giornata selezionata.
+                  In seguito aggiungeremo anteprima, stampa e PDF.
+                </div>
+              </div>
+        
+              <div className="mt-6 flex justify-end gap-2">
+                <Button
+                  variant="outline"
+                  className="rounded-2xl"
+                  onClick={() => setSelectedReport(null)}
+                >
+                  Annulla
+                </Button>
+        
+                <Button
+                  className="rounded-2xl"
+                  onClick={() => {
+                    alert(`Genera report: ${selectedReport.titolo}`);
+                  }}
+                >
+                  Genera report
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+        
       </CardContent>
     </Card>
   );
