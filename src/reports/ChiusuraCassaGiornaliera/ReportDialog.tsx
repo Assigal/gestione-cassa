@@ -30,6 +30,9 @@ export function ChiusuraCassaGiornalieraDialog({
 
         <ChiusuraCassaGiornalieraParameters
           onCancel={onClose}
+          onGenerate={(params) => {
+            console.log("Genera report con parametri", params);
+          }}
         />
         
         {report && (
