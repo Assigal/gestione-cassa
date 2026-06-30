@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { ChiusuraCassaGiornalieraParameters } from "./ReportParameters";
 import { ChiusuraCassaGiornalieraViewer } from "./ReportViewer";
+import type { CassaGiornataReport } from "@/types/reportTypes";
 
 type ChiusuraCassaGiornalieraDialogProps = {
   onClose: () => void;
@@ -10,6 +11,10 @@ type ChiusuraCassaGiornalieraDialogProps = {
 export function ChiusuraCassaGiornalieraDialog({
   onClose,
 }: ChiusuraCassaGiornalieraDialogProps) {
+  
+  const [report, setReport] =
+    useState<CassaGiornataReport | null>(null);
+  
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-4xl rounded-2xl bg-white p-6 shadow-xl">
@@ -26,6 +31,13 @@ export function ChiusuraCassaGiornalieraDialog({
         <ChiusuraCassaGiornalieraParameters
           onCancel={onClose}
         />
+        
+        {report && (
+          <ChiusuraCassaGiornalieraViewer
+            report={report}
+          />
+        )}
+        
       </div>
     </div>
   );
