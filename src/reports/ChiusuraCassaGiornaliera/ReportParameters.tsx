@@ -3,10 +3,12 @@ import { Button } from "@/components/ui/button";
 
 type ChiusuraCassaGiornalieraParametersProps = {
   onCancel: () => void;
+  onGenerate: (params: { dataReport: string }) => void;
 };
 
 export function ChiusuraCassaGiornalieraParameters({
   onCancel,
+  onGenerate,
 }: ChiusuraCassaGiornalieraParametersProps) {
   const [dataReport, setDataReport] = useState(
     new Date().toISOString().slice(0, 10)
@@ -45,7 +47,7 @@ export function ChiusuraCassaGiornalieraParameters({
         <Button
           className="rounded-2xl"
           onClick={() => {
-            alert(`Genera chiusura cassa del ${dataReport}`);
+            onGenerate({ dataReport });
           }}
         >
           Genera report
