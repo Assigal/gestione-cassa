@@ -1,6 +1,7 @@
 import React from "react";
 
 import { ChiusuraCassaGiornalieraParameters } from "./ReportParameters";
+import { ChiusuraCassaGiornalieraViewer } from "./ReportViewer";
 
 type ChiusuraCassaGiornalieraDialogProps = {
   onClose: () => void;
