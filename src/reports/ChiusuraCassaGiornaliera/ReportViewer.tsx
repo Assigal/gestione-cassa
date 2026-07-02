@@ -58,6 +58,21 @@ export function ChiusuraCassaGiornalieraViewer({
           </div>
         </header>
 
+        {report.alert.length > 0 && (
+          <section className="mt-4 space-y-2">
+        
+            {report.alert.map((alert, index) => (
+              <div
+                key={index}
+                className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm text-amber-900"
+              >
+                ⚠ {alert}
+              </div>
+            ))}
+        
+          </section>
+        )}
+
         <section className="mt-6 overflow-hidden rounded-lg border">
           <div className="border-b bg-slate-100 px-4 py-2">
             <h2 className="text-sm font-bold uppercase tracking-wide">
@@ -139,12 +154,7 @@ export function ChiusuraCassaGiornalieraViewer({
                   <span>Recuperi sospesi</span>
                   <strong>{euro(report.qualitaGiornata.totaleRecuperiSospesi)}</strong>
                 </div>
-        
-                <div className="flex justify-between">
-                  <span>Sconti</span>
-                  <strong>{euro(report.produzioneCip100.totaleSconti)}</strong>
-                </div>
-        
+                
                 <hr />
         
                 <div className="flex justify-between text-base font-bold">
@@ -152,11 +162,17 @@ export function ChiusuraCassaGiornalieraViewer({
                   <span>{euro(report.qualitaGiornata.saldoSospesi)}</span>
                 </div>
         
+                <div className="flex justify-between">
+                  <span>Sconti concessi</span>
+                  <strong>{euro(report.produzioneCip100.totaleSconti)}</strong>
+                </div>
+        
                 <div className="pt-2 text-xs text-slate-500">
                   Sospesi: {report.qualitaGiornata.numeroSospesiCreati} · Recuperi:{" "}
                   {report.qualitaGiornata.numeroRecuperiSospesi} · Postdatati:{" "}
                   {report.qualitaGiornata.numeroPostdatati}
                 </div>
+                <div className="mt-3"></div>
               </div>
             </div>
         
