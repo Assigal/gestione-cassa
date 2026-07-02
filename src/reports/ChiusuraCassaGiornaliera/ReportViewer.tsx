@@ -19,6 +19,7 @@ export function ChiusuraCassaGiornalieraViewer({
   return (
     <div className="mt-6 max-h-[65vh] overflow-auto rounded-2xl border bg-slate-100 p-4">
       <div className="mx-auto w-full max-w-5xl rounded-xl bg-white p-6 shadow-sm">
+        
         <header className="border-b pb-4">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
             Chiusura cassa giornaliera
@@ -45,77 +46,6 @@ export function ChiusuraCassaGiornalieraViewer({
           </div>
         </header>
 
-        <section className="mt-6 grid gap-4 md:grid-cols-3">
-          <div className="rounded-2xl border p-4">
-            <h2 className="font-semibold text-slate-900">Cassa fisica</h2>
-            <div className="mt-3 space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span>Avanzo precedente</span>
-                <strong>{euro(report.cassaFisica.avanzoPrecedente)}</strong>
-              </div>
-              <div className="flex justify-between">
-                <span>Contanti</span>
-                <strong>{euro(report.cassaFisica.totaleContanti)}</strong>
-              </div>
-              <div className="flex justify-between">
-                <span>Assegni</span>
-                <strong>{euro(report.cassaFisica.totaleAssegni)}</strong>
-              </div>
-              <div className="flex justify-between border-t pt-2">
-                <span>Versamento</span>
-                <strong>- {euro(report.cassaFisica.versamento)}</strong>
-              </div>
-              <div className="flex justify-between border-t pt-2 text-base">
-                <span>Cassa teorica</span>
-                <strong>{euro(report.cassaFisica.cassaTeorica)}</strong>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border p-4">
-            <h2 className="font-semibold text-slate-900">Produzione CIP100</h2>
-            <div className="mt-3 space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span>Lordo</span>
-                <strong>{euro(report.produzioneCip100.totaleLordo)}</strong>
-              </div>
-              <div className="flex justify-between">
-                <span>Incassato</span>
-                <strong>{euro(report.produzioneCip100.totaleIncassato)}</strong>
-              </div>
-              <div className="flex justify-between">
-                <span>Sconti</span>
-                <strong>{euro(report.produzioneCip100.totaleSconti)}</strong>
-              </div>
-              <div className="flex justify-between">
-                <span>Sospesi creati</span>
-                <strong>{euro(report.produzioneCip100.totaleSospesiCreati)}</strong>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border p-4">
-            <h2 className="font-semibold text-slate-900">Qualità giornata</h2>
-            <div className="mt-3 space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span>Recuperi sospesi</span>
-                <strong>{euro(report.qualitaGiornata.totaleRecuperiSospesi)}</strong>
-              </div>
-              <div className="flex justify-between">
-                <span>Sospesi creati</span>
-                <strong>{euro(report.qualitaGiornata.totaleSospesiCreati)}</strong>
-              </div>
-              <div className="flex justify-between border-t pt-2 text-base">
-                <span>Saldo sospesi</span>
-                <strong>{euro(report.qualitaGiornata.saldoSospesi)}</strong>
-              </div>
-              <div className="pt-2 text-xs text-slate-500">
-                Sospesi: {report.qualitaGiornata.numeroSospesiCreati} · Recuperi:{" "}
-                {report.qualitaGiornata.numeroRecuperiSospesi} · Postdatati:{" "}
-                {report.qualitaGiornata.numeroPostdatati}
-              </div>
-            </div>
-          </div>
         </section>
 
         <section className="mt-6">
