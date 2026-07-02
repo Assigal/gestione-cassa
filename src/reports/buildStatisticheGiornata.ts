@@ -217,11 +217,11 @@ export function buildStatisticheGiornata(
       ),
     
       saldoSospesi:
-        sumBy(recuperiSospesi, (m) => m.incassato) -
         sumBy(
           movimenti.filter((m) => importoSospeso(m) > 0.009),
           importoSospeso
-        ),
+        ) -
+        sumBy(recuperiSospesi, (m) => m.incassato),
       
       numeroSospesiCreati: movimenti.filter(
         (m) => importoSospeso(m) > 0.009
