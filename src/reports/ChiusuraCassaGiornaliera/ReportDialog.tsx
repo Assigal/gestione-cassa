@@ -3,13 +3,29 @@ import React, { useState } from "react";
 import { ChiusuraCassaGiornalieraParameters } from "./ReportParameters";
 import { ChiusuraCassaGiornalieraViewer } from "./ReportViewer";
 import type { CassaGiornataReport } from "@/types/reportTypes";
+import type { Movimento, Sospeso } from "@/types";
+import { buildCassaGiornataReport } from "@/reports/buildCassaGiornataReport";
 
 type ChiusuraCassaGiornalieraDialogProps = {
   onClose: () => void;
+  movimenti: Movimento[];
+  sospesi: Sospeso[];
+  giornataCorrente: string;
+  statoGiornata: string;
+  supervisore?: string;
+  cassaFisicaIniziale: number;
+  versamento: number;
 };
 
 export function ChiusuraCassaGiornalieraDialog({
   onClose,
+  movimenti,
+  sospesi,
+  giornataCorrente,
+  statoGiornata,
+  supervisore,
+  cassaFisicaIniziale,
+  versamento,
 }: ChiusuraCassaGiornalieraDialogProps) {
   
   const [report, setReport] =
