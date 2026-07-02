@@ -2102,7 +2102,15 @@ alert(
 {/* ======================================================
     UI - REPORT
 ====================================================== */}
-       <ReportPanel />
+       <ReportPanel
+          movimenti={movimenti}
+          sospesi={sospesi}
+          giornataCorrente={giornataCorrente}
+          statoGiornata={giornataChiusa ? "Chiusa" : "Aperta"}
+          supervisore={session?.user?.email || ""}
+          cassaFisicaIniziale={avanzoPrecedente}
+          versamento={Number(versamento || 0)}
+        />
 {/* ======================================================
     FINE UI - REPORT
 ====================================================== */}
