@@ -124,6 +124,67 @@ export function ChiusuraCassaGiornalieraViewer({
           </div>
         </section>
 
+        <section className="mt-4 overflow-hidden rounded-lg border">
+          <div className="grid grid-cols-2">
+            <div className="border-r p-4">
+              <h3 className="mb-3 font-semibold">Qualità giornata</h3>
+        
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span>Sospesi creati</span>
+                  <strong>{euro(report.qualitaGiornata.totaleSospesiCreati)}</strong>
+                </div>
+        
+                <div className="flex justify-between">
+                  <span>Recuperi sospesi</span>
+                  <strong>{euro(report.qualitaGiornata.totaleRecuperiSospesi)}</strong>
+                </div>
+        
+                <div className="flex justify-between">
+                  <span>Sconti</span>
+                  <strong>{euro(report.produzioneCip100.totaleSconti)}</strong>
+                </div>
+        
+                <hr />
+        
+                <div className="flex justify-between text-base font-bold">
+                  <span>Saldo sospesi</span>
+                  <span>{euro(report.qualitaGiornata.saldoSospesi)}</span>
+                </div>
+        
+                <div className="pt-2 text-xs text-slate-500">
+                  Sospesi: {report.qualitaGiornata.numeroSospesiCreati} · Recuperi:{" "}
+                  {report.qualitaGiornata.numeroRecuperiSospesi} · Postdatati:{" "}
+                  {report.qualitaGiornata.numeroPostdatati}
+                </div>
+              </div>
+            </div>
+        
+            <div className="p-4">
+              <h3 className="mb-3 font-semibold">Subagenzie</h3>
+        
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span>Chiusure subagenti</span>
+                  <strong>{report.header.numeroVersamentiSubagenti}</strong>
+                </div>
+        
+                <div className="flex justify-between">
+                  <span>Totale versamenti</span>
+                  <strong>
+                    {euro(
+                      report.sezioni.versamentiSubagenti.reduce(
+                        (sum, row) => sum + row.importo,
+                        0
+                      )
+                    )}
+                  </strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="mt-6">
           <h2 className="mb-3 text-lg font-semibold text-slate-900">
             Titoli CIP100
