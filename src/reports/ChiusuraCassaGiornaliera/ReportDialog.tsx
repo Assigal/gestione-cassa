@@ -113,7 +113,12 @@ export function ChiusuraCassaGiornalieraDialog({
                 altriMovimenti: [],
               },
           
-              alert: [],
+              alert: [
+                "Presenti 2 movimenti extra da verificare.",
+                "Presenti 1 assegno postdatato.",
+                "Saldo sospesi positivo: la giornata ha recuperato più sospesi di quanti ne ha creati.",
+              ],
+              
             });
           }}
         />
