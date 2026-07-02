@@ -2,6 +2,17 @@ import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChiusuraCassaGiornalieraDialog } from "@/reports/ChiusuraCassaGiornaliera/ReportDialog";
+import type { Movimento, Sospeso } from "@/types";
+
+type ReportPanelProps = {
+  movimenti: Movimento[];
+  sospesi: Sospeso[];
+  giornataCorrente: string;
+  statoGiornata: string;
+  supervisore?: string;
+  cassaFisicaIniziale: number;
+  versamento: number;
+};
 
 type ReportDefinition = {
   id: string;
@@ -11,6 +22,13 @@ type ReportDefinition = {
   disponibile: boolean;
   DialogComponent?: React.ComponentType<{
     onClose: () => void;
+    movimenti: Movimento[];
+    sospesi: Sospeso[];
+    giornataCorrente: string;
+    statoGiornata: string;
+    supervisore?: string;
+    cassaFisicaIniziale: number;
+    versamento: number;
   }>;
 };
 
@@ -75,7 +93,15 @@ const reports: ReportDefinition[] = [
 
 const categorie = Array.from(new Set(reports.map((r) => r.categoria)));
 
-export function ReportPanel() {
+export function ReportPanel({
+  movimenti,
+  sospesi,
+  giornataCorrente,
+  statoGiornata,
+  supervisore,
+  cassaFisicaIniziale,
+  versamento,
+}: ReportPanelProps) {
   const [selectedReport, setSelectedReport] =
     useState<ReportDefinition | null>(null);
   
@@ -145,6 +171,13 @@ export function ReportPanel() {
       {DialogComponent && (
         <DialogComponent
           onClose={() => setSelectedReport(null)}
+          movimenti={movimenti}
+          sospesi={sospesi}
+          giornataCorrente={giornataCorrente}
+          statoGiornata={statoGiornata}
+          supervisore={supervisore}
+          cassaFisicaIniziale={cassaFisicaIniziale}
+          versamento={versamento}
         />
       )}
         
