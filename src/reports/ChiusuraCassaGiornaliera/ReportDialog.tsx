@@ -47,6 +47,17 @@ export function ChiusuraCassaGiornalieraDialog({
         <ChiusuraCassaGiornalieraParameters
           onCancel={onClose}
           onGenerate={(params) => {
+            
+            console.log("ON GENERATE DIALOG", params, {
+              movimenti,
+              sospesi,
+              giornataCorrente,
+              statoGiornata,
+              supervisore,
+              cassaFisicaIniziale,
+              versamento,
+            });
+
             const report = buildCassaGiornataReport({
               movimenti,
               sospesi,
@@ -56,7 +67,7 @@ export function ChiusuraCassaGiornalieraDialog({
               cassaFisicaIniziale,
               versamento,
             });
-          
+            console.log("REPORT GENERATO", report);
             setReport(report);
           }}
         />
