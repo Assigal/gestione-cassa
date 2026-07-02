@@ -46,8 +46,6 @@ export function ChiusuraCassaGiornalieraViewer({
           </div>
         </header>
 
-        </section>
-
         <section className="mt-6">
           <h2 className="mb-3 text-lg font-semibold text-slate-900">
             Titoli CIP100
