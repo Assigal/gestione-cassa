@@ -47,6 +47,7 @@ export function ChiusuraCassaGiornalieraParameters({
         <Button
           className="rounded-2xl"
           onClick={() => {
+            console.log("CLICK GENERA", dataReport);
             onGenerate({ dataReport });
           }}
         >
