@@ -11,7 +11,7 @@ type ChiusuraCassaGiornalieraDialogProps = {
   movimenti: Movimento[];
   sospesi: Sospeso[];
   giornataCorrente: string;
-  statoGiornata: string;
+  statoGiornata: "Aperta" | "Chiusa" | "Riaperta";
   supervisore?: string;
   cassaFisicaIniziale: number;
   versamento: number;
@@ -27,10 +27,9 @@ export function ChiusuraCassaGiornalieraDialog({
   cassaFisicaIniziale,
   versamento,
 }: ChiusuraCassaGiornalieraDialogProps) {
-  
   const [report, setReport] =
     useState<CassaGiornataReport | null>(null);
-  
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-4xl rounded-2xl bg-white p-6 shadow-xl">
@@ -46,18 +45,7 @@ export function ChiusuraCassaGiornalieraDialog({
 
         <ChiusuraCassaGiornalieraParameters
           onCancel={onClose}
-          onGenerate={(params) => {
-            
-            console.log("ON GENERATE DIALOG", params, {
-              movimenti,
-              sospesi,
-              giornataCorrente,
-              statoGiornata,
-              supervisore,
-              cassaFisicaIniziale,
-              versamento,
-            });
-
+          onGenerate={() => {
             const report = buildCassaGiornataReport({
               movimenti,
               sospesi,
@@ -67,17 +55,14 @@ export function ChiusuraCassaGiornalieraDialog({
               cassaFisicaIniziale,
               versamento,
             });
-            console.log("REPORT GENERATO", report);
+
             setReport(report);
           }}
         />
-        
+
         {report && (
-          <ChiusuraCassaGiornalieraViewer
-            report={report}
-          />
+          <ChiusuraCassaGiornalieraViewer report={report} />
         )}
-        
       </div>
     </div>
   );
