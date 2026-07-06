@@ -369,9 +369,6 @@ async function addAuditLog(azione: string) {
     if (data.quadMezzaBloccata) setQuadMezzaBloccata(data.quadMezzaBloccata);
     if (data.quadSeraBloccata) setQuadSeraBloccata(data.quadSeraBloccata);
     if (data.auditLog) setAuditLog(data.auditLog);
-    if (typeof data.giornataChiusa === "boolean") {
-      setGiornataChiusa(data.giornataChiusa);
-    }
   } catch {
     console.warn("Dati locali non leggibili");
   }
@@ -387,8 +384,7 @@ useEffect(() => {
     quadSera,
     quadMezzaBloccata,
     quadSeraBloccata,
-    auditLog,
-    giornataChiusa
+    auditLog
   };
 
   localStorage.setItem(
@@ -405,7 +401,6 @@ useEffect(() => {
   quadMezzaBloccata,
   quadSeraBloccata,
   auditLog,
-  giornataChiusa
 ]);
   
 useEffect(() => {
@@ -678,6 +673,12 @@ useEffect(() => {
   }
 
   async function deleteMovement(id: number) {
+
+    if (giornataChiusa) {
+      alert("La giornata di cassa è chiusa. Non è possibile cancellare movimenti.");
+      return;
+    }
+    
     const movimento = movimenti.find((row) => row.id === id);
     if (movimento && !canManageMovimento(movimento)) {
       alert("Puoi cancellare solo i movimenti inseriti da te.");
@@ -748,6 +749,12 @@ useEffect(() => {
   }
 
   function editMovement(row: Movimento) {
+
+    if (giornataChiusa) {
+      alert("La giornata di cassa è chiusa. Non è possibile modificare movimenti.");
+      return;
+    }
+    
     if (!canManageMovimento(row)) {
       alert("Puoi modificare solo i movimenti inseriti da te.");
       return;
@@ -1606,6 +1613,12 @@ setSospesi((rows) =>
         }
         
 async function saveForm() {
+
+  if (giornataChiusa) {
+    alert("La giornata di cassa è chiusa. Non è possibile inserire o modificare movimenti.");
+    return;
+  }
+  
   if (importoMovimentoNonValido(form)) {
     alert("Inserire un importo valido diverso da zero.");
     return;
