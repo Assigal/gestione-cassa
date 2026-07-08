@@ -1,6 +1,7 @@
 import React from "react";
 
 import type { CassaGiornataReport } from "@/types/reportTypes";
+import { ReportSection } from "@/reports/components/ReportSection";
 
 type ReportViewerProps = {
   report: CassaGiornataReport;
@@ -205,12 +206,7 @@ export function ChiusuraCassaGiornalieraViewer({
           </div>
         </section>
 
-        <section className="mt-6">
-          <h2 className="mb-3 text-lg font-semibold text-slate-900">
-            Titoli CIP100
-          </h2>
-
-          <div className="overflow-hidden rounded-2xl border">
+       <ReportSection title="Titoli CIP100">
             <table className="w-full text-left text-sm">
               <thead className="bg-slate-50 text-xs uppercase text-slate-500">
                 <tr>
@@ -267,8 +263,7 @@ export function ChiusuraCassaGiornalieraViewer({
                 )}
               </tbody>
             </table>
-          </div>
-        </section>
+        </ReportSection>
 
         <section className="mt-6">
           <h2 className="mb-3 text-lg font-semibold text-slate-900">
