@@ -1,7 +1,7 @@
 import React from "react";
 
 import type { CassaGiornataReport } from "@/types/reportTypes";
-import { ReportSection } from "@/reports/components/ReportSection";
+import { ReportSection } from "@/components/ReportSection";
 
 type ReportViewerProps = {
   report: CassaGiornataReport;
