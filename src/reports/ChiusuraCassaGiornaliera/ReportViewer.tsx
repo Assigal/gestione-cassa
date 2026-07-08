@@ -291,7 +291,7 @@ export function ChiusuraCassaGiornalieraViewer({
                   <tr key={m.id} className="border-t">
                     <td className="px-3 py-2">{m.ora}</td>
                     <td className="px-3 py-2">{m.utente}</td>
-                    <td className="px-3 py-2">{m.cip}</td>
+                    <td className="px-3 py-2">{m.sub}</td>
                     <td className="px-3 py-2">{m.contraente}</td>
                     <td className="px-3 py-2">{m.polizza}</td>
                     <td className="px-3 py-2">{m.tipoPagamento}</td>
