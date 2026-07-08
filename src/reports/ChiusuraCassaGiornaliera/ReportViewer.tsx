@@ -24,6 +24,10 @@ function totaleTitoli(rows: CassaGiornataReport["sezioni"]["titoliCip100"]) {
   );
 }
 
+function totaleImporti<T extends { importo: number }>(rows: T[]) {
+  return rows.reduce((sum, row) => sum + row.importo, 0);
+}
+
 export function ChiusuraCassaGiornalieraViewer({
   report,
 }: ReportViewerProps) {
@@ -265,6 +269,74 @@ export function ChiusuraCassaGiornalieraViewer({
             </table>
           </div>
         </section>
+
+        <section className="mt-6">
+          <h2 className="mb-3 text-lg font-semibold text-slate-900">
+            Titoli altri CIP
+          </h2>
+        
+          <div className="overflow-hidden rounded-2xl border">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-50 text-xs uppercase text-slate-500">
+                <tr>
+                  <th className="px-3 py-2">Ora</th>
+                  <th className="px-3 py-2">Operatore</th>
+                  <th className="px-3 py-2">CIP</th>
+                  <th className="px-3 py-2">Contraente</th>
+                  <th className="px-3 py-2">Polizza</th>
+                  <th className="px-3 py-2">Mod.</th>
+                  <th className="px-3 py-2 text-right">Lordo</th>
+                  <th className="px-3 py-2 text-right">Incassato</th>
+                  <th className="px-3 py-2 text-right">Sospeso</th>
+                </tr>
+              </thead>
+        
+              <tbody>
+                {report.sezioni.titoliAltriCip.map((m) => (
+                  <tr key={m.id} className="border-t">
+                    <td className="px-3 py-2">{m.ora}</td>
+                    <td className="px-3 py-2">{m.utente}</td>
+                    <td className="px-3 py-2">{m.cip}</td>
+                    <td className="px-3 py-2">{m.contraente}</td>
+                    <td className="px-3 py-2">{m.polizza}</td>
+                    <td className="px-3 py-2">{m.tipoPagamento}</td>
+                    <td className="px-3 py-2 text-right">{euro(m.importo)}</td>
+                    <td className="px-3 py-2 text-right">{euro(m.incassato)}</td>
+                    <td className="px-3 py-2 text-right">
+                      {m.sospeso > 0 ? euro(m.sospeso) : ""}
+                    </td>
+                  </tr>
+                ))}
+        
+                {report.sezioni.titoliAltriCip.length === 0 && (
+                  <tr>
+                    <td className="px-3 py-6 text-center text-slate-500" colSpan={9}>
+                      Nessun titolo altri CIP.
+                    </td>
+                  </tr>
+                )}
+        
+                {report.sezioni.titoliAltriCip.length > 0 && (
+                  <tr className="border-t bg-slate-50 font-bold">
+                    <td className="px-3 py-2" colSpan={6}>
+                      Totale titoli altri CIP
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      {euro(totaleTitoli(report.sezioni.titoliAltriCip).lordo)}
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      {euro(totaleTitoli(report.sezioni.titoliAltriCip).incassato)}
+                    </td>
+                    <td className="px-3 py-2 text-right">
+                      {euro(totaleTitoli(report.sezioni.titoliAltriCip).sospeso)}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+        
       </div>
     </div>
   );
