@@ -2065,7 +2065,6 @@ alert(
   tipiMovimento={tipiMovimento}
   modalitaPagamento={modalitaPagamento}
   referentiSospesi={referentiSospesi}
-  getDescrizioneModalita={getDescrizioneModalita}
   isVersamentoSubagente={isVersamentoSubagente}
   euro={euro}
   giornataCorrente={giornataCorrente}

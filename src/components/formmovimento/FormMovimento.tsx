@@ -1,8 +1,9 @@
 import React from "react";
-import { ClipboardList, Upload } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { calcolaValoriTitolo } from "../utils";
+import { FormMovimentoHeader } from "./FormMovimentoHeader";
+import { TitoloDelGiornoFields } from "./formmovimento/TitoloDelGiornoFields";
 
 type FormMovimentoProps = {
   editingMovement: number | null;
@@ -26,7 +27,6 @@ type FormMovimentoProps = {
   modalitaPagamento: any[];
   referentiSospesi: any[];
   
-  getDescrizioneModalita: (codice: string | null | undefined) => string;
   isVersamentoSubagente: (tipo: string) => boolean;
   euro: (value: number) => string;
   
@@ -52,7 +52,6 @@ export function FormMovimento({
   tipiMovimento,
   modalitaPagamento,
   referentiSospesi,
-  getDescrizioneModalita,
   isVersamentoSubagente,
   euro,
   giornataCorrente,
@@ -62,67 +61,71 @@ export function FormMovimento({
   return (
     
     <>
-       <Card className="rounded-2xl shadow-sm">
-            <CardContent className="space-y-3 p-4">
-              <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
-                <div className="flex items-start gap-3">
-                  <div className="rounded-2xl bg-slate-100 p-3">
-                    <ClipboardList className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-semibold">
-                      {editingMovement ? "Modifica movimento" : selectedImportRow ? "Lavora movimento importato" : "Nuovo movimento"}
-                    </h2>
-                    <p className="text-sm text-slate-500">Input operativo della giornata</p>
-                  </div>
-                </div>
-                <div className="flex gap-2">
-                  <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleImportFile} />
-                  <Button
-                    variant="outline"
-                    className="rounded-2xl"
-                    onClick={openImportFileDialog}
-                    disabled={giornataChiusa}
-                  >
-                    <Upload className="mr-2 h-4 w-4" /> Importa Compagnia
-                  </Button>
-                </div>
-              </div>
+       <Card className="sticky top-4 z-30 rounded-2xl border border-slate-300 bg-white shadow-md">
+            <CardContent className="space-y-2 p-3">
+              <FormMovimentoHeader
+                tipoMovimento={form.tipo}
+                tipiMovimento={tipiMovimento}
+                isEditing={Boolean(editingMovement)}
+                isImportSelected={Boolean(selectedImportRow)}
+                giornataChiusa={giornataChiusa}
+                onTipoMovimentoChange={handleTipoMovimentoChange}
+                onImportCompagnia={openImportFileDialog}
+              />
 
-              {selectedImportRow && (
-                <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm">
-                  <p className="font-medium text-amber-900">Origine Compagnia</p>
-                  <p className="text-amber-800">
-                    Modalità indicata: {getDescrizioneModalita(selectedImportRow.modalitaCompagnia)}
-                  </p>
-                  <p className="text-amber-800">La modalità effettiva può essere diversa.</p>
-                </div>
-              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".xlsx,.xls,.csv"
+                className="hidden"
+                onChange={handleImportFile}
+              />
 
-               <div className="grid grid-cols-1 gap-2 lg:grid-cols-12">
-                <label className="space-y-1 lg:col-span-3">
-                  <span className="text-xs font-medium text-slate-500">Tipo movimento</span>
-                  <select className="w-full rounded-2xl border px-3 py-2" value={form.tipo} onChange={(e) => handleTipoMovimentoChange(e.target.value)}>
-                    {tipiMovimento.map((m) => <option key={m}>{m}</option>)}
-                  </select>
-                </label>
+              <div className="grid grid-cols-1 gap-2 lg:grid-cols-12">
 
                 <label className="space-y-1 lg:col-span-1">
                   <span className="text-xs font-medium text-slate-500">Subagenzia</span>
-                  <input maxLength={3} className="w-full rounded-2xl border px-3 py-2" value={form.sub} onChange={(e) => setForm({ ...form, sub: e.target.value.replace(/[^0-9]/g, "").slice(0, 3) })} />
+                  <input maxLength={3} className="h-9 w-full rounded-xl border px-2.5 text-sm" value={form.sub} onChange={(e) => setForm({ ...form, sub: e.target.value.replace(/[^0-9]/g, "").slice(0, 3) })} />
                 </label>
                  
-                 {!isVersamentoSubagente(form.tipo) && (
-                  <label className="space-y-1 lg:col-span-1">
-                    <span className="text-xs font-medium text-slate-500">Ramo</span>
-                    <input maxLength={3} className="w-full rounded-2xl border px-3 py-2" placeholder="001" value={form.ramo} onChange={(e) => setForm({ ...form, ramo: e.target.value.replace(/[^0-9]/g, "").slice(0, 3) })} />
-                  </label>
-                )}
-
                 {!isVersamentoSubagente(form.tipo) && (
                   <label className="space-y-1 lg:col-span-2">
-                    <span className="text-xs font-medium text-slate-500">Numero polizza</span>
-                    <input className="w-full rounded-2xl border px-3 py-2" value={form.polizza} onChange={(e) => setForm({ ...form, polizza: e.target.value })} />
+                    <span className="text-xs font-medium text-slate-500">
+                      Polizza
+                    </span>
+
+                    <div className="flex h-9 w-full items-center rounded-xl border bg-white px-2.5 text-sm">
+                      <input
+                        maxLength={3}
+                        className="w-12 border-0 bg-transparent p-0 text-center outline-none"
+                        placeholder="030"
+                        value={form.ramo}
+                        onChange={(e) =>
+                          setForm({
+                            ...form,
+                            ramo: e.target.value
+                              .replace(/[^0-9]/g, "")
+                              .slice(0, 3),
+                          })
+                        }
+                        aria-label="Ramo polizza"
+                      />
+
+                      <span className="mx-1 text-slate-400">/</span>
+
+                      <input
+                        className="min-w-0 flex-1 border-0 bg-transparent p-0 outline-none"
+                        placeholder="12345678"
+                        value={form.polizza}
+                        onChange={(e) =>
+                          setForm({
+                            ...form,
+                            polizza: e.target.value,
+                          })
+                        }
+                        aria-label="Numero polizza"
+                      />
+                    </div>
                   </label>
                 )}
 
@@ -130,20 +133,20 @@ export function FormMovimento({
                   <>
                     <label className="space-y-1 lg:col-span-2">
                       <span className="text-xs font-medium text-slate-500">Da data</span>
-                      <input type="date" className="w-full rounded-2xl border px-3 py-2" value={form.dataInizioSubagente} onChange={(e) => setForm({ ...form, dataInizioSubagente: e.target.value })} />
+                      <input type="date" className="h-9 w-full rounded-xl border px-2.5 text-sm" value={form.dataInizioSubagente} onChange={(e) => setForm({ ...form, dataInizioSubagente: e.target.value })} />
                     </label>
                     <label className="space-y-1 lg:col-span-2">
                       <span className="text-xs font-medium text-slate-500">A data</span>
-                      <input type="date" className="w-full rounded-2xl border px-3 py-2" value={form.dataFineSubagente} onChange={(e) => setForm({ ...form, dataFineSubagente: e.target.value })} />
+                      <input type="date" className="h-9 w-full rounded-xl border px-2.5 text-sm" value={form.dataFineSubagente} onChange={(e) => setForm({ ...form, dataFineSubagente: e.target.value })} />
                     </label>
                   </>
                 )}
 
                 {!isVersamentoSubagente(form.tipo) && (
                   <>
-                    <label className="space-y-1 lg:col-span-5">
+                    <label className="space-y-1 lg:col-span-4">
                       <span className="text-xs font-medium text-slate-500">Contraente</span>
-                      <input className="w-full rounded-2xl border px-3 py-2" value={form.contraente} onChange={(e) => setForm({ ...form, contraente: e.target.value })} />
+                      <input className="h-9 w-full rounded-xl border px-2.5 text-sm" value={form.contraente} onChange={(e) => setForm({ ...form, contraente: e.target.value })} />
                     </label>
                    
                   </>
@@ -158,7 +161,7 @@ export function FormMovimento({
                 
                   <input
                     type="number"
-                    className="w-full rounded-2xl border px-3 py-2"
+                    className="h-9 w-full rounded-xl border px-2.5 text-sm"
                     value={form.importo}
                     onChange={(e) => {
                       const nuovoImporto = e.target.value;
@@ -194,7 +197,7 @@ export function FormMovimento({
                 
                     <input
                       type="number"
-                      className="w-full rounded-2xl border px-3 py-2"
+                      className="h-9 w-full rounded-xl border px-2.5 text-sm"
                       value={form.importoIncassato}
                       onChange={(e) => {
                         setFormAutoMode(false);
@@ -210,7 +213,7 @@ export function FormMovimento({
                 {!isVersamentoSubagente(form.tipo) && (
                   <label className="space-y-1 lg:col-span-2">
                     <span className="text-xs font-medium text-slate-500">Sconto</span>
-                    <input type="number" className="w-full rounded-2xl border px-3 py-2" value={form.sconto} onChange={(e) => setForm({ ...form, sconto: e.target.value })} />
+                    <input type="number" className="h-9 w-full rounded-xl border px-2.5 text-sm" value={form.sconto} onChange={(e) => setForm({ ...form, sconto: e.target.value })} />
                   </label>
                 )}
 
@@ -220,7 +223,7 @@ export function FormMovimento({
                   </span>
                 
                   <select
-                    className="w-full rounded-2xl border px-3 py-2"
+                    className="h-9 w-full rounded-xl border px-2.5 text-sm"
                     value={form.modalita}
                     onChange={(e) =>
                       setForm({ ...form, modalita: e.target.value })
@@ -243,7 +246,7 @@ export function FormMovimento({
                 
                     <input
                       type="date"
-                      className="w-full rounded-2xl border px-3 py-2"
+                      className="h-9 w-full rounded-xl border px-2.5 text-sm"
                       value={form.dataAssegno}
                       onChange={(e) =>
                         setForm({
@@ -265,7 +268,7 @@ export function FormMovimento({
                       </span>
                     
                       <select
-                        className="w-full rounded-2xl border px-3 py-2"
+                        className="h-9 w-full rounded-xl border px-2.5 text-sm"
                         value={form.referenteSospesiId || ""}
                         onChange={(e) => {
                           const selectedId = e.target.value;
@@ -294,7 +297,7 @@ export function FormMovimento({
               <div className="grid grid-cols-1 gap-2 lg:grid-cols-[1fr_260px]">
                 <label className="space-y-1">
                   <span className="text-xs font-medium text-slate-500">Note</span>
-                  <input className="w-full rounded-2xl border px-3 py-2" placeholder="Annotazioni su sospesi, recuperi o squadrature" value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} />
+                  <input className="h-9 w-full rounded-xl border px-2.5 text-sm" placeholder="Annotazioni su sospesi, recuperi o squadrature" value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} />
                 </label>
 
                 <div className="rounded-2xl bg-slate-100 p-4 text-sm">
