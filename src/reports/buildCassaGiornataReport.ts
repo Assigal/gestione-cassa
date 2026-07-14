@@ -69,6 +69,11 @@ function toReportMovimento(m: Movimento): ReportMovimento {
   };
 }
 
+function percentuale(valore: number, base: number): number {
+  if (!base || base <= 0) return 0;
+  return (valore / base) * 100;
+}
+
 export function buildCassaGiornataReport({
   movimenti,
   sospesi,
@@ -93,6 +98,26 @@ export function buildCassaGiornataReport({
   const cassaTeorica =
     cassaDisponibile - versamento;
 
+  const numeroTitoliCip100 = stats.movimenti.titoliCip100.length;
+
+  const totaleLordoRecuperiSospesi =
+    stats.movimenti.recuperiSospesi.reduce(
+      (sum, row) => sum + Number(row.importo || 0),
+      0
+    );
+
+  const totaleScontiRecuperiSospesi =
+    stats.movimenti.recuperiSospesi.reduce(
+      (sum, row) => sum + Number(row.sconto || 0),
+      0
+    );
+
+  const baseSconti =
+    stats.produzioneCip100.lordo + totaleLordoRecuperiSospesi;
+
+  const totaleScontiGiornata =
+    stats.produzioneCip100.sconti + totaleScontiRecuperiSospesi;
+
   return {
     header: {
       dataGiornata,
@@ -112,6 +137,22 @@ export function buildCassaGiornataReport({
       totaleIncassato: stats.produzioneCip100.incassato,
       totaleSconti: stats.produzioneCip100.sconti,
       totaleSospesiCreati: stats.produzioneCip100.sospesi,
+
+      mediaPerTitolo:
+        numeroTitoliCip100 > 0
+          ? stats.produzioneCip100.lordo / numeroTitoliCip100
+          : 0,
+
+      incidenzaSospesi: percentuale(
+        stats.produzioneCip100.sospesi,
+        stats.produzioneCip100.lordo
+      ),
+
+      incidenzaSconti: percentuale(
+        totaleScontiGiornata,
+        baseSconti
+      ),
+
       perModalita: stats.produzioneCip100.perModalita.map((row) => ({
         modalita: row.modalita,
         lordo: row.lordo,

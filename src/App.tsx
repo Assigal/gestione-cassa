@@ -453,6 +453,7 @@ useEffect(() => {
         dataAssegno: row.data_assegno || "",
         segno: Number(row.segno || 1),
         note: row.note || "",
+        createdAt: row.created_at || "",
         createdByEmail: row.created_by_email || "",
         updatedByEmail: row.updated_by_email || "",
         updatedAt: row.updated_at || "",
@@ -1624,7 +1625,10 @@ async function saveForm() {
     return;
   }
 
-  const payload = creaPayloadMovimentoDaForm(form);
+  const payload = creaPayloadMovimentoDaForm(
+    form,
+    giornataCorrente
+  );
   const netto = payload.netto;
   const sconto = payload.sconto;
 

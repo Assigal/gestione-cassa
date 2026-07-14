@@ -130,7 +130,8 @@ export function creaMovimentoDaPayload(
 }
 
 export function creaPayloadMovimentoDaForm(
-  form: FormState
+  form: FormState,
+  giornataCorrente: string
 ) {
   const importo = Number(form.importo || 0);
   const versamentoSubagente = isVersamentoSubagente(form.tipo);
@@ -138,10 +139,22 @@ export function creaPayloadMovimentoDaForm(
   const sconto = versamentoSubagente
     ? 0
     : Number(form.sconto || 0);
-
+  
   const netto = importo - sconto;
-  const incassato =
-    form.tipo === "Titolo del giorno"
+  const assegnoPostdatato =
+  form.modalita === "A" &&
+  Boolean(form.dataAssegno) &&
+  form.dataAssegno > giornataCorrente;
+
+const sospensioneTotale =
+  form.tipo === "Titolo del giorno" &&
+  (form.modalita === "S" || assegnoPostdatato);
+
+const incassato = versamentoSubagente
+  ? importo
+  : sospensioneTotale
+    ? 0
+    : form.tipo === "Titolo del giorno"
       ? Number(form.importoIncassato || importo || 0)
       : importo;
 

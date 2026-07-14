@@ -75,6 +75,9 @@ export interface CassaGiornataReport {
     totaleIncassato: number;
     totaleSconti: number;
     totaleSospesiCreati: number;
+    mediaPerTitolo: number;
+    incidenzaSospesi: number;
+    incidenzaSconti: number;
     perModalita: {
       modalita: string;
       lordo: number;

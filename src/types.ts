@@ -19,6 +19,9 @@ export interface Movimento {
   dataInizioSubagente: string;
   dataFineSubagente: string;
   allocazioniRecupero: AllocazioneRecupero[];
+
+  createdAt?: string;
+  createdByEmail?: string;
 }
 export interface Sospeso {
   id: string;
