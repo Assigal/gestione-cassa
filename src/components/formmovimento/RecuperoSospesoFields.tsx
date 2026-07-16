@@ -8,14 +8,16 @@ type ReferenteSospesi = {
   nome: string;
 };
 
-type TitoloDelGiornoFieldsProps = {
+type RecuperoSospesoFieldsProps = {
   sub: string;
   ramo: string;
   polizza: string;
   contraente: string;
+
   importo: string;
   importoIncassato: string;
   sconto: string;
+
   modalita: string;
   dataAssegno: string;
   referenteSospesi_id: string;
@@ -23,22 +25,23 @@ type TitoloDelGiornoFieldsProps = {
 
   modalitaPagamento: ModalitaPagamento[];
   referentiSospesi: ReferenteSospesi[];
-  giornataCorrente: string;
 
   onSubChange: (value: string) => void;
   onRamoChange: (value: string) => void;
   onPolizzaChange: (value: string) => void;
   onContraenteChange: (value: string) => void;
+
   onImportoChange: (value: string) => void;
   onImportoIncassatoChange: (value: string) => void;
   onScontoChange: (value: string) => void;
+
   onModalitaChange: (value: string) => void;
   onDataAssegnoChange: (value: string) => void;
   onReferenteChange: (id: string, nome: string) => void;
   onNoteChange: (value: string) => void;
 };
 
-export function TitoloDelGiornoFields({
+export function RecuperoSospesoFields({
   sub,
   ramo,
   polizza,
@@ -52,7 +55,6 @@ export function TitoloDelGiornoFields({
   note,
   modalitaPagamento,
   referentiSospesi,
-  giornataCorrente,
   onSubChange,
   onRamoChange,
   onPolizzaChange,
@@ -64,19 +66,14 @@ export function TitoloDelGiornoFields({
   onDataAssegnoChange,
   onReferenteChange,
   onNoteChange,
-}: TitoloDelGiornoFieldsProps) {
-  const richiedeReferente =
-    modalita === "S" ||
-    (modalita === "A" &&
-      Boolean(dataAssegno) &&
-      dataAssegno > giornataCorrente);
-
+}: RecuperoSospesoFieldsProps) {
   return (
     <div className="space-y-2">
-      {/* Prima riga */}
       <div className="grid grid-cols-1 gap-2 lg:grid-cols-[72px_190px_minmax(220px,1fr)_130px_130px_90px]">
         <label className="space-y-1">
-          <span className="text-xs font-medium text-slate-500">Sub</span>
+          <span className="text-xs font-medium text-slate-500">
+            Sub
+          </span>
 
           <input
             maxLength={3}
@@ -97,11 +94,10 @@ export function TitoloDelGiornoFields({
             Polizza
           </span>
 
-          <div className="flex h-9 w-full items-center rounded-xl border bg-white px-2.5 text-sm">
+          <div className="flex h-9 overflow-hidden rounded-xl border">
             <input
               maxLength={3}
-              className="w-10 border-0 bg-transparent p-0 text-center outline-none"
-              placeholder="030"
+              className="w-16 border-r px-2.5 text-sm"
               value={ramo}
               onChange={(event) =>
                 onRamoChange(
@@ -110,19 +106,14 @@ export function TitoloDelGiornoFields({
                     .slice(0, 3)
                 )
               }
-              aria-label="Ramo"
             />
 
-            <span className="mx-1 text-slate-400">/</span>
-
             <input
-              className="min-w-0 flex-1 border-0 bg-transparent p-0 outline-none"
-              placeholder="12345678"
+              className="min-w-0 flex-1 px-2.5 text-sm"
               value={polizza}
               onChange={(event) =>
                 onPolizzaChange(event.target.value)
               }
-              aria-label="Numero polizza"
             />
           </div>
         </label>
@@ -143,11 +134,12 @@ export function TitoloDelGiornoFields({
 
         <label className="space-y-1">
           <span className="text-xs font-medium text-slate-500">
-            Importo titolo
+            Residuo
           </span>
 
           <input
             type="number"
+            step="0.01"
             className="h-9 w-full rounded-xl border px-2.5 text-sm"
             value={importo}
             onChange={(event) =>
@@ -163,6 +155,7 @@ export function TitoloDelGiornoFields({
 
           <input
             type="number"
+            step="0.01"
             className="h-9 w-full rounded-xl border px-2.5 text-sm"
             value={importoIncassato}
             onChange={(event) =>
@@ -178,6 +171,7 @@ export function TitoloDelGiornoFields({
 
           <input
             type="number"
+            step="0.01"
             className="h-9 w-full rounded-xl border px-2.5 text-sm"
             value={sconto}
             onChange={(event) =>
@@ -187,7 +181,6 @@ export function TitoloDelGiornoFields({
         </label>
       </div>
 
-      {/* Seconda riga */}
       <div className="grid grid-cols-1 gap-2 lg:grid-cols-12">
         <label className="space-y-1 lg:col-span-2">
           <span className="text-xs font-medium text-slate-500">
@@ -228,14 +221,45 @@ export function TitoloDelGiornoFields({
           <div className="hidden lg:block lg:col-span-2" />
         )}
 
-        <label className="space-y-1 lg:col-span-8">
+        <label className="space-y-1 lg:col-span-2">
+          <span className="text-xs font-medium text-slate-500">
+            Referente
+          </span>
+
+          <select
+            className="h-9 w-full rounded-xl border px-2.5 text-sm"
+            value={referenteSospesi_id || ""}
+            onChange={(event) => {
+              const selectedId = event.target.value;
+
+              const referente = referentiSospesi.find(
+                (item) => item.id === selectedId
+              );
+
+              onReferenteChange(
+                selectedId,
+                referente?.nome || ""
+              );
+            }}
+          >
+            <option value="">Nessun referente</option>
+
+            {referentiSospesi.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.nome}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="space-y-1 lg:col-span-6">
           <span className="text-xs font-medium text-slate-500">
             Note
           </span>
 
           <input
             className="h-9 w-full rounded-xl border px-2.5 text-sm"
-            placeholder="Annotazioni su sospesi, recuperi o squadrature"
+            placeholder="Annotazioni sul recupero"
             value={note}
             onChange={(event) =>
               onNoteChange(event.target.value)

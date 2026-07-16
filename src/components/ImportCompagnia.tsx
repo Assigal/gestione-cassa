@@ -1,11 +1,12 @@
 import React from "react";
 import { Upload, ArrowRightCircle, Trash2 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "./ui/card";
+import { Button } from "./ui/button";
 import { Badge } from "./Badge";
+import type { ImportRow } from "../types";
 
 type ImportCompagniaProps = {
-  importCompagnia: ImportCompagniaRow[];
+  importCompagnia: ImportRow[];
   
   numeroPolizzaCompleto: (row: any) => string;
   euro: (value: number) => string;
@@ -14,8 +15,8 @@ type ImportCompagniaProps = {
   giornataChiusa: boolean;
 
   openImportFileDialog: () => void;
-  selectImported: (row: ImportCompagniaRow) => void;
-  deleteImportedMovement: (id: number) => void;
+  selectImported: (row: ImportRow) => void;
+  deleteImportedMovement: (id: string) => void;
 
   getDescrizioneModalita: (codice: string | null | undefined) => string;
 };

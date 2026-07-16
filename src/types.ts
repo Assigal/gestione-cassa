@@ -1,3 +1,30 @@
+import type { Session } from "@supabase/supabase-js";
+
+export interface ProfiloUtente {
+  id: string;
+  email: string;
+  nome: string | null;
+  nome_report: string | null;
+  ruolo: "admin" | "operatore";
+  attivo: boolean;
+  puo_essere_supervisor: boolean;
+  ordine: number | null;
+  created_at: string;
+}
+
+export interface ModalitaPagamento {
+  id: number;
+  codice: string;
+  descrizione: string;
+  attiva: boolean;
+}
+
+export interface ReferenteSospesi {
+  id: string;
+  nome: string;
+  attivo: boolean;
+}
+
 export interface Movimento {
   id: number;
   ramo: string;
@@ -73,3 +100,5 @@ export interface AllocazioneRecupero {
   incasso: number;
   sconto: number;
 }
+
+

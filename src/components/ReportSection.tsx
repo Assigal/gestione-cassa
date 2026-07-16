@@ -15,7 +15,7 @@ export function ReportSection({
         {title}
       </h2>
 
-      <div className="overflow-hidden rounded-2xl border">
+      <div className="overflow-x-auto rounded-2xl border print:overflow-visible">
         {children}
       </div>
     </section>

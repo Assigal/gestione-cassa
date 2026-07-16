@@ -5,7 +5,7 @@ export const emptyForm: FormState = {
   polizza: "",
   contraente: "",
   referenteSospesi: "",
-  referenteSospesiId: "",
+  referenteSospesi_id: "",
   importo: "",
   importoIncassato: "",
   sconto: "0",

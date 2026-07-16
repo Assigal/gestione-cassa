@@ -3,35 +3,61 @@
 // ======================================================
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import type { Session } from "@supabase/supabase-js";
 
-import { FormMovimento } from "./components/FormMovimento";
-import { TabellaMovimenti } from "./components/TabellaMovimenti";
+import { FormMovimento } from "./components/formmovimento";
 import { ImportCompagnia } from "./components/ImportCompagnia";
-import { SospesiRecuperi } from "./components/SospesiRecuperi";
-import { ReportPanel } from "./components/ReportPanel";
 import { LoginPanel } from "./components/LoginPanel";
+import { ReportPanel } from "./components/ReportPanel";
 import { SidebarOperativa } from "./components/SidebarOperativa";
-import { Badge } from "./components/Badge";
+import { SospesiRecuperi } from "./components/SospesiRecuperi";
+import { TabellaMovimenti } from "./components/TabellaMovimenti";
 
-import type { Movimento, Sospeso, FormState, ImportRow, AllocazioneRecupero } from "./types";
 import { tipiMovimento } from "./constants";
-import { euro, deltaLabel } from "./formatters";
+import { deltaLabel, euro } from "./formatters";
 import { emptyForm } from "./formDefaults";
-import { numeroPolizzaCompleto, descrizioneMovimento, isAssegnoPostdatato, isVersamentoSubagente, getDescrizioneModalita, calcolaValoriTitolo } from "./utils";
+import type { 
+  ProfiloUtente,
+  ModalitaPagamento,
+  ReferenteSospesi,
+  AllocazioneRecupero,
+  FormState,
+  ImportRow,
+  Movimento,
+  Sospeso } from "./types";
+import {
+  descrizioneMovimento,
+  getDescrizioneModalita,
+  isAssegnoPostdatato,
+  isVersamentoSubagente,
+  numeroPolizzaCompleto
+} from "./utils";
+
 import { normalizzaModalitaPagamento } from "./importUtils";
-import { stampaModuloSospeso, stampaModuloAbbuono } from "./printUtils";
-import { buildReferentePayload, buildMovimentoPayload, buildMovimentoUpdatePayload, buildSospesoPayload, buildSospesoAggiornatoRpcPayload } from "./payloadBuilders";
-import { movimentoEraSospeso, importoMovimentoNonValido, payloadGeneraSospeso, movimentoERecuperoSospeso, trovaMovimentoDuplicato,
-        creaNuovoSospesoDaPayload, creaMovimentoDaPayload, creaPayloadMovimentoDaForm, } from "./movementRules";
+import {
+  creaMovimentoDaPayload,
+  creaNuovoSospesoDaPayload,
+  creaPayloadMovimentoDaForm,
+  importoMovimentoNonValido,
+  movimentoEraSospeso,
+  movimentoERecuperoSospeso, trovaMovimentoDuplicato
+} from "./movementRules";
+import { buildMovimentoPayload, buildMovimentoUpdatePayload, buildReferentePayload, buildSospesoAggiornatoRpcPayload, buildSospesoPayload } from "./payloadBuilders";
+import { stampaModuloAbbuono, stampaModuloSospeso } from "./printUtils";
 
-import { chiudiGiornataDb, aggiornaVersamentoDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
-import { eliminaMovimentoDb, salvaMovimentoDb, aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb, registraMovimentoCassaRpc,
-         aggiornaMovimentoCassaSempliceRpc, aggiornaMovimentoCassaConSospesoRpc, aggiornaMovimentoCassaCreaSospesoRpc, aggiornaMovimentoCassaRimuoviSospesoRpc, eliminaMovimentoCassaRpc } from "./services/movimentiService";
-import { caricaSospesiDb, creaSospesoDb, aggiornaSospesoDb, eliminaSospesoDb, creaStoricoSospesoDb, creaStoricoSospesiBulkDb, collegaStoricoOrigineAMovimentoDb } from "./services/sospesiService";
+import { caricaProfiloUtenteDb, loginDb, logoutDb } from "./services/authService";
+import { aggiornaVersamentoDb, chiudiGiornataDb, riapriGiornataDb, ricalcolaAvanziDaDb } from "./services/giornateService";
+import {
+  aggiornaMovimentoCassaConSospesoRpc, aggiornaMovimentoCassaCreaSospesoRpc, aggiornaMovimentoCassaRimuoviSospesoRpc,
+  aggiornaMovimentoCassaSempliceRpc,
+  aggiornaMovimentoDb, caricaMovimentiDb, caricaRecuperiStoricoDb,
+  eliminaMovimentoCassaRpc,
+  registraMovimentoCassaRpc,
+  salvaMovimentoDb
+} from "./services/movimentiService";
 import { caricaQuadratureDb, salvaQuadraturaDb } from "./services/quadratureService";
-import { loginDb, logoutDb, caricaProfiloUtenteDb } from "./services/authService";
+import { aggiornaSospesoDb, caricaSospesiDb, collegaStoricoOrigineAMovimentoDb, creaSospesoDb, creaStoricoSospesiBulkDb, creaStoricoSospesoDb } from "./services/sospesiService";
 
-import { buildCassaGiornataReport } from "./reports/buildCassaGiornataReport";
 
 import { supabase } from "./supabaseClient";
 
@@ -770,7 +796,7 @@ useEffect(() => {
       polizza: row.polizza,
       contraente: row.contraente,
       referenteSospesi: row.referenteSospesi || row.contraente,
-      referenteSospesiId: row.referenteSospesiId || "",
+      referenteSospesi_id: row.referenteSospesiId || "",
       importo: String(row.importo),
       importoIncassato: String(row.incassato ?? row.importo),
       sconto: String(row.sconto || 0),
@@ -920,8 +946,7 @@ useEffect(() => {
       stampaModuloAbbuono(
         movimento,
         motivazione,
-        giornataCorrente,
-        euro
+        giornataCorrente
       );
   }
 
@@ -940,8 +965,7 @@ useEffect(() => {
     );
   
     const oraESospeso = payloadGeneraSospeso(
-      payload,
-      giornataCorrente
+      payload
     );
 
     const modificaSempliceNonSospeso =
@@ -1216,7 +1240,7 @@ setSospesi((rows) =>
   ) {
     const { data: sospesoCreato, error } =
       await creaSospesoDb(
-        buildSospesoPayload(nuovoSospeso)
+        buildSospesoPayload(nuovoSospeso, giornataCorrente)
       );
   
     if (error) {
@@ -1265,7 +1289,8 @@ setSospesi((rows) =>
   }
 
   async function aggiornaSospesiRecuperati(
-    updatedSospesi: Sospeso[]
+    updatedSospesi: Sospeso[],
+    allocazioni: AllocazioneRecupero[]
   ) {
     if (!giornataDbId) return;
   
@@ -1302,7 +1327,7 @@ setSospesi((rows) =>
     storicoSospesiDaInserire: any[],
     sospesiDaAggiornareRpc: any[],
     nuovoSospesoRpc: any | null
-  ) {
+  ): Promise<Movimento> {
 
     const tempId = movimentoDaSalvare.id;
 
@@ -1450,6 +1475,7 @@ setSospesi((rows) =>
         );
       }
     }
+    return movimentoDaSalvare;
   }
 
   function completaInserimentoMovimento(
@@ -1473,7 +1499,7 @@ setSospesi((rows) =>
   }
         
   async function gestisciCreazioneSospesoDaPayload(
-    payload: Movimento,
+    payload: Omit<Movimento, "id">,
     movimentoDaSalvare: Movimento,
     saltaSalvataggioDb = false
     ): Promise<Movimento> {
@@ -1516,14 +1542,14 @@ setSospesi((rows) =>
             );
         
             if (stampa) {
-              stampaModuloSospeso(nuovoSospeso, euro);
+              stampaModuloSospeso(nuovoSospeso);
             }
           }
         
           return movimentoDaSalvare;
         }
   async function gestisciRecuperoSospesiDaPayload(
-    payload: Movimento,
+    payload: Omit<Movimento, "id">,
     movimentoDaSalvare: Movimento,
     netto: number,
     sconto: number,
@@ -1532,7 +1558,7 @@ setSospesi((rows) =>
     saltaSalvataggioDb = false
   ): Promise<Movimento> {
       const recuperoDiventaNuovoSospeso =
-        payloadGeneraSospeso(payload, giornataCorrente);
+        payloadGeneraSospeso(payload);
         
       const { updatedSospesi, allocazioni } =
         applicaRecuperoSospesi(
@@ -1583,7 +1609,7 @@ setSospesi((rows) =>
         };
         
         if (!saltaSalvataggioDb) {
-          await aggiornaSospesiRecuperati(updatedSospesi);
+          await aggiornaSospesiRecuperati(updatedSospesi, allocazioni);
         }
         
         if (recuperoDiventaNuovoSospeso) {
@@ -1668,10 +1694,10 @@ async function saveForm() {
     sconto: payload.sconto,
     incassato: payload.incassato,
     sospesoCalcolato: payload.importo - payload.sconto - payload.incassato,
-    generaSospeso: payloadGeneraSospeso(payload, giornataCorrente),
+    generaSospeso: payloadGeneraSospeso(payload),
   });
 
-  if (payloadGeneraSospeso(payload, giornataCorrente)) {
+  if (payloadGeneraSospeso(payload)) {
     nuovoSospesoRpc = buildSospesoPayload(
       creaNuovoSospesoDaPayload(payload, giornataCorrente),
       giornataCorrente

@@ -1,5 +1,6 @@
 import type { Sospeso } from "./types";
 import type { Movimento } from "./types";
+import { euro } from "./formatters";
 
 export function stampaModuloSospeso(sospeso: Sospeso) {
     const scadenza = window.prompt(
@@ -61,7 +62,7 @@ export function stampaModuloSospeso(sospeso: Sospeso) {
     }
   }
 
- export function stampaModuloAbbuono(movimento: Movimento, motivazione: string) {
+ export function stampaModuloAbbuono(movimento: Movimento, motivazione: string, giornataCorrente: string) {
     const html = `
       <html>
         <head>

@@ -1,5 +1,6 @@
-import type { Movimento, AllocazioneRecupero, AllocazioneRecupero } from "./types";
+import type { Movimento, Sospeso, AllocazioneRecupero, FormState } from "./types";
 import { isVersamentoSubagente } from "./utils";
+
 
 export function movimentoEraSospeso(
   movimento: Movimento | undefined,
@@ -91,7 +92,7 @@ export function trovaMovimentoDuplicato(
 }
 
 export function creaNuovoSospesoDaPayload(
-  payload: Movimento,
+  payload: Omit<Movimento, "id">,
   giornataCorrente: string
 ): Sospeso {
   const importoSospeso = Math.max(
@@ -165,7 +166,7 @@ const incassato = versamentoSubagente
     referenteSospesi: versamentoSubagente
       ? ""
       : form.referenteSospesi || form.contraente,
-    referenteSospesiId: versamentoSubagente ? "" : form.referenteSospesiId,
+    referenteSospesiId: versamentoSubagente ? "" : form.referenteSospesi_id,
     importo,
     sconto,
     netto,

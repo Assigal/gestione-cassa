@@ -265,31 +265,35 @@ export const ChiusuraCassaGiornalieraViewer = forwardRef<
         </section>
 
        <ReportSection title="Titoli del giorno - Portafoglio diretto">
-            <table className="w-full text-left text-sm">
+            <table className="w-full table-fixed text-left text-sm">
               <thead className="bg-slate-50 text-xs uppercase text-slate-500">
                 <tr>
-                  <th className="px-3 py-2">Ora</th>
-                  <th className="px-3 py-2">Operatore</th>
-                  <th className="px-3 py-2">Contraente</th>
-                  <th className="px-3 py-2">Polizza</th>
-                  <th className="px-3 py-2">Mod.</th>
-                  <th className="px-3 py-2 text-right">Lordo</th>
-                  <th className="px-3 py-2 text-right">Incassato</th>
-                  <th className="px-3 py-2 text-right">Sospeso</th>
+                  <th className="w-[7%] px-2 py-2">Ora</th>
+                  <th className="w-[13%] px-2 py-2">Operatore</th>
+                  <th className="w-[22%] px-2 py-2">Contraente</th>
+                  <th className="w-[15%] px-2 py-2">Polizza</th>
+                  <th className="w-[8%] px-2 py-2">Mod.</th>
+                  <th className="w-[12%] px-2 py-2 text-right">Lordo</th>
+                  <th className="w-[12%] px-2 py-2 text-right">Incassato</th>
+                  <th className="w-[11%] px-2 py-2 text-right">Sospeso</th>
                 </tr>
               </thead>
 
               <tbody>
                 {report.sezioni.titoliCip100.map((m) => (
                   <tr key={m.id} className="border-t">
-                    <td className="px-3 py-2">{m.ora}</td>
-                    <td className="px-3 py-2">{m.utente}</td>
-                    <td className="px-3 py-2">{m.contraente}</td>
-                    <td className="px-3 py-2">{m.polizza}</td>
-                    <td className="px-3 py-2">{m.tipoPagamento}</td>
-                    <td className="px-3 py-2 text-right">{euro(m.importo)}</td>
-                    <td className="px-3 py-2 text-right">{euro(m.incassato)}</td>
-                    <td className="px-3 py-2 text-right">
+                    <td className="px-2 py-2">{m.ora}</td>
+                    <td className="break-words px-2 py-2">{m.utente}</td>
+                    <td className="break-words px-2 py-2">{m.contraente}</td>
+                    <td className="break-words px-2 py-2">{m.polizza}</td>
+                    <td className="px-2 py-2">{m.tipoPagamento}</td>
+                    <td className="whitespace-nowrap px-2 py-2 text-right">
+                      {euro(m.importo)}
+                    </td>
+                    <td className="whitespace-nowrap px-2 py-2 text-right">
+                      {euro(m.incassato)}
+                    </td>
+                    <td className="whitespace-nowrap px-2 py-2 text-right">
                       {m.sospeso > 0 ? euro(m.sospeso) : ""}
                     </td>
                   </tr>
@@ -346,7 +350,7 @@ export const ChiusuraCassaGiornalieraViewer = forwardRef<
                     <tr key={m.id} className="border-t">
                       <td className="px-3 py-2">{m.ora}</td>
                       <td className="px-3 py-2">{m.utente}</td>
-                      <td className="px-3 py-2">{m.sub}</td>
+                      <td className="px-3 py-2">{m.cip}</td>
                       <td className="px-3 py-2">{m.contraente}</td>
                       <td className="px-3 py-2">{m.polizza}</td>
                       <td className="px-3 py-2">{m.tipoPagamento}</td>

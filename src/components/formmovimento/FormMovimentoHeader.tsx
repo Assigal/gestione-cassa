@@ -1,5 +1,5 @@
-import { ClipboardList, Upload } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ClipboardList } from "lucide-react";
+
 
 type FormMovimentoHeaderProps = {
   tipoMovimento: string;
@@ -8,7 +8,6 @@ type FormMovimentoHeaderProps = {
   isImportSelected: boolean;
   giornataChiusa: boolean;
   onTipoMovimentoChange: (tipo: string) => void;
-  onImportCompagnia: () => void;
 };
 
 export function FormMovimentoHeader({
@@ -18,7 +17,6 @@ export function FormMovimentoHeader({
   isImportSelected,
   giornataChiusa,
   onTipoMovimentoChange,
-  onImportCompagnia,
 }: FormMovimentoHeaderProps) {
   return (
     <div className="flex flex-nowrap items-center justify-between gap-3">
@@ -56,16 +54,6 @@ export function FormMovimentoHeader({
         )}
       </div>
 
-      <Button
-        type="button"
-        variant="outline"
-        className="h-9 shrink-0 rounded-xl"
-        onClick={onImportCompagnia}
-        disabled={giornataChiusa}
-      >
-        <Upload className="mr-2 h-4 w-4" />
-        Importa Compagnia
-      </Button>
     </div>
   );
 }

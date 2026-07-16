@@ -1,12 +1,11 @@
 import React from "react";
 import { RotateCcw, Users } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "./ui/card";
+import { Button } from "./ui/button";
 import { Badge } from "./Badge";
+import type { Sospeso } from "../types";
 
 type SospesiRecuperiProps = {
-  children: React.ReactNode;
-
   sospesiFiltrati: Sospeso[];
   selectedSospesoIds: string[];
   searchSospesi: string;
@@ -21,7 +20,6 @@ type SospesiRecuperiProps = {
 };
 
 export function SospesiRecuperi({
-  children,
   sospesiFiltrati,
   selectedSospesoIds,
   searchSospesi,
